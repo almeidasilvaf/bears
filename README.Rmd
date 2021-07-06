@@ -1,0 +1,100 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%"
+)
+```
+
+# GEAtlas
+
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/GEAtlas.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/GEAtlas)
+[![R-CMD-check-bioc](https://github.com/almeidasilvaf/GEAtlas/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/almeidasilvaf/GEAtlas/actions)
+[![Codecov test coverage](https://codecov.io/gh/almeidasilvaf/GEAtlas/branch/main/graph/badge.svg)](https://codecov.io/gh/almeidasilvaf/GEAtlas?branch=main)
+<!-- badges: end -->
+
+The goal of `GEAtlas` is to download RNA-seq data from NCBI SRA,
+preprocess them, map to the reference genome, and quantify the expression
+at the gene level. The goal of GEAtlas is to make RNA-seq data analysis
+pipelines reproducible, with a framework built on state-of-the art methods
+and softwares.
+
+## Installation instructions
+
+Get the latest stable `R` release from [CRAN](http://cran.r-project.org/). Then install `GEAtlas` from [Bioconductor](http://bioconductor.org/) using the following code:
+
+```{r 'install', eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+
+BiocManager::install("GEAtlas")
+```
+
+And the development version from [GitHub](https://github.com/almeidasilvaf/GEAtlas) with:
+
+```{r 'install_dev', eval = FALSE}
+BiocManager::install("almeidasilvaf/GEAtlas")
+```
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example, eval = requireNamespace('GEAtlas')}
+library("GEAtlas")
+## basic example code
+```
+
+What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+
+```{r cars}
+summary(cars)
+```
+
+You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
+
+You can also embed plots, for example:
+
+```{r pressure, echo = FALSE}
+plot(pressure)
+```
+
+In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+
+## Citation
+
+Below is the citation output from using `citation('GEAtlas')` in R. Please
+run this yourself to check for any updates on how to cite __GEAtlas__.
+
+```{r 'citation', eval = requireNamespace('GEAtlas')}
+print(citation('GEAtlas'), bibtex = TRUE)
+```
+
+Please note that the `GEAtlas` was only made possible thanks to many other R and bioinformatics software authors, which are cited either in the vignettes and/or the paper(s) describing this package.
+
+## Code of Conduct
+
+Please note that the `GEAtlas` project is released with a [Contributor Code of Conduct](http://bioconductor.org/about/code-of-conduct/). By contributing to this project, you agree to abide by its terms.
+
+## Development tools
+
+* Continuous code testing is possible thanks to [GitHub actions](https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/)  through `r BiocStyle::CRANpkg('usethis')`, `r BiocStyle::CRANpkg('remotes')`, and `r BiocStyle::CRANpkg('rcmdcheck')` customized to use [Bioconductor's docker containers](https://www.bioconductor.org/help/docker/) and `r BiocStyle::Biocpkg('BiocCheck')`.
+* Code coverage assessment is possible thanks to [codecov](https://codecov.io/gh) and `r BiocStyle::CRANpkg('covr')`.
+* The [documentation website](http://almeidasilvaf.github.io/GEAtlas) is automatically updated thanks to `r BiocStyle::CRANpkg('pkgdown')`.
+* The code is styled automatically thanks to `r BiocStyle::CRANpkg('styler')`.
+* The documentation is formatted thanks to `r BiocStyle::CRANpkg('devtools')` and `r BiocStyle::CRANpkg('roxygen2')`.
+
+For more details, check the `dev` directory.
+
+This package was developed using `r BiocStyle::Biocpkg('biocthis')`.
+
+
