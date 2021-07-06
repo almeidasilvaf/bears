@@ -1,3 +1,7 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("create_sample_info() creates a data frame of search results", {
+    term <- "PRJNA449429[GPRJ]"
+    df <- create_sample_info(term)
+    expect_equal(nrow(df), 18)
+    expect_equal(ncol(df), 17)
+    expect_equal(class(df), "data.frame")
 })

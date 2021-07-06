@@ -7,8 +7,6 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![BioC
-status](http://www.bioconductor.org/shields/build/release/bioc/GEAtlas.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/GEAtlas)
 [![R-CMD-check-bioc](https://github.com/almeidasilvaf/GEAtlas/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/almeidasilvaf/GEAtlas/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/almeidasilvaf/GEAtlas/branch/main/graph/badge.svg)](https://codecov.io/gh/almeidasilvaf/GEAtlas?branch=main)
@@ -82,22 +80,6 @@ Please run this yourself to check for any updates on how to cite
 
 ``` r
 print(citation('GEAtlas'), bibtex = TRUE)
-#> 
-#> To cite package 'GEAtlas' in publications use:
-#> 
-#>   Fabrício Almeida-Silva and Thiago Venancio (2021). GEAtlas: Create
-#>   gene expression atlases from public RNA-seq data. R package version
-#>   0.99.0. https://github.com/almeidasilvaf/GEAtlas
-#> 
-#> A BibTeX entry for LaTeX users is
-#> 
-#>   @Manual{,
-#>     title = {GEAtlas: Create gene expression atlases from public RNA-seq data},
-#>     author = {Fabrício Almeida-Silva and Thiago Venancio},
-#>     year = {2021},
-#>     note = {R package version 0.99.0},
-#>     url = {https://github.com/almeidasilvaf/GEAtlas},
-#>   }
 ```
 
 Please note that the `GEAtlas` was only made possible thanks to many
