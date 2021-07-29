@@ -4,7 +4,7 @@
 #' @param vector Character vector to be inspected.
 #' 
 #' @return If the vector is empty, it is assigned NA. Otherwise, it remains
-#' the same
+#' the same.
 #' @noRd
 check_empty <- function(vector) {
     if(identical(vector, character(0)) | is.null(vector)) {
@@ -52,9 +52,9 @@ sra_xml2df <- function(id) {
     bioproject <- unique(ext_id[grep("PRJ", ext_id)])
     experiment <- XML::xpathSApply(run_info, "//EXPERIMENT/IDENTIFIERS", 
                                    XML::xmlValue)
-    run <- unique(p_id[grep("SRR", p_id)])
-    srasample <- unique(p_id[grep("SRS", p_id)])
-    srastudy <- unique(p_id[grep("SRP", p_id)])
+    run <- unique(p_id[grep(".+RR.*", p_id)])
+    srasample <- unique(p_id[grep(".+RS.*", p_id)])
+    srastudy <- unique(p_id[grep(".+RP.*", p_id)])
     tissue <- gsub("tissue", "", samp_at[grep("tissue", samp_at)])
     cultivar <- gsub("cultivar", "", samp_at[grep("cultivar", samp_at)])
     origin <- gsub("geo_loc_name", "", samp_at[grep("geo_loc_name", samp_at)])
@@ -119,6 +119,57 @@ create_sample_info <- function(term, retmax=5000) {
                                      retmax = retmax, use_history = TRUE)
     final_df <- Reduce(rbind, lapply(search$ids, sra_xml2df))
     return(final_df)
+}
+
+
+#' Download FASTQ files
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' @param sradir Path to the directory where .sra files will be temporarily
+#' stored. Default: results/00_SRA_files.
+#' @param fastqdir Path to the directory where .fastq files will be stored.
+#' Default: results/01_FASTQ_files.
+#' @param soliddir Path to the directory where .fastq files for SOLiD data
+#' will be stored. Default: results/01_SOLiD_dir.
+#' 
+#' @return NULL, with .sra files in the directory specified in sradir, and 
+#' fastq files in the directories specified in fastqdir and soliddir.
+#' @export
+#' @importFrom fs dir_delete
+download_fastq <- function(sample_info, 
+                           fastqdir="results/01_FASTQ_files",
+                           sradir="results/00_SRA_files", 
+                           soliddir="results/01_SOLiD_dir", 
+                           threads = 6) {
+    if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }
+    d <- lapply(seq_len(nrow(sample_info)), function(x) {
+        biosample <- sample_info[x, "BioSample"]
+        experiment <- sample_info[x, "Experiment"]
+        run <- sample_info[x, "Run"]
+        platform <- sample_info[x, "Instrument"]
+        layout <- sample_info[x, "Layout"]
+        if(grepl("SOLiD", platform)) {
+            if(!dir.exists(soliddir)) { dir.create(soliddir, recursive = TRUE) }
+            if(!dir.exists(sradir)) { dir.create(sradir, recursive = TRUE) }
+            args <- c("progress 3 -O", sradir, run)
+            system2("prefetch", args = args)
+            
+            system2("abi-dump", args = c(
+                "--outdir", soliddir, paste0(sradir, "/", run, ".sra")  
+            ))
+            fs::dir_delete(sradir)
+        } else {
+            args <- c(run, "-e", threads, "-p --outdir", fastqdir)
+            if(layout == "PAIRED") {
+                args <- c(args, "--split-files")
+            }
+            system2("fasterq-dump", args = args)
+        }
+    })
+    message("Compressing .fastq files...")
+    system2("gzip", args = paste0(fastqdir, "/*"))
+    return(NULL)
 }
 
 

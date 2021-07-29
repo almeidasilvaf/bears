@@ -1,0 +1,92 @@
+---
+title: "Introduction to GEAtlas"
+author: 
+  - name: Fabricio Almeida-Silva
+    affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
+  - name: Thiago Motta Venancio
+    affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
+output: 
+  BiocStyle::html_document:
+    self_contained: yes
+    toc: true
+    toc_depth: 2
+    number_sections: yes
+    code_folding: show
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{Introduction to GEAtlas}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+)
+```
+
+
+# Introduction
+
+# Retrieve sample metadata
+
+```{r}
+# Single-end example data
+term_se <- "SAMN08903403[BSPL]"
+df_se <- create_sample_info(term_se)
+
+# Paired-end example data
+term_pe <- "SAMD00117551[BSPL]"
+df_pe <- create_sample_info(term_pe)
+
+# SOLiD example data
+term_solid <- "SAMN02688407[BSPL]"
+df_solid <- create_sample_info(term_solid)
+
+# Combine data frames
+sample_info <- rbind(df_se, df_pe, df_solid)
+
+dput(sample_info)
+
+# Test for all biosamples in soybean
+#df_test <- create_sample_info("Glycine max[ORGN] AND RNA-seq[STRA] AND 2021[PDAT]")
+```
+
+# Download FASTQ files
+
+```{r}
+download_fastq(sample_info, threads = 30)
+```
+
+# Running FastQC
+
+```{r}
+run_fastqc(sample_info[c(1,2), ])
+```
+
+Now, let's check FastQC results.
+
+```{r}
+fastqc_table <- multiqc()
+```
+
+# Read filtering
+
+Let's trim adapters and low-quality reads with Trimmomatic.
+
+```{r}
+trim_reads(sample_info, fastqc_table)
+```
+
+Now, let's remove possible rRNA from reads.
+
+```{r}
+remove_rrna(sample_info, threads = 40)
+```
+
+# Session information {.unnumbered}
+
+
+# References {.unnumbered}
