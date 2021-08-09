@@ -114,13 +114,12 @@ download_rrna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' function \code{create_sample_info}.
 #' @param fastqdir Path to the directory where .fastq files are stored.
 #' @param filtdir Path to the directory where filtered reads will be stored.
-#' Default: results/03_filtered_FASTQ
+#' Default: results/03_filtered_FASTQ.
 #' @param threads Number of threads for SortMeRna. Default: 8.
 #' 
 #' @export
 #' @rdname remove_rrna
 #' @importFrom fs dir_delete
-
 remove_rrna <- function(sample_info,
                         fastqdir = "results/01_FASTQ_files",
                         filtdir = "results/03_filtered_FASTQ",

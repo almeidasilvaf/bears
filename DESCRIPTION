@@ -1,4 +1,4 @@
-Package: GEAtlas
+Package: gead
 Title: Create gene expression atlases from public RNA-seq data on NCBI's SRA.
 Version: 0.99.0
 Date: 2021-07-06
@@ -20,8 +20,8 @@ Description: GEAtlas aims to download RNA-seq data from NCBI SRA,
     pipelines reproducible, with a framework built on state-of-the art methods
     and softwares.
 License: GPL-3
-URL: https://github.com/almeidasilvaf/GEAtlas
-BugReports: https://github.com/almeidasilvaf/GEAtlas/issues
+URL: https://github.com/almeidasilvaf/gead
+BugReports: https://github.com/almeidasilvaf/gead/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -33,11 +33,9 @@ Imports:
     tools
 Suggests: 
     BiocStyle,
-    RefManageR,
     covr,
     knitr,
     testthat (>= 3.0.0),
-    sessioninfo,
     rmarkdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr

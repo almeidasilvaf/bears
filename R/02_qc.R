@@ -97,6 +97,7 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' @importFrom fs file_move
 #' @return NULL
 #' @export
+#' @rdname run_fastqc
 run_fastqc <- function(sample_info,
                        fastqdir = "results/01_FASTQ_files",
                        fastqcdir = "results/02_FastQC_dir") {
@@ -140,6 +141,7 @@ run_fastqc <- function(sample_info,
 #' Default: results/multiqc/fastqc.
 #' @return A data frame of summary statistics for FastQC.
 #' @export
+#' @rdname multiqc
 multiqc <- function(dir="results/02_FastQC_dir",
                     outdir = "results/multiqc/fastqc") {
     if(!dir.exists(outdir)) { dir.create(outdir, recursive = TRUE) }

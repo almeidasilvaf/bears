@@ -7,7 +7,7 @@
 #' the same.
 #' @noRd
 check_empty <- function(vector) {
-    if(identical(vector, character(0)) | is.null(vector)) {
+    if(length(vector) == 0 | is.null(vector)) {
         vector <- NA
     }
     return(vector)
@@ -110,6 +110,7 @@ sra_xml2df <- function(id) {
 #'   \item{Origin}{Country of origin.}
 #' }
 #' @export
+#' @rdname create_sample_info
 #' @importFrom rentrez entrez_search
 #' @examples 
 #' term <- "PRJNA449429[GPRJ]"
@@ -136,6 +137,7 @@ create_sample_info <- function(term, retmax=5000) {
 #' @return NULL, with .sra files in the directory specified in sradir, and 
 #' fastq files in the directories specified in fastqdir and soliddir.
 #' @export
+#' @rdname download_fastq
 #' @importFrom fs dir_delete
 download_fastq <- function(sample_info, 
                            fastqdir="results/01_FASTQ_files",

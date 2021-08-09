@@ -1,5 +1,5 @@
 ---
-title: "Introduction to GEAtlas"
+title: "Introduction to gead"
 author: 
   - name: Fabricio Almeida-Silva
     affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
@@ -14,7 +14,7 @@ output:
     code_folding: show
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{Introduction to GEAtlas}
+  %\VignetteIndexEntry{Introduction to gead}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
 ---
@@ -23,6 +23,7 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
+    eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
