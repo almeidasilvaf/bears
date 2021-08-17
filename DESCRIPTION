@@ -30,7 +30,8 @@ Imports:
     XML,
     rentrez,
     fs,
-    tools
+    tools,
+    rtracklayer
 Suggests: 
     BiocStyle,
     covr,
