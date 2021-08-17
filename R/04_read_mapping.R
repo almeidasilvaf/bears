@@ -1,11 +1,12 @@
 
-
 #' Index genome for STAR alignment
 #'
 #' @param genome_path Path to the genome .fasta file.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
+#' @param indexdir Directory where the STAR genome index files will be stored.
+#' Default: results/04_read_mapping/genomeIndex.
 #' @param threads Number of threads for STAR aligner.
 #' 
 #' @return NULL
@@ -15,8 +16,8 @@
 star_genome_index <- function(genome_path = NULL,
                               gff_path = NULL,
                               mappingdir = "results/04_read_mapping",
+                              indexdir = "results/04_read_mapping/genomeIndex",
                               threads = 10) {
-    indexdir <- paste0(mapping_dir, "/genomeIndex")
     if(!dir.exists(indexdir)) { dir.create(indexdir, recursive = TRUE) }
     exonparent <- "Parent"
     if(tools::file_ext(gff_path) == "gtf") { exonparent <- "transcript_id" }
@@ -87,13 +88,18 @@ star_reads <- function(sample_info,
 #' by \code{multiqc()}.
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
+#' @param indexdir Directory where the STAR genome index files will be stored.
+#' Default: results/04_read_mapping/genomeIndex.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
 #' @param threads Number of threads for STAR aligner.
 #' @importFrom tools file_ext
+#' @export
+#' @rdname star_align
 star_align <- function(sample_info = NULL,
                        filtdir = "results/03_filtered_FASTQ",
                        fastqc_table = NULL,
                        mappingdir = "results/04_read_mapping",
+                       indexdir = "results/04_read_mapping/genomeIndex",
                        gff_path = NULL,
                        threads = 20) {
     exonparent <- "Parent"
@@ -103,10 +109,9 @@ star_align <- function(sample_info = NULL,
                              c("Sample", "Sequence.length")]
     sample_info2 <- merge(sample_info[!duplicated(sample_info$BioSample),],
                           qc_table, by.x="Run", "Sample")
-    indexdir <- paste0(mapping_dir, "/genomeIndex")
     reads <- star_reads(sample_info, filtdir)
     aln <- lapply(seq_len(nrow(sample_info2)), function(x) {
-        platform <- sample_info[x, "Instrument"]
+        platform <- sample_info2[x, "Instrument"]
         if(grepl("SOLiD|PacBio", platform)) {
             message("Skipping PacBio/SOLiD reads...")
         } else {
@@ -126,6 +131,55 @@ star_align <- function(sample_info = NULL,
     })
     return(NULL)
 }
+
+
+#' Align SOLiD reads with gmapper-cs
+#'
+#' @param sample_info Data frame of sample metadata.
+#' @param genome_path Path to the FASTA file representing the genome.
+#' @param soliddir Path to the directory where SOLiD reads are stored.
+#' @param mappingdir Path to the directory where .bam files will be stored.
+#' @param indexdir Path to the directory where genome index will be stored.
+#' @param threads Numeric representing the number of threads to use.
+#' Default = 20.
+#'
+#' @importFrom fs file_delete
+#' @export
+#' @rdname solid_align
+solid_align <- function(sample_info = NULL,
+                        genome_path = NULL,
+                        soliddir = "results/01_SOLiD_dir",
+                        mappingdir = "results/04_read_mapping",
+                        indexdir = "results/04_read_mapping/shrimpIndex",
+                        threads = 20) {
+    if(!dir.exists(indexdir)) { dir.create(indexdir, recursive = TRUE) }
+    # Create genome index
+    args1 <- c("--threads", threads, "--save", indexdir, genome_path)
+    system2("gmapper-cs", args = args1)
+    # Map reads
+    sample_info <- sample_info[grep("SOLiD", sample_info$Instrument), ]
+    m <- lapply(seq_len(nrow(sample_info)), function(x) {
+        var <- var2list(sample_info, index = x)
+        read <- paste0(soliddir, "/", var$run, "*.csfasta")
+        outsam <- paste0(mappingdir, "/", var$biosample, "_shrimp.sam")
+        outbam <- paste0(mappingdir, "/", var$biosample, "_shrimp.bam")
+        outbamsort <- paste0(mappingdir, "/", var$biosample, 
+                             "Aligned.sortedByCoord.out.bam")
+        margs <- c("--threads", threads, "--local --sam --all-contigs",
+                   "--strata --load", indexdir, read, ">", outsam)
+        system2("gmapper-cs", margs)
+        # SAM to BAM conversion
+        sam2bamargs <- c("view -bh -@ 10 -o", outbam, outsam)
+        system2("samtools", args = sam2bamargs)
+        # BAM sorting
+        argssorting <- c("sort -@ 10 -o", outbamsort, outbam)
+        system2("samtools", args = argssorting)
+        del <- fs::file_delete(c(outbam, outsam))
+    })
+    return(NULL)
+}
+
+
 
 
 

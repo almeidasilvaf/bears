@@ -103,22 +103,18 @@ run_fastqc <- function(sample_info,
                        fastqcdir = "results/02_FastQC_dir") {
     if(!dir.exists(fastqcdir)) { dir.create(fastqcdir, recursive = TRUE) }
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
-        biosample <- sample_info[x, "BioSample"]
-        experiment <- sample_info[x, "Experiment"]
-        run <- sample_info[x, "Run"]
-        platform <- sample_info[x, "Instrument"]
-        layout <- sample_info[x, "Layout"]
-        if(grepl("SOLiD|PacBio", platform)) {
+        var <- var2list(sample_info, index = x)
+        if(grepl("SOLiD|PacBio", var$platform)) {
             message("Skipping PacBio/SOLiD reads...")
         } else {
-            if(layout == "SINGLE") {
-                p <- get_fastqc_paths(fastqdir, fastqcdir, run, cmd="S")
+            if(var$layout == "SINGLE") {
+                p <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="S")
                 system2("fastqc", args = p$fastq)
                 move_html <- fs::file_move(p$oldhtml, p$newhtml)
                 move_zip <- fs::file_move(p$oldzip, p$newzip)
-            } else if(layout == "PAIRED") {
-                p1 <- get_fastqc_paths(fastqdir, fastqcdir, run, cmd="P1")
-                p2 <- get_fastqc_paths(fastqdir, fastqcdir, run, cmd="P2")
+            } else if(var$layout == "PAIRED") {
+                p1 <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="P1")
+                p2 <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="P2")
                 system2("fastqc", args = p1$fastq)
                 system2("fastqc", args = p2$fastq)
                 move_html1 <- fs::file_move(p1$oldhtml, p1$newhtml)
@@ -139,18 +135,48 @@ run_fastqc <- function(sample_info,
 #' Default: results/02_FastQC_dir (for FastQC results).
 #' @param outdir Path the output directory. 
 #' Default: results/multiqc/fastqc.
+#' @param runon Type of QC report to generate. One of "fastqc" or "star".
 #' @return A data frame of summary statistics for FastQC.
 #' @export
 #' @rdname multiqc
 multiqc <- function(dir="results/02_FastQC_dir",
-                    outdir = "results/multiqc/fastqc") {
+                    outdir = "results/multiqc/fastqc",
+                    runon="fastqc") {
     if(!dir.exists(outdir)) { dir.create(outdir, recursive = TRUE) }
     args <- c("-o", outdir, dir)
     system2("multiqc", args = args)
-    fpath <- paste0(outdir, "/multiqc_data/multiqc_fastqc.txt")
-    fastqc_table <- read.csv(fpath, header=TRUE, sep="\t")
-    return(fastqc_table)
+    if(runon == "fastqc") {
+        fpath <- paste0(outdir, "/multiqc_data/multiqc_fastqc.txt")
+    } else {
+        fpath <- paste0(outdir, "/multiqc_data/multiqc_star.txt")
+    }
+    qc_table <- read.csv(fpath, header=TRUE, sep="\t")
+    return(qc_table)
 }
+
+
+#' Keep only samples that passed minimum requirements in STAR alignment
+#' 
+#' @param mapping_qc Mapping QC table.
+#' @details Samples are excluded if i. more than 50 percent of the reads
+#' fail to map, or ii. more than 40 percent of the reads fail to uniquely map.
+#' @return Data frame with metadata of samples that passed alignment QC.
+#' @noRd
+mapping_pass <- function(mapping_qc = NULL,
+                         sample_info = NULL) {
+    filt <- mapping_qc
+    filt$uniqueperc <- filt$uniquely_mapped_percent
+    filt$unmapperc <- filt$unmapped_tooshort_percent + 
+        filt$unmapped_other_percent + 
+        filt$unmapped_mismatches_percent
+    
+    filt <- filt[filt$uniqueperc >= 50 & filt$unmapperc < 40, ]
+    sinfo <- sample_info[sample_info$BioSample %in% filt$Sample, ]
+    return(sinfo)
+}
+
+
+
 
 
 

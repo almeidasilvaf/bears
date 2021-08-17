@@ -146,24 +146,20 @@ download_fastq <- function(sample_info,
                            threads = 6) {
     if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
-        biosample <- sample_info[x, "BioSample"]
-        experiment <- sample_info[x, "Experiment"]
-        run <- sample_info[x, "Run"]
-        platform <- sample_info[x, "Instrument"]
-        layout <- sample_info[x, "Layout"]
-        if(grepl("SOLiD", platform)) {
+        var <- var2list(sample_info, index = x)
+        if(grepl("SOLiD", var$platform)) {
             if(!dir.exists(soliddir)) { dir.create(soliddir, recursive = TRUE) }
             if(!dir.exists(sradir)) { dir.create(sradir, recursive = TRUE) }
-            args <- c("progress 3 -O", sradir, run)
+            args <- c("progress 3 -O", sradir, var$run)
             system2("prefetch", args = args)
             
             system2("abi-dump", args = c(
-                "--outdir", soliddir, paste0(sradir, "/", run, ".sra")  
+                "--outdir", soliddir, paste0(sradir, "/", var$run, ".sra")  
             ))
             fs::dir_delete(sradir)
         } else {
-            args <- c(run, "-e", threads, "-p --outdir", fastqdir)
-            if(layout == "PAIRED") {
+            args <- c(var$run, "-e", threads, "-p --outdir", fastqdir)
+            if(var$layout == "PAIRED") {
                 args <- c(args, "--split-files")
             }
             system2("fasterq-dump", args = args)

@@ -1,5 +1,5 @@
-Package: gead
-Title: Create gene expression atlases from public RNA-seq data on NCBI's SRA.
+Package: bear
+Title: Building Expression Atlases in R
 Version: 0.99.0
 Date: 2021-07-06
 Authors@R: 
@@ -14,9 +14,9 @@ Authors@R:
            role = "aut",
            comment = c(ORCID = "0000-0002-2215-8082"))
     )
-Description: GEAtlas aims to download RNA-seq data from NCBI SRA,
+Description: bear aims to download RNA-seq data from NCBI SRA,
     preprocess them, map to the reference genome, and quantify the expression
-    at the gene level. The goal of GEAtlas is to make RNA-seq data analysis
+    at the gene level. The goal of bear is to make RNA-seq data analysis
     pipelines reproducible, with a framework built on state-of-the art methods
     and softwares.
 License: GPL-3
