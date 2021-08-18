@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![Codecov test coverage](https://codecov.io/gh/almeidasilvaf/bear/branch/main/graph/badge.svg)](https://codecov.io/gh/almeidasilvaf/bear?branch=main)
-[![R-CMD-check](https://github.com/almeidasilvaf/bear/workflows/R-CMD-check/badge.svg)](https://github.com/almeidasilvaf/bear/actions)
+[![R-CMD-check-bioc](https://github.com/almeidasilvaf/bear/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/almeidasilvaf/bear/actions)
 <!-- badges: end -->
 
 The goal of `bear` is to download RNA-seq data from NCBI SRA,

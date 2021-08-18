@@ -19,9 +19,17 @@ Description: bear aims to download RNA-seq data from NCBI SRA,
     at the gene level. The goal of bear is to make RNA-seq data analysis
     pipelines reproducible, with a framework built on state-of-the art methods
     and softwares.
+biocViews: RNASeq,
+    Alignment,
+    FunctionalGenomics,
+    DataImport,
+    GeneExpression,
+    Preprocessing,
+    QualityControl,
+    Sequencing
 License: GPL-3
-URL: https://github.com/almeidasilvaf/gead
-BugReports: https://github.com/almeidasilvaf/gead/issues
+URL: https://github.com/almeidasilvaf/bear
+BugReports: https://github.com/almeidasilvaf/bear/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
