@@ -23,3 +23,9 @@ Default: results/02_FastQC_dir}
 \description{
 Run FastQC on .fastq files
 }
+\examples{
+data(sample_info)
+fq <- system.file("extdata", package="bear")
+fqc <- tempdir()
+run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+}

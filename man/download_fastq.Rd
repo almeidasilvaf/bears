@@ -32,3 +32,9 @@ fastq files in the directories specified in fastqdir and soliddir.
 \description{
 Download FASTQ files
 }
+\examples{
+\donttest{
+data(sample_info)
+download_fastq(sample_info, threads = 20)
+}
+}

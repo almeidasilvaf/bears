@@ -98,6 +98,11 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' @return NULL
 #' @export
 #' @rdname run_fastqc
+#' @examples
+#' data(sample_info)
+#' fq <- system.file("extdata", package="bear")
+#' fqc <- tempdir()
+#' run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
 run_fastqc <- function(sample_info,
                        fastqdir = "results/01_FASTQ_files",
                        fastqcdir = "results/02_FastQC_dir") {
@@ -137,8 +142,16 @@ run_fastqc <- function(sample_info,
 #' Default: results/multiqc/fastqc.
 #' @param runon Type of QC report to generate. One of "fastqc" or "star".
 #' @return A data frame of summary statistics for FastQC.
+#' 
 #' @export
 #' @rdname multiqc
+#' @examples
+#' data(sample_info)
+#' fq <- system.file("extdata", package="bear")
+#' fqc <- tempdir()
+#' out <- tempdir()
+#' run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+#' qc <- multiqc(fqc, out)
 multiqc <- function(dir="results/02_FastQC_dir",
                     outdir = "results/multiqc/fastqc",
                     runon="fastqc") {

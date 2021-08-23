@@ -1,5 +1,5 @@
 ---
-title: "Introduction to bear"
+title: "bear: building expression atlases in R"
 author: 
   - name: Fabricio Almeida-Silva
     affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
@@ -58,7 +58,7 @@ dput(sample_info)
 # Download FASTQ files
 
 ```{r}
-download_fastq(sample_info, threads = 30)
+download_fastq(sample_info[1, ], threads = 30)
 ```
 
 # Running FastQC

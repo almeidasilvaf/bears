@@ -1,4 +1,4 @@
 library(testthat)
-library(GEAtlas)
+library(bear)
 
-test_check("GEAtlas")
+test_check("bear")

@@ -113,7 +113,7 @@ sra_xml2df <- function(id) {
 #' @rdname create_sample_info
 #' @importFrom rentrez entrez_search
 #' @examples 
-#' term <- "PRJNA449429[GPRJ]"
+#' term <- "PRJNA80173[GPRJ]"
 #' df <- create_sample_info(term)
 create_sample_info <- function(term, retmax=5000) {
     search <- rentrez::entrez_search(db="sra", term=term,
@@ -139,6 +139,11 @@ create_sample_info <- function(term, retmax=5000) {
 #' @export
 #' @rdname download_fastq
 #' @importFrom fs dir_delete
+#' @examples
+#' \donttest{
+#' data(sample_info)
+#' download_fastq(sample_info, threads = 20)
+#' }
 download_fastq <- function(sample_info, 
                            fastqdir="results/01_FASTQ_files",
                            sradir="results/00_SRA_files", 
