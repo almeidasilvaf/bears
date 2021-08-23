@@ -148,10 +148,8 @@ run_fastqc <- function(sample_info,
 #' @examples
 #' data(sample_info)
 #' fq <- system.file("extdata", package="bear")
-#' fqc <- tempdir()
 #' out <- tempdir()
-#' run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
-#' qc <- multiqc(fqc, out)
+#' qc <- multiqc(fq, out)
 multiqc <- function(dir="results/02_FastQC_dir",
                     outdir = "results/multiqc/fastqc",
                     runon="fastqc") {

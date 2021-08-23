@@ -37,3 +37,15 @@ system2("cat",
             "> ~/Documents/bear/results/01_FASTQ_files/SRR3725560.fastq"
             )
         )
+
+#----SRR3725560_fastqc.zip----
+data(sample_info)
+fq <- system.file("extdata", package="bear")
+fqc <- tempdir()
+run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+
+
+
+
+
+
