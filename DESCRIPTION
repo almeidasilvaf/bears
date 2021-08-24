@@ -39,7 +39,9 @@ Imports:
     rentrez,
     fs,
     tools,
-    rtracklayer
+    rtracklayer,
+    utils,
+    stats
 Suggests: 
     BiocStyle,
     covr,

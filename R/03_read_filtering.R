@@ -13,6 +13,7 @@
 #' @export
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
+#' @importFrom utils download.file
 #' @return NULL
 trim_reads <- function(sample_info = NULL,
                        fastqc_table = NULL,

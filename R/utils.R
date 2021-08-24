@@ -58,6 +58,8 @@ gff2bed <- function(gffpath=NULL) {
 #' for each BioProject.
 #' @export
 #' @rdname infer_strandedness
+#' @importFrom utils read.csv
+#' @importFrom stats sd
 infer_strandedness <- function(mapping_passed = NULL,
                                bedpath = NULL,
                                mappingdir="results/04_read_mapping") {

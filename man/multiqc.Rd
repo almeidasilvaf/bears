@@ -28,8 +28,6 @@ Run MultiQC to get a summary of QC results
 \examples{
 data(sample_info)
 fq <- system.file("extdata", package="bear")
-fqc <- tempdir()
 out <- tempdir()
-run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
-qc <- multiqc(fqc, out)
+qc <- multiqc(fq, out)
 }

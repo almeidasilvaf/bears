@@ -8,7 +8,7 @@ create_sample_info(term, retmax = 5000)
 }
 \arguments{
 \item{term}{Character with the search term,
-e.g. "Glycine max\link{ORGN} AND RNA-seq\link{STRA}".}
+e.g. "Glycine max[ORGN] AND RNA-seq[STRA]".}
 
 \item{retmax}{Numeric with the maximum number of hits returned
 by the search.}

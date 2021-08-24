@@ -85,7 +85,7 @@ sra_xml2df <- function(id) {
 #' Search the SRA database and create a data frame of sample metadata
 #' 
 #' @param term Character with the search term, 
-#' e.g. "Glycine max[ORGN] AND RNA-seq[STRA]".
+#' e.g. "Glycine max\[ORGN\] AND RNA-seq\[STRA\]".
 #' @param retmax Numeric with the maximum number of hits returned 
 #' by the search.
 #' 
