@@ -167,7 +167,7 @@ run_fastqc <- function(sample_info,
 #' data(sample_info)
 #' fq <- system.file("extdata", package="bear")
 #' out <- tempdir()
-#' if(multiqc_is_installed) {
+#' if(multiqc_is_installed()) {
 #'     fastqc_table <- multiqc(fq, out)
 #' }
 multiqc <- function(dir="results/02_FastQC_dir",

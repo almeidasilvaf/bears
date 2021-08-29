@@ -9,7 +9,7 @@ download_fastq(
   fastqdir = "results/01_FASTQ_files",
   sradir = "results/00_SRA_files",
   soliddir = "results/01_SOLiD_dir",
-  threads = 6,
+  threads = 2,
   envname = NULL,
   miniconda_path = NULL
 )
@@ -26,6 +26,8 @@ stored. Default: results/00_SRA_files.}
 
 \item{soliddir}{Path to the directory where .fastq files for SOLiD data
 will be stored. Default: results/01_SOLiD_dir.}
+
+\item{threads}{Number of threads to use. Default: 2.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}

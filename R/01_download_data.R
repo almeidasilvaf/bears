@@ -133,6 +133,7 @@ create_sample_info <- function(term, retmax=5000) {
 #' Default: results/01_FASTQ_files.
 #' @param soliddir Path to the directory where .fastq files for SOLiD data
 #' will be stored. Default: results/01_SOLiD_dir.
+#' @param threads Number of threads to use. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
@@ -153,7 +154,7 @@ download_fastq <- function(sample_info,
                            fastqdir = "results/01_FASTQ_files",
                            sradir = "results/00_SRA_files", 
                            soliddir = "results/01_SOLiD_dir", 
-                           threads = 6,
+                           threads = 2,
                            envname = NULL, 
                            miniconda_path = NULL) {
     if(load_env(envname, miniconda_path)) {
