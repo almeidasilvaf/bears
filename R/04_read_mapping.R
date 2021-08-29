@@ -46,7 +46,7 @@ star_genome_index <- function(genome_path = NULL,
               "--genomeDir", indexdir, "--genomeFastaFiles", genome_path,
               "--sjdbGTFfile", gff_path, 
               "--sjdbGTFtagExonParentTranscript", exonparent, 
-              "--sjdbOverhang 100")
+              "--sjdbOverhang 25")
     system2("STAR", args = args)
     return(NULL)
 }
