@@ -78,5 +78,17 @@ rtracklayer::export.gff3(Gmax_chr15_ranges_subset,
                          con = "inst/extdata/Gmax_chr15_subset.gff3")
 
 
+#----SAMN05300278.bam----
+data(sample_info)
+data(fastqc_table)
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+mappingdir <- "results/"
+indexdir <- "results/index"
+filtdir <- system.file("extdata", package="bears")
+star_genome_index(genome_path, gff_path, mapping_dir, indexdir, 
+                  envname="bear_env", miniconda_path = my_miniconda)
+star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
+           indexdir, gff_path, envname="bear_env", miniconda_path = my_miniconda)
 
 

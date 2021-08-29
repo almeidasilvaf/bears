@@ -165,8 +165,6 @@ star_align <- function(sample_info = NULL,
             message("Skipping PacBio/SOLiD reads...")
         } else {
             prefix <- paste0(mappingdir, "/", sample_info2[x, "BioSample"])
-            seqlen <- sample_info2[x, "Sequence.length"]
-            sjdbover <- as.numeric(seqlen) - 1
             args <- c("--runThreadN", threads, "--genomeDir", indexdir, 
                       "--readFilesIn", reads[[x]], "--readFilesCommand zcat",
                       "--outFileNamePrefix", prefix, 
@@ -174,7 +172,7 @@ star_align <- function(sample_info = NULL,
                       "--outSAMstrandField intronMotif", 
                       "--sjdbGTFfile", gff_path, 
                       "--sjdbGTFtagExonParentTranscript", exonparent,
-                      "--sjdbOverhang", sjdbover)
+                      "--sjdbOverhang 25")
             system2("STAR", args = args)
         }
     })
