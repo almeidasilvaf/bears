@@ -18,8 +18,8 @@
 #' @importFrom tools file_ext
 #' @examples 
 #' \donttest{
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
-#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
 #' mappingdir <- tempdir()
 #' indexdir <- tempdir()
 #' threads <- 2
@@ -125,12 +125,12 @@ star_reads <- function(sample_info,
 #' \donttest{
 #' data(sample_info)
 #' data(fastqc_table)
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
-#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
 #' mappingdir <- tempdir()
 #' indexdir <- tempdir()
 #' threads <- 2
-#' filtdir <- system.file("extdata", package="bear")
+#' filtdir <- system.file("extdata", package="bears")
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
 #'     star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
@@ -229,8 +229,8 @@ mapping_pass <- function(mapping_qc = NULL,
 #' @examples
 #' \donttest{
 #' data(sample_info)
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
-#' soliddir <- system.file("extdata", package="bear")
+#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+#' soliddir <- system.file("extdata", package="bears")
 #' mappingdir <- tempdir()
 #' indexdir <- tempdir()
 #' if(shrimp_is_installed()) {

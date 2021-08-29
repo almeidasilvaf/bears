@@ -34,7 +34,7 @@ Run MultiQC to get a summary of QC results
 }
 \examples{
 data(sample_info)
-fq <- system.file("extdata", package="bear")
+fq <- system.file("extdata", package="bears")
 out <- tempdir()
 if(multiqc_is_installed()) {
     fastqc_table <- multiqc(fq, out)

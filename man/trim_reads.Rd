@@ -40,7 +40,7 @@ Run Trimmomatic on reads that failed on FastQC check
 \examples{
 data(sample_info)
 data(fastqc_table)
-fastqdir <- system.file("extdata", package = "bear")
+fastqdir <- system.file("extdata", package = "bears")
 filtdir <- tempdir()
 if(trimmomatic_is_installed()) {
     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)

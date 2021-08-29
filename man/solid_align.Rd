@@ -43,8 +43,8 @@ Align SOLiD reads with gmapper-cs
 \examples{
 \donttest{
 data(sample_info)
-genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
-soliddir <- system.file("extdata", package="bear")
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+soliddir <- system.file("extdata", package="bears")
 mappingdir <- tempdir()
 indexdir <- tempdir()
 if(shrimp_is_installed()) {

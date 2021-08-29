@@ -40,8 +40,8 @@ Index genome for STAR alignment
 }
 \examples{
 \donttest{
-genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
-gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
+gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
 mappingdir <- tempdir()
 indexdir <- tempdir()
 threads <- 2

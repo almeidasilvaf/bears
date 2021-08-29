@@ -41,10 +41,10 @@ Remove rRNA sequences from .fastq files with SortMeRNA
 }
 \examples{
 data(sample_info)
-fastqdir <- system.file("extdata", package="bear")
+fastqdir <- system.file("extdata", package="bears")
 filtdir <- tempdir()
 rrna_db_dir <- tempdir()
-rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bear")
+rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
 file.copy(from = rrna_file, to = rrna_db_dir)
 if(sortmerna_is_installed()) {
     remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)

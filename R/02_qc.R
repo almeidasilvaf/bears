@@ -105,7 +105,7 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' @rdname run_fastqc
 #' @examples
 #' data(sample_info)
-#' fq <- system.file("extdata", package="bear")
+#' fq <- system.file("extdata", package="bears")
 #' fqc <- tempdir()
 #' if(fastqc_is_installed()) {
 #'     run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
@@ -164,7 +164,7 @@ run_fastqc <- function(sample_info,
 #' @rdname multiqc
 #' @examples
 #' data(sample_info)
-#' fq <- system.file("extdata", package="bear")
+#' fq <- system.file("extdata", package="bears")
 #' out <- tempdir()
 #' if(multiqc_is_installed()) {
 #'     fastqc_table <- multiqc(fq, out)

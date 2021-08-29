@@ -35,7 +35,7 @@ Run FastQC on .fastq files
 }
 \examples{
 data(sample_info)
-fq <- system.file("extdata", package="bear")
+fq <- system.file("extdata", package="bears")
 fqc <- tempdir()
 if(fastqc_is_installed()) {
     run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)

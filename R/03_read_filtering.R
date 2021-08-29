@@ -21,7 +21,7 @@
 #' @examples
 #' data(sample_info)
 #' data(fastqc_table)
-#' fastqdir <- system.file("extdata", package = "bear")
+#' fastqdir <- system.file("extdata", package = "bears")
 #' filtdir <- tempdir()
 #' if(trimmomatic_is_installed()) {
 #'     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
@@ -37,8 +37,8 @@ trim_reads <- function(sample_info = NULL,
         Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
     }
     if(!trimmomatic_is_installed()) { stop("Unable to find Trimmomatic in PATH.") }
-    pe_ad <- system.file("extdata", "PE_adapter.fa", package="bear")
-    se_ad <- system.file("extdata", "SE_adapter.fa", package="bear")
+    pe_ad <- system.file("extdata", "PE_adapter.fa", package="bears")
+    se_ad <- system.file("extdata", "SE_adapter.fa", package="bears")
 
     failed <- fastqc_table[fastqc_table$per_base_sequence_quality == "fail", 1]
     failed <- unique(gsub("_1$|_2$", "", failed))
@@ -144,10 +144,10 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' @importFrom fs dir_delete
 #' @examples 
 #' data(sample_info)
-#' fastqdir <- system.file("extdata", package="bear")
+#' fastqdir <- system.file("extdata", package="bears")
 #' filtdir <- tempdir()
 #' rrna_db_dir <- tempdir()
-#' rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bear")
+#' rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
 #' file.copy(from = rrna_file, to = rrna_db_dir)
 #' if(sortmerna_is_installed()) {
 #'     remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)
