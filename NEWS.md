@@ -1,4 +1,4 @@
-# GEAtlas 0.99.0
+# bears 0.99.0
 
 NEW FEATURES
 
