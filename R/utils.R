@@ -33,10 +33,16 @@ var2list <- function(sample_info, index=NULL) {
 #'
 #' @param gffpath Path to .gff file with genome annotation.
 #' 
-#' @return NULL
+#' @return A NULL object.
 #' @export
 #' @rdname gff2bed
 #' @importFrom rtracklayer import export.bed
+#' @examples 
+#' gffpath <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+#' gffdir <- tempdir()
+#' file.copy(from = gffpath, to=gffdir)
+#' gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gff3")
+#' gff2bed(gff_file)
 gff2bed <- function(gffpath=NULL) {
     gff <- rtracklayer::import(gffpath)
     gff$score <- as.numeric(rep(0, length(gff)))
@@ -60,6 +66,9 @@ gff2bed <- function(gffpath=NULL) {
 #' @rdname infer_strandedness
 #' @importFrom utils read.csv
 #' @importFrom stats sd
+#' @examples
+#' data(sample_info)
+#' mappingdir <- tempdir()
 infer_strandedness <- function(mapping_passed = NULL,
                                bedpath = NULL,
                                mappingdir="results/04_read_mapping") {

@@ -1,5 +1,5 @@
 ---
-title: "bear: building expression atlases in R"
+title: "bears: building expression atlases in R"
 author: 
   - name: Fabricio Almeida-Silva
     affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
@@ -14,7 +14,7 @@ output:
     code_folding: show
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{Introduction to bear}
+  %\VignetteIndexEntry{Introduction to bears}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
 ---

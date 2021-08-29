@@ -17,7 +17,7 @@
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
 #' @importFrom utils download.file
-#' @return NULL
+#' @return A NULL object.
 #' @examples
 #' data(sample_info)
 #' data(fastqc_table)
@@ -105,7 +105,7 @@ rrna_ref_args <- function(rrna_db_dir = NULL) {
 #' @param filtdir Path to the directory where filtered reads will be stored.
 #' Default: results/03_filtered_FASTQ.
 #' 
-#' @return NULL
+#' @return A NULL object.
 #' @noRd
 #' @importFrom fs file_move file_delete
 clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
@@ -138,7 +138,7 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
-#' @return NULL
+#' @return A NULL object.
 #' @export
 #' @rdname remove_rrna
 #' @importFrom fs dir_delete

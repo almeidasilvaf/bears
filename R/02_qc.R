@@ -100,7 +100,7 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' 
 #' @importFrom fs file_move
 #' @importFrom Herper local_CondaEnv
-#' @return NULL
+#' @return A NULL object.
 #' @export
 #' @rdname run_fastqc
 #' @examples
@@ -155,7 +155,6 @@ run_fastqc <- function(sample_info,
 #' @param outdir Path the output directory. 
 #' Default: results/multiqc/fastqc.
 #' @param runon Type of QC report to generate. One of "fastqc" or "star".
-#' @return A data frame of summary statistics for FastQC.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.

@@ -1,5 +1,5 @@
-Package: bear
-Title: Building Expression Atlases in R
+Package: bears
+Title: Building Expression Atlas from RNA-Seq data
 Version: 0.99.0
 Date: 2021-07-06
 Authors@R: 
@@ -14,11 +14,13 @@ Authors@R:
            role = "aut",
            comment = c(ORCID = "0000-0002-2215-8082"))
     )
-Description: bear aims to download RNA-seq data from NCBI SRA,
-    preprocess them, map to the reference genome, and quantify the expression
-    at the gene level. The goal of bear is to make RNA-seq data analysis
-    pipelines reproducible, with a framework built on state-of-the art methods
-    and softwares.
+Description: bears is an RNA-seq pipeline to create gene expression atlases 
+    from publicly available RNA-seq data in NCBI's SRA. Users can download 
+    raw reads, preprocess them, map to a reference genome and transcriptome, 
+    and quantify the expression at the gene and transcript levels. 
+    The goal of bears is to make RNA-seq data analysis pipelines reproducible, 
+    with a framework built on state-of-the art methods and softwares, and 
+    all of that in the comfort of an R session.
 biocViews: RNASeq,
     Alignment,
     FunctionalGenomics,
@@ -28,10 +30,10 @@ biocViews: RNASeq,
     QualityControl,
     Sequencing
 License: GPL-3
-URL: https://github.com/almeidasilvaf/bear
-BugReports: https://github.com/almeidasilvaf/bear/issues
+URL: https://github.com/almeidasilvaf/bears
+BugReports: https://github.com/almeidasilvaf/bears/issues
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 SystemRequirements:
@@ -60,4 +62,4 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)

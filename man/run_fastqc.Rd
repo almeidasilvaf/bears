@@ -27,6 +27,9 @@ to be included in the temporary R environment.}
 
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
+\value{
+A NULL object.
+}
 \description{
 Run FastQC on .fastq files
 }

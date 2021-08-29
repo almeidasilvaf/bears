@@ -9,6 +9,16 @@ gff2bed(gffpath = NULL)
 \arguments{
 \item{gffpath}{Path to .gff file with genome annotation.}
 }
+\value{
+A NULL object.
+}
 \description{
 Convert GFF file to BED
+}
+\examples{
+gffpath <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+gffdir <- tempdir()
+file.copy(from = gffpath, to=gffdir)
+gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gff3")
+gff2bed(gff_file)
 }

@@ -27,3 +27,7 @@ for each BioProject.
 \description{
 Infer library strandedness
 }
+\examples{
+data(sample_info)
+mappingdir <- tempdir()
+}

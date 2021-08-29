@@ -12,7 +12,7 @@
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
-#' @return NULL
+#' @return A NULL object.
 #' @export
 #' @rdname star_genome_index
 #' @importFrom tools file_ext
@@ -116,7 +116,7 @@ star_reads <- function(sample_info,
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return NULL
+#' @return A NULL object.
 #' @param threads Number of threads for STAR aligner.
 #' @importFrom tools file_ext
 #' @export
@@ -222,7 +222,7 @@ mapping_pass <- function(mapping_qc = NULL,
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return NULL
+#' @return A NULL object.
 #' @importFrom fs file_delete
 #' @export
 #' @rdname solid_align

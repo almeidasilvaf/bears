@@ -27,8 +27,6 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A data frame of summary statistics for FastQC.
-
 A data frame with QC summary for each sample.
 }
 \description{
