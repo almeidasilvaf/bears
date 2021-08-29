@@ -16,20 +16,31 @@ df_solid <- create_sample_info(term_solid)
 sample_info <- rbind(df_se, df_pe, df_solid)
 sample_info$Tissue <- c("leaf", "leaf", "root")
 
+#----fastqc_table----
+data(sample_info)
+fq <- system.file("extdata", package="bear")
+out <- tempdir()
+fastqc_table <- multiqc(fq, out, envname = "bear_env", 
+                        miniconda_path = my_miniconda)
 
 #----Create data sets----
 usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
+usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
 
 
+###################################################
 # Code to prepare data in inst/extdata
 #----SRR6967125.fastq.gz----
+my_miniconda <- file.path("/Users/almeidasilvaf", "miniconda_herper")
 data(sample_info)
 fastqdir <- "~/Documents/bear/results/01_FASTQ_files"
 sradir <- "~/Documents/bear/results/00_SRA_files"
 download_fastq(sample_info[1, ], 
                fastqdir = fastqdir,
                sradir = sradir,
-               threads = 2)
+               threads = 2,
+               envname = "bear_env", 
+               miniconda_path = my_miniconda)
 system2("cat", 
         args = c(
             "~/Documents/bear/results/01_FASTQ_files/SRR3725560.fastq.gz",
@@ -45,6 +56,26 @@ fqc <- tempdir()
 run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
 
 
+#----bac_16s_subset.fa----
+bac_16s <- Biostrings::readDNAStringSet("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-bac-16s-id90.fasta")
+bac_16s_subset <- bac_16s[1:50]
+Biostrings::writeXStringSet(bac_16s_subset, 
+                            filepath = "inst/extdata/bac_16s_subset.fa")
+
+#----Gmax_chr15_subset.fa----
+Gmax_chr15 <- Biostrings::readDNAStringSet("ftp://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_04/Genomes/gma.con.gz")
+Gmax_chr15_subset <- Gmax_chr15[names(Gmax_chr15) == "Chr15"]
+Gmax_chr15_subset2 <- Biostrings::subseq(Gmax_chr15_subset, start=1, end = 100000)
+Biostrings::writeXStringSet(Gmax_chr15_subset2,
+                            filepath = "inst/extdata/Gmax_chr15_subset.fa")
+
+
+#----Gmax_chr15_subset.gff3----
+Gmax_chr15_ranges <- rtracklayer::import("ftp://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_04/GFF/gma/annotation.all_transcripts.all_features.gma.gff3.gz")
+Gmax_chr15_ranges_subset <- Gmax_chr15_ranges[seqnames(Gmax_chr15_ranges) == "Chr15"]
+Gmax_chr15_ranges_subset <- Gmax_chr15_ranges_subset[1:268]
+rtracklayer::export.gff3(Gmax_chr15_ranges_subset,
+                         con = "inst/extdata/Gmax_chr15_subset.gff3")
 
 
 

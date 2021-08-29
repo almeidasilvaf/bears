@@ -94,7 +94,12 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' Default: results/01_FASTQ_files.
 #' @param fastqcdir Path to the directory where FastQC output will be stored.
 #' Default: results/02_FastQC_dir
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' 
 #' @importFrom fs file_move
+#' @importFrom Herper local_CondaEnv
 #' @return NULL
 #' @export
 #' @rdname run_fastqc
@@ -102,11 +107,20 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' data(sample_info)
 #' fq <- system.file("extdata", package="bear")
 #' fqc <- tempdir()
-#' run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+#' if(fastqc_is_installed()) {
+#'     run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+#' }
 run_fastqc <- function(sample_info,
                        fastqdir = "results/01_FASTQ_files",
-                       fastqcdir = "results/02_FastQC_dir") {
+                       fastqcdir = "results/02_FastQC_dir",
+                       envname = NULL,
+                       miniconda_path = NULL) {
     if(!dir.exists(fastqcdir)) { dir.create(fastqcdir, recursive = TRUE) }
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
+    }
+    if(!fastqc_is_installed()) { stop("Unable to find FastQC in PATH.") }
+    
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
         if(grepl("SOLiD|PacBio", var$platform)) {
@@ -142,18 +156,31 @@ run_fastqc <- function(sample_info,
 #' Default: results/multiqc/fastqc.
 #' @param runon Type of QC report to generate. One of "fastqc" or "star".
 #' @return A data frame of summary statistics for FastQC.
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
+#' @return A data frame with QC summary for each sample.
 #' @export
 #' @rdname multiqc
 #' @examples
 #' data(sample_info)
 #' fq <- system.file("extdata", package="bear")
 #' out <- tempdir()
-#' qc <- multiqc(fq, out)
+#' if(multiqc_is_installed) {
+#'     fastqc_table <- multiqc(fq, out)
+#' }
 multiqc <- function(dir="results/02_FastQC_dir",
                     outdir = "results/multiqc/fastqc",
-                    runon="fastqc") {
+                    runon="fastqc",
+                    envname = NULL,
+                    miniconda_path = NULL) {
     if(!dir.exists(outdir)) { dir.create(outdir, recursive = TRUE) }
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
+    }
+    if(!multiqc_is_installed()) { stop("Unable to find MultiQC in PATH.") }
+    
     args <- c("-o", outdir, dir)
     system2("multiqc", args = args)
     if(runon == "fastqc") {
@@ -163,27 +190,6 @@ multiqc <- function(dir="results/02_FastQC_dir",
     }
     qc_table <- read.csv(fpath, header=TRUE, sep="\t")
     return(qc_table)
-}
-
-
-#' Keep only samples that passed minimum requirements in STAR alignment
-#' 
-#' @param mapping_qc Mapping QC table.
-#' @details Samples are excluded if i. more than 50 percent of the reads
-#' fail to map, or ii. more than 40 percent of the reads fail to uniquely map.
-#' @return Data frame with metadata of samples that passed alignment QC.
-#' @noRd
-mapping_pass <- function(mapping_qc = NULL,
-                         sample_info = NULL) {
-    filt <- mapping_qc
-    filt$uniqueperc <- filt$uniquely_mapped_percent
-    filt$unmapperc <- filt$unmapped_tooshort_percent + 
-        filt$unmapped_other_percent + 
-        filt$unmapped_mismatches_percent
-    
-    filt <- filt[filt$uniqueperc >= 50 & filt$unmapperc < 40, ]
-    sinfo <- sample_info[sample_info$BioSample %in% filt$Sample, ]
-    return(sinfo)
 }
 
 

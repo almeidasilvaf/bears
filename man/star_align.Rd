@@ -11,7 +11,9 @@ star_align(
   mappingdir = "results/04_read_mapping",
   indexdir = "results/04_read_mapping/genomeIndex",
   gff_path = NULL,
-  threads = 20
+  threads = 20,
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -33,7 +35,29 @@ Default: results/04_read_mapping/genomeIndex.}
 \item{gff_path}{Path to the .gff/.gtf file with annotations.}
 
 \item{threads}{Number of threads for STAR aligner.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \description{
 Align reads to a reference genome using STAR
+}
+\examples{
+\donttest{
+data(sample_info)
+data(fastqc_table)
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
+gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+mappingdir <- tempdir()
+indexdir <- tempdir()
+threads <- 2
+filtdir <- system.file("extdata", package="bear")
+if(star_is_installed()) {
+    star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
+    star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
+               indexdir, gff_path, threads)
+}
+}
 }

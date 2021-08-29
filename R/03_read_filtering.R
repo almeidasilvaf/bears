@@ -9,27 +9,37 @@
 #' Default: results/01_FASTQ_files.
 #' @param filtdir Path to the directory where filtered .fastq files will
 #' be stored. Default: results/03_filtered_FASTQ.
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @export
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
 #' @importFrom utils download.file
 #' @return NULL
+#' @examples
+#' data(sample_info)
+#' data(fastqc_table)
+#' fastqdir <- system.file("extdata", package = "bear")
+#' filtdir <- tempdir()
+#' if(trimmomatic_is_installed()) {
+#'     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
+#' }
 trim_reads <- function(sample_info = NULL,
                        fastqc_table = NULL,
                        fastqdir = "results/01_FASTQ_files",
                        filtdir = "results/03_filtered_FASTQ",
-                       adapterdir = "results/03_filtered_FASTQ/adapters") {
+                       envname = NULL,
+                       miniconda_path = NULL) {
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
-    if(!dir.exists(adapterdir)) {
-        dir.create(adapterdir, recursive = TRUE)
-        pe_ad <- paste0(adapterdir, "/PE_adap.fa")
-        se_ad <- paste0(adapterdir, "/SE_adap.fa")
-        download.file("https://raw.githubusercontent.com/usadellab/Trimmomatic/main/adapters/TruSeq3-PE.fa",
-                      destfile = pe_ad)
-        download.file("https://raw.githubusercontent.com/usadellab/Trimmomatic/main/adapters/TruSeq3-SE.fa",
-                      destfile = se_ad)
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
     }
+    if(!trimmomatic_is_installed()) { stop("Unable to find Trimmomatic in PATH.") }
+    pe_ad <- system.file("extdata", "PE_adapter.fa", package="bear")
+    se_ad <- system.file("extdata", "SE_adapter.fa", package="bear")
+
     failed <- fastqc_table[fastqc_table$per_base_sequence_quality == "fail", 1]
     failed <- unique(gsub("_1$|_2$", "", failed))
     sample_info <- sample_info[sample_info$Run %in% failed, ]
@@ -70,55 +80,27 @@ trim_reads <- function(sample_info = NULL,
 }
 
 
-#' Wrapper to download standard rRNA databases from SortMeRNA
+#' Wrapper to create list of arguments to handle rRNA dbs in SortMeRNA 
 #' 
-#' @param filtdir Path to the directory where filtered reads will be stored.
-#' Default: results/03_filtered_FASTQ
+#' @param rrna_db_dir Path to directory containing reference rRNA database,
+#' which must be stored as FASTA files.
 #' 
-#' @return "--ref" parameters for SortMeRNA.
+#' @return Character vector with arguments to pass to SortMeRNA in 
+#' the system2 call inside \code{remove_rrna()}.
 #' @noRd
-download_rrna <- function(filtdir = "results/03_filtered_FASTQ") {
-    outdir <- paste0(filtdir, "/rRNAdbs/")
-    # Create paths to downloaded files
-    fivep8s <- paste0(outdir, "rfam_5.8s.fasta")
-    fives <- paste0(outdir, "rfam_5s.fasta")
-    arc_16s <- paste0(outdir, "arc_16s.fasta")
-    arc_23s <- paste0(outdir, "arc_23s.fasta")
-    bac_16s <- paste0(outdir, "bac_16s.fasta")
-    bac_23s <- paste0(outdir, "bac_23s.fasta")
-    euk_18s <- paste0(outdir, "euk_18s.fasta")
-    euk_28s <- paste0(outdir, "euk_28s.fasta")
+rrna_ref_args <- function(rrna_db_dir = NULL) {
+    fasta_files <- list.files(rrna_db_dir, full.names = TRUE,
+                              pattern = ".fasta|.fa")
     
-    # Download files
-    files <- c(fivep8s, fives, arc_16s, arc_23s, 
-               bac_16s, bac_23s, euk_18s, euk_28s)
-    if(sum(file.exists(files)) != 8) {
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/rfam-5.8s-database-id98.fasta",
-                      destfile = fivep8s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/rfam-5s-database-id98.fasta",
-                      destfile = fives)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-arc-16s-id95.fasta",
-                      destfile = arc_16s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-arc-23s-id98.fasta",
-                      destfile = arc_23s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-bac-16s-id90.fasta",
-                      destfile = bac_16s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-bac-23s-id98.fasta",
-                      destfile = bac_23s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-euk-18s-id95.fasta",
-                      destfile = euk_18s)
-        download.file("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-euk-28s-id98.fasta",
-                      destfile = euk_28s)
-    }
-    refs <- c("--ref", fivep8s, "--ref", fives, 
-              "--ref", arc_16s, "--ref", arc_23s,
-              "--ref", bac_16s, "--ref", bac_23s,
-              "--ref", euk_18s, "--ref", euk_28s)
+    refs <- unlist(lapply(fasta_files, function(x) {
+        arg <- c("--ref", x)
+        return(arg)
+    }))
     return(refs)
 }
 
 
-#' Wrapper to clean directory after running SortMeRna
+#' Wrapper to clean directory after running SortMeRNA
 #' 
 #' @param filtdir Path to the directory where filtered reads will be stored.
 #' Default: results/03_filtered_FASTQ.
@@ -142,26 +124,47 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 }
 
 
-#' Remove rRNA sequences from .fastq files with SortMeRna
+#' Remove rRNA sequences from .fastq files with SortMeRNA
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
 #' @param fastqdir Path to the directory where .fastq files are stored.
 #' @param filtdir Path to the directory where filtered reads will be stored.
 #' Default: results/03_filtered_FASTQ.
-#' @param threads Number of threads for SortMeRna. Default: 8.
+#' @param rrna_db_dir Path to directory containing reference rRNA database,
+#' which must be stored as FASTA files.
+#' @param threads Number of threads for SortMeRna. Default: 2.
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
+#' @return NULL
 #' @export
 #' @rdname remove_rrna
 #' @importFrom fs dir_delete
+#' @examples 
+#' data(sample_info)
+#' fastqdir <- system.file("extdata", package="bear")
+#' filtdir <- tempdir()
+#' rrna_db_dir <- tempdir()
+#' rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bear")
+#' file.copy(from = rrna_file, to = rrna_db_dir)
+#' if(sortmerna_is_installed()) {
+#'     remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)
+#' }
 remove_rrna <- function(sample_info,
                         fastqdir = "results/01_FASTQ_files",
                         filtdir = "results/03_filtered_FASTQ",
-                        threads = 8) {
+                        rrna_db_dir = NULL,
+                        threads = 2,
+                        envname = NULL,
+                        miniconda_path = NULL) {
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
-    dbdir <- paste0(filtdir, "/rRNAdbs")
-    if(!dir.exists(dbdir)) { dir.create(dbdir, recursive = TRUE) }
-    refs <- download_rrna(filtdir)
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
+    }
+    if(!sortmerna_is_installed()) { stop("Unable to find SortMeRNA in PATH.") }
+    refs <- rrna_ref_args(rrna_db_dir)
     t <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
         if(grepl("SOLiD|PacBio", var$platform)) {

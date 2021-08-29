@@ -10,7 +10,9 @@ solid_align(
   soliddir = "results/01_SOLiD_dir",
   mappingdir = "results/04_read_mapping",
   indexdir = "results/04_read_mapping/shrimpIndex",
-  threads = 20
+  threads = 2,
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -25,8 +27,26 @@ solid_align(
 \item{indexdir}{Path to the directory where genome index will be stored.}
 
 \item{threads}{Numeric representing the number of threads to use.
-Default = 20.}
+Default = 2.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \description{
 Align SOLiD reads with gmapper-cs
+}
+\examples{
+\donttest{
+data(sample_info)
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
+soliddir <- system.file("extdata", package="bear")
+mappingdir <- tempdir()
+indexdir <- tempdir()
+if(shrimp_is_installed()) {
+solid_align(sample_info[1, ], genome_path, soliddir, mappingdir,
+            indexdir)
+}
+}
 }

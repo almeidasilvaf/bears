@@ -9,7 +9,8 @@ trim_reads(
   fastqc_table = NULL,
   fastqdir = "results/01_FASTQ_files",
   filtdir = "results/03_filtered_FASTQ",
-  adapterdir = "results/03_filtered_FASTQ/adapters"
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -24,7 +25,21 @@ Default: results/01_FASTQ_files.}
 
 \item{filtdir}{Path to the directory where filtered .fastq files will
 be stored. Default: results/03_filtered_FASTQ.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \description{
 Run Trimmomatic on reads that failed on FastQC check
+}
+\examples{
+data(sample_info)
+data(fastqc_table)
+fastqdir <- system.file("extdata", package = "bear")
+filtdir <- tempdir()
+if(trimmomatic_is_installed()) {
+    trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
+}
 }

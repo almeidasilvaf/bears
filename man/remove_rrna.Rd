@@ -2,13 +2,16 @@
 % Please edit documentation in R/03_read_filtering.R
 \name{remove_rrna}
 \alias{remove_rrna}
-\title{Remove rRNA sequences from .fastq files with SortMeRna}
+\title{Remove rRNA sequences from .fastq files with SortMeRNA}
 \usage{
 remove_rrna(
   sample_info,
   fastqdir = "results/01_FASTQ_files",
   filtdir = "results/03_filtered_FASTQ",
-  threads = 8
+  rrna_db_dir = NULL,
+  threads = 2,
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -20,8 +23,27 @@ function \code{create_sample_info}.}
 \item{filtdir}{Path to the directory where filtered reads will be stored.
 Default: results/03_filtered_FASTQ.}
 
-\item{threads}{Number of threads for SortMeRna. Default: 8.}
+\item{rrna_db_dir}{Path to directory containing reference rRNA database,
+which must be stored as FASTA files.}
+
+\item{threads}{Number of threads for SortMeRna. Default: 2.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \description{
-Remove rRNA sequences from .fastq files with SortMeRna
+Remove rRNA sequences from .fastq files with SortMeRNA
+}
+\examples{
+data(sample_info)
+fastqdir <- system.file("extdata", package="bear")
+filtdir <- tempdir()
+rrna_db_dir <- tempdir()
+rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bear")
+file.copy(from = rrna_file, to = rrna_db_dir)
+if(sortmerna_is_installed()) {
+    remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)
+}
 }

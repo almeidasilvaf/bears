@@ -9,7 +9,9 @@ download_fastq(
   fastqdir = "results/01_FASTQ_files",
   sradir = "results/00_SRA_files",
   soliddir = "results/01_SOLiD_dir",
-  threads = 6
+  threads = 6,
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -24,6 +26,11 @@ stored. Default: results/00_SRA_files.}
 
 \item{soliddir}{Path to the directory where .fastq files for SOLiD data
 will be stored. Default: results/01_SOLiD_dir.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 NULL, with .sra files in the directory specified in sradir, and
@@ -35,6 +42,8 @@ Download FASTQ files
 \examples{
 \donttest{
 data(sample_info)
-download_fastq(sample_info, threads = 20)
+if(sratoolkit_is_installed()) {
+    download_fastq(sample_info[1,])
+}
 }
 }

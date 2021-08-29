@@ -133,6 +133,9 @@ create_sample_info <- function(term, retmax=5000) {
 #' Default: results/01_FASTQ_files.
 #' @param soliddir Path to the directory where .fastq files for SOLiD data
 #' will be stored. Default: results/01_SOLiD_dir.
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return NULL, with .sra files in the directory specified in sradir, and 
 #' fastq files in the directories specified in fastqdir and soliddir.
@@ -142,13 +145,22 @@ create_sample_info <- function(term, retmax=5000) {
 #' @examples
 #' \donttest{
 #' data(sample_info)
-#' download_fastq(sample_info, threads = 20)
+#' if(sratoolkit_is_installed()) {
+#'     download_fastq(sample_info[1,])
+#' }
 #' }
 download_fastq <- function(sample_info, 
-                           fastqdir="results/01_FASTQ_files",
-                           sradir="results/00_SRA_files", 
-                           soliddir="results/01_SOLiD_dir", 
-                           threads = 6) {
+                           fastqdir = "results/01_FASTQ_files",
+                           sradir = "results/00_SRA_files", 
+                           soliddir = "results/01_SOLiD_dir", 
+                           threads = 6,
+                           envname = NULL, 
+                           miniconda_path = NULL) {
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
+    }
+    if(!sratoolkit_is_installed()) { stop("Unable to find SRAToolkit in PATH.") }
+
     if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
@@ -171,7 +183,7 @@ download_fastq <- function(sample_info,
         }
     })
     message("Compressing .fastq files...")
-    system2("gzip", args = paste0(fastqdir, "/*"))
+    system2("gzip", args = paste0(fastqdir, "/*.fastq"))
     return(NULL)
 }
 

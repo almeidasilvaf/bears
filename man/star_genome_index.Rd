@@ -9,7 +9,9 @@ star_genome_index(
   gff_path = NULL,
   mappingdir = "results/04_read_mapping",
   indexdir = "results/04_read_mapping/genomeIndex",
-  threads = 10
+  threads = 10,
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
@@ -24,7 +26,24 @@ be stored.}
 Default: results/04_read_mapping/genomeIndex.}
 
 \item{threads}{Number of threads for STAR aligner.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \description{
 Index genome for STAR alignment
+}
+\examples{
+\donttest{
+genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bear")
+gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bear")
+mappingdir <- tempdir()
+indexdir <- tempdir()
+threads <- 2
+if(star_is_installed()) {
+    star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
+}
+}
 }
