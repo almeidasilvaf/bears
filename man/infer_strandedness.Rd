@@ -36,7 +36,7 @@ Infer library strandedness
 }
 \examples{
 data(sample_info)
-mapping_passed <- sample_info[1, ]
+mapping_passed <- sample_info
 bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
                         package="bears")
 mappingdir <- system.file("extdata", package="bears")

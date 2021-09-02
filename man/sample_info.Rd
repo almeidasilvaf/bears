@@ -6,7 +6,7 @@
 \title{Sample metadata}
 \format{
 A data frame with sample metadata created
-with \code{create_sample_info}.
+with \code{create_sample_info} and \code{infer_strandedness}.
 }
 \usage{
 data(sample_info)
@@ -14,7 +14,8 @@ data(sample_info)
 \description{
 This data frame was created with \code{create_sample_info}, and it contains
 metadata associated with the BioSample SAMN02422669, which is part of the
-data in the airway package.
+data in the airway package. An additional column named "Orientation" was
+included with \code{infer_strandedness}, representing read orientation.
 }
 \examples{
 data(sample_info)

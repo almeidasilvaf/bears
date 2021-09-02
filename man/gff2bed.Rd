@@ -19,7 +19,7 @@ Convert GFF file to BED
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                          package="bears")
 gffdir <- tempdir()
-file.copy(from = gffpath, to=gffdir)
+file.copy(from = gff_path, to=gffdir)
 gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gtf")
 gff2bed(gff_file)
 }

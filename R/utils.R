@@ -41,7 +41,7 @@ var2list <- function(sample_info, index=NULL) {
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
 #'                          package="bears")
 #' gffdir <- tempdir()
-#' file.copy(from = gffpath, to=gffdir)
+#' file.copy(from = gff_path, to=gffdir)
 #' gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gtf")
 #' gff2bed(gff_file)
 gff2bed <- function(gffpath=NULL) {
@@ -72,7 +72,7 @@ gff2bed <- function(gffpath=NULL) {
 #' @importFrom stats sd
 #' @examples
 #' data(sample_info)
-#' mapping_passed <- sample_info[1, ]
+#' mapping_passed <- sample_info
 #' bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
 #'                         package="bears")
 #' mappingdir <- system.file("extdata", package="bears")

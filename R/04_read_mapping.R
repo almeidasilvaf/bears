@@ -199,12 +199,8 @@ star_align <- function(sample_info = NULL,
 #' @rdname mapping_pass
 #' @examples 
 #' data(sample_info)
-#' dir <- system.file("extdata", package="bears")
-#' out <- tempdir()
-#' if(multiqc_is_installed()) {
-#'     mapping_qc <- multiqc(dir, out, runon="star")
-#'     mapping_passed <- mapping_pass(mapping_qc, sample_info)
-#' }
+#' data(mapping_qc)
+#' mapping_passed <- mapping_pass(mapping_qc, sample_info)
 mapping_pass <- function(mapping_qc = NULL,
                          sample_info = NULL) {
     filt <- mapping_qc

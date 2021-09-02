@@ -2,7 +2,11 @@
 #----sample_info----
 term <- "SAMN02422669[BSPL]"
 sample_info <- create_sample_info(term)
-
+sample_info$Study_abstract <- textclean::replace_non_ascii(
+    sample_info$Study_abstract
+)
+sample_info$Orientation <- "first"
+    
 #----fastqc_table----
 data(sample_info)
 fq <- system.file("extdata", package="bears")
@@ -13,9 +17,17 @@ run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc,
 fastqc_table <- multiqc(fqc, out, envname = "bear_env", 
                         miniconda_path = my_miniconda)
 
+#----mapping_qc----
+data(sample_info)
+dir <- system.file("extdata", package="bears")
+out <- tempdir()
+mapping_qc <- multiqc(dir, out, runon="star")
+
 #----Create data sets----
 usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
 usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
+usethis::use_data(mapping_qc, overwrite = TRUE, compress="xz")
+
 
 
 ###################################################
@@ -97,16 +109,22 @@ Biostrings::writeXStringSet(bac_16s_subset,
 
 
 #----SAMN05300278.bam----
+# Bash: 
+# wget ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna_sm.chromosome.1.fa.gz
+# gunzip *.gz
+# On server:
 data(sample_info)
 data(fastqc_table)
-genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
-gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
-mappingdir <- "results/"
+genome_path <- list.files(pattern=".fa")
+gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+                        package="bears")
+mappingdir <- "results"
 indexdir <- "results/index"
 filtdir <- system.file("extdata", package="bears")
 star_genome_index(genome_path, gff_path, mapping_dir, indexdir, 
                   envname="bear_env", miniconda_path = my_miniconda)
-star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
+star_align(sample_info, filtdir, fastqc_table, mappingdir, 
            indexdir, gff_path, envname="bear_env", miniconda_path = my_miniconda)
+
 
 
