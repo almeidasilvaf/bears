@@ -113,7 +113,7 @@ sra_xml2df <- function(id) {
 #' @rdname create_sample_info
 #' @importFrom rentrez entrez_search
 #' @examples 
-#' term <- "PRJNA80173[GPRJ]"
+#' term <- "SAMN02422669[BSPL]"
 #' df <- create_sample_info(term)
 create_sample_info <- function(term, retmax=5000) {
     search <- rentrez::entrez_search(db="sra", term=term,
@@ -147,7 +147,7 @@ create_sample_info <- function(term, retmax=5000) {
 #' \donttest{
 #' data(sample_info)
 #' if(sratoolkit_is_installed()) {
-#'     download_fastq(sample_info[1,])
+#'     download_fastq(sample_info)
 #' }
 #' }
 download_fastq <- function(sample_info, 

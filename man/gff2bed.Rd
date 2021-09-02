@@ -16,9 +16,10 @@ A NULL object.
 Convert GFF file to BED
 }
 \examples{
-gffpath <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+                         package="bears")
 gffdir <- tempdir()
 file.copy(from = gffpath, to=gffdir)
-gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gff3")
+gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gtf")
 gff2bed(gff_file)
 }

@@ -16,9 +16,10 @@ Herper::install_CondaTools("sortmerna", "bear_env", updateEnv = TRUE,
                            pathToMiniConda = my_miniconda)
 Herper::install_CondaTools("star", "bear_env", updateEnv = TRUE, 
                            pathToMiniConda = my_miniconda)
-Herper::install_CondaTools("star", "bear_env", updateEnv = TRUE, 
+Herper::install_CondaTools("rseqc", "bear_env", updateEnv = TRUE, 
                            pathToMiniConda = my_miniconda)
-Herper::install_CondaTools("shrimp", "bear_env", channels = "biobuilds",
-                           updateEnv = TRUE, pathToMiniConda = my_miniconda)
-
+# Herper::install_CondaTools("shrimp", "bear_env", channels = "biobuilds",
+#                            updateEnv = TRUE, pathToMiniConda = my_miniconda)
+Herper::install_CondaTools("salmon", "bear_env", updateEnv = TRUE,
+                           pathToMiniConda = my_miniconda)
 

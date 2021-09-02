@@ -108,7 +108,7 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' fq <- system.file("extdata", package="bears")
 #' fqc <- tempdir()
 #' if(fastqc_is_installed()) {
-#'     run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+#'     run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc)
 #' }
 run_fastqc <- function(sample_info,
                        fastqdir = "results/01_FASTQ_files",

@@ -16,7 +16,6 @@
 #' @export
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
-#' @importFrom utils download.file
 #' @return A NULL object.
 #' @examples
 #' data(sample_info)
@@ -150,7 +149,7 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
 #' file.copy(from = rrna_file, to = rrna_db_dir)
 #' if(sortmerna_is_installed()) {
-#'     remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)
+#'     remove_rrna(sample_info, fastqdir, filtdir, rrna_db_dir)
 #' }
 remove_rrna <- function(sample_info,
                         fastqdir = "results/01_FASTQ_files",

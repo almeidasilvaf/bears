@@ -133,7 +133,30 @@ shrimp_is_installed <- function() {
 }
 
 
+#' Check if RSeQC is installed
+#' 
+#' @return Logical indicating whether RSeQC is instaled or not
+#' @export
+#' @rdname rseqc_is_installed
+#' @examples 
+#' rseqc_is_installed()
+rseqc_is_installed <- function() {
+    valid <- is_valid(cmd = "infer_experiment.py", args = "-h")
+    return(valid)
+}
 
+
+#' Check if salmon is installed
+#' 
+#' @return Logical indicating whether salmon is instaled or not
+#' @export
+#' @rdname salmon_is_installed
+#' @examples 
+#' salmon_is_installed()
+salmon_is_installed <- function() {
+    valid <- is_valid(cmd = "salmon", args = "-h")
+    return(valid)
+}
 
 
 

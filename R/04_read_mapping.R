@@ -18,8 +18,10 @@
 #' @importFrom tools file_ext
 #' @examples 
 #' \donttest{
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
-#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+#' genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
+#'                             package="bears")
+#' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+#'                          package="bears")
 #' mappingdir <- tempdir()
 #' indexdir <- tempdir()
 #' threads <- 2
@@ -125,8 +127,10 @@ star_reads <- function(sample_info,
 #' \donttest{
 #' data(sample_info)
 #' data(fastqc_table)
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
-#' gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+#' genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
+#'                             package="bears")
+#' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+#'                          package="bears")
 #' mappingdir <- tempdir()
 #' indexdir <- tempdir()
 #' threads <- 2
@@ -213,77 +217,6 @@ mapping_pass <- function(mapping_qc = NULL,
     sinfo <- sample_info[sample_info$BioSample %in% filt$Sample, ]
     return(sinfo)
 }
-
-
-
-#' Align SOLiD reads with gmapper-cs
-#'
-#' @param sample_info Data frame of sample metadata.
-#' @param genome_path Path to the FASTA file representing the genome.
-#' @param soliddir Path to the directory where SOLiD reads are stored.
-#' @param mappingdir Path to the directory where .bam files will be stored.
-#' @param indexdir Path to the directory where genome index will be stored.
-#' @param threads Numeric representing the number of threads to use.
-#' Default = 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
-#'
-#' @return A NULL object.
-#' @importFrom fs file_delete
-#' @export
-#' @rdname solid_align
-#' @examples
-#' \donttest{
-#' data(sample_info)
-#' genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
-#' soliddir <- system.file("extdata", package="bears")
-#' mappingdir <- tempdir()
-#' indexdir <- tempdir()
-#' if(shrimp_is_installed()) {
-#' solid_align(sample_info[1, ], genome_path, soliddir, mappingdir,
-#'             indexdir)
-#' }
-#' }
-solid_align <- function(sample_info = NULL,
-                        genome_path = NULL,
-                        soliddir = "results/01_SOLiD_dir",
-                        mappingdir = "results/04_read_mapping",
-                        indexdir = "results/04_read_mapping/shrimpIndex",
-                        threads = 2,
-                        envname = NULL,
-                        miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
-    if(!shrimp_is_installed()) { stop("Unable to find SHRiMP in PATH.") }
-    if(!dir.exists(indexdir)) { dir.create(indexdir, recursive = TRUE) }
-    # Create genome index
-    args1 <- c("--threads", threads, "--save", indexdir, genome_path)
-    system2("gmapper-cs", args = args1)
-    # Map reads
-    sample_info <- sample_info[grep("SOLiD", sample_info$Instrument), ]
-    m <- lapply(seq_len(nrow(sample_info)), function(x) {
-        var <- var2list(sample_info, index = x)
-        read <- paste0(soliddir, "/", var$run, "*.csfasta")
-        outsam <- paste0(mappingdir, "/", var$biosample, "_shrimp.sam")
-        outbam <- paste0(mappingdir, "/", var$biosample, "_shrimp.bam")
-        outbamsort <- paste0(mappingdir, "/", var$biosample, 
-                             "Aligned.sortedByCoord.out.bam")
-        margs <- c("--threads", threads, "--local --sam --all-contigs",
-                   "--strata --load", indexdir, read, ">", outsam)
-        system2("gmapper-cs", margs)
-        # SAM to BAM conversion
-        sam2bamargs <- c("view -bh -@ 10 -o", outbam, outsam)
-        system2("samtools", args = sam2bamargs)
-        # BAM sorting
-        argssorting <- c("sort -@ 10 -o", outbamsort, outbam)
-        system2("samtools", args = argssorting)
-        del <- fs::file_delete(c(outbam, outsam))
-    })
-    return(NULL)
-}
-
 
 
 

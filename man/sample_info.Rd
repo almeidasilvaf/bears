@@ -5,16 +5,16 @@
 \alias{sample_info}
 \title{Sample metadata}
 \format{
-A data frame with sample metadata created with
-\code{create_sample_info}.
+A data frame with sample metadata created
+with \code{create_sample_info}.
 }
 \usage{
 data(sample_info)
 }
 \description{
 This data frame was created with \code{create_sample_info}, and it contains
-metadata associated with the BioSamples SAMN05300278 (single-end),
-SAMD00117551 (paired-end), and SAMN02688407 (SOLiD).
+metadata associated with the BioSample SAMN02422669, which is part of the
+data in the airway package.
 }
 \examples{
 data(sample_info)

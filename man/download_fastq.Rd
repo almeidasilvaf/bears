@@ -45,7 +45,7 @@ Download FASTQ files
 \donttest{
 data(sample_info)
 if(sratoolkit_is_installed()) {
-    download_fastq(sample_info[1,])
+    download_fastq(sample_info)
 }
 }
 }

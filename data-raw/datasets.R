@@ -1,26 +1,16 @@
 ## Code to prepare data in data/
 #----sample_info----
-term_se <- "PRJNA324514[BPRJ]"
-df_se <- create_sample_info(term_se)
-df_se <- df_se[2, ]
-
-# Paired-end example data
-term_pe <- "SAMD00117551[BSPL]"
-df_pe <- create_sample_info(term_pe)
-
-# SOLiD example data
-term_solid <- "SAMN02688407[BSPL]"
-df_solid <- create_sample_info(term_solid)
-
-# Combine data frames
-sample_info <- rbind(df_se, df_pe, df_solid)
-sample_info$Tissue <- c("leaf", "leaf", "root")
+term <- "SAMN02422669[BSPL]"
+sample_info <- create_sample_info(term)
 
 #----fastqc_table----
 data(sample_info)
-fq <- system.file("extdata", package="bear")
+fq <- system.file("extdata", package="bears")
 out <- tempdir()
-fastqc_table <- multiqc(fq, out, envname = "bear_env", 
+fqc <- tempdir()
+run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc,
+           envname = "bear_env", miniconda_path = my_miniconda)
+fastqc_table <- multiqc(fqc, out, envname = "bear_env", 
                         miniconda_path = my_miniconda)
 
 #----Create data sets----
@@ -30,6 +20,32 @@ usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
 
 ###################################################
 # Code to prepare data in inst/extdata
+#----SRR1039508.fastq and SRR1039508.bam----
+library(here)
+
+bampath1 <- system.file("extdata", "SRR1039508_subset.bam", package="airway")
+file.copy(from = bampath1, to = here("inst", "extdata"))
+# Bash:
+# cd inst/extdata
+# samtools sort -n SRR1039508.bam -o SRR1039508_sorted.bam
+# samtools fastq -@ 8 SRR1039508_sorted.bam \
+#   -1 SRR1039508_1.fastq.gz \
+#   -2 SRR1039508_2.fastq.gz \
+#   -0 /dev/null -s /dev/null -n
+
+#----Homo_sapiens.GRCh37.75_subset.gtf----
+gtf_hsapiens <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
+                            package="airway")
+file.copy(from = gtf_hsapiens, to = here("inst", "extdata"), overwrite = TRUE)
+
+#----Homo_sapiens.GRCh37.75_subset.bed----
+gtf_hsapiens <- here("inst", "extdata", "Homo_sapiens.GRCh37.75_subset.gtf")
+gtf <- rtracklayer::import(gtf_hsapiens)
+gtf$score <- as.numeric(rep(0, length(gtf)))
+bedfile <- gsub(".gtf", ".bed", gtf_hsapiens)
+rtracklayer::export.bed(gtf, bedfile)
+
+
 #----SRR6967125.fastq.gz----
 my_miniconda <- file.path("/Users/almeidasilvaf", "miniconda_herper")
 data(sample_info)
@@ -49,11 +65,28 @@ system2("cat",
             )
         )
 
-#----SRR3725560_fastqc.zip----
+#----SRR1039508_1_fastqc.zip----
 data(sample_info)
 fq <- system.file("extdata", package="bear")
 fqc <- tempdir()
-run_fastqc(sample_info[1, ], fastqdir = fq, fastqcdir = fqc)
+run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc)
+file.copy(from = paste0(fqc, "/SRR1039508_1_fastqc.zip"), 
+          to = here::here("inst", "extdata"))
+
+
+#----Hsapiens_GRCh37.75_subset.fa----
+gtf_hsapiens <- here("inst", "extdata", "Homo_sapiens.GRCh37.75_subset.gtf")
+gtf <- rtracklayer::import(gtf_hsapiens)
+start <- min(GenomicRanges::start(gtf)) - 50
+end <- max(GenomicRanges::end(gtf)) + 50
+chr1 <- Biostrings::readDNAStringSet(
+    "~/Downloads/Homo_sapiens.GRCh37.dna_sm.chromosome.1.fa"
+    )
+chr_subset <- Biostrings::subseq(chr1, start = start, end = end)
+Biostrings::writeXStringSet(
+    chr_subset, 
+    filepath = here::here("inst", "extdata", "Hsapiens_GRCh37.75_subset.fa")
+)
 
 
 #----bac_16s_subset.fa----
@@ -61,21 +94,6 @@ bac_16s <- Biostrings::readDNAStringSet("https://raw.githubusercontent.com/bioco
 bac_16s_subset <- bac_16s[1:50]
 Biostrings::writeXStringSet(bac_16s_subset, 
                             filepath = "inst/extdata/bac_16s_subset.fa")
-
-#----Gmax_chr15_subset.fa----
-Gmax_chr15 <- Biostrings::readDNAStringSet("ftp://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_04/Genomes/gma.con.gz")
-Gmax_chr15_subset <- Gmax_chr15[names(Gmax_chr15) == "Chr15"]
-Gmax_chr15_subset2 <- Biostrings::subseq(Gmax_chr15_subset, start=1, end = 100000)
-Biostrings::writeXStringSet(Gmax_chr15_subset2,
-                            filepath = "inst/extdata/Gmax_chr15_subset.fa")
-
-
-#----Gmax_chr15_subset.gff3----
-Gmax_chr15_ranges <- rtracklayer::import("ftp://ftp.psb.ugent.be/pub/plaza/plaza_public_dicots_04/GFF/gma/annotation.all_transcripts.all_features.gma.gff3.gz")
-Gmax_chr15_ranges_subset <- Gmax_chr15_ranges[seqnames(Gmax_chr15_ranges) == "Chr15"]
-Gmax_chr15_ranges_subset <- Gmax_chr15_ranges_subset[1:268]
-rtracklayer::export.gff3(Gmax_chr15_ranges_subset,
-                         con = "inst/extdata/Gmax_chr15_subset.gff3")
 
 
 #----SAMN05300278.bam----

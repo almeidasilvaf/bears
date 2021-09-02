@@ -51,8 +51,10 @@ Align reads to a reference genome using STAR
 \donttest{
 data(sample_info)
 data(fastqc_table)
-genome_path <- system.file("extdata", "Gmax_chr15_subset.fa", package="bears")
-gff_path <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
+                            package="bears")
+gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+                         package="bears")
 mappingdir <- tempdir()
 indexdir <- tempdir()
 threads <- 2

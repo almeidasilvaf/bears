@@ -7,17 +7,24 @@
 infer_strandedness(
   mapping_passed = NULL,
   bedpath = NULL,
-  mappingdir = "results/04_read_mapping"
+  mappingdir = "results/04_read_mapping",
+  envname = NULL,
+  miniconda_path = NULL
 )
 }
 \arguments{
-\item{mapping_passed}{Metadata of samples that passed mapping QC. This can be obtained with
-\code{mapping_pass}.}
+\item{mapping_passed}{Metadata of samples that passed mapping QC.
+This can be obtained with \code{mapping_pass}.}
 
 \item{bedpath}{Path to BED file. GFF files can be converted to BED with
 \code{gff2bed}.}
 
 \item{mappingdir}{Directory where .bam files are stored.}
+
+\item{envname}{Name of the Conda environment with external dependencies
+to be included in the temporary R environment.}
+
+\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A data frame with sample metadata as in mapping_passed, but with
@@ -29,5 +36,12 @@ Infer library strandedness
 }
 \examples{
 data(sample_info)
-mappingdir <- tempdir()
+mapping_passed <- sample_info[1, ]
+bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
+                        package="bears")
+mappingdir <- system.file("extdata", package="bears")
+if(rseqc_is_installed()) {
+    strandedness <- infer_strandedness(mapping_passed, bedpath, mappingdir)
+}
+
 }

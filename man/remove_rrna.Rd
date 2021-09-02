@@ -47,6 +47,6 @@ rrna_db_dir <- tempdir()
 rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
 file.copy(from = rrna_file, to = rrna_db_dir)
 if(sortmerna_is_installed()) {
-    remove_rrna(sample_info[1, ], fastqdir, filtdir, rrna_db_dir)
+    remove_rrna(sample_info, fastqdir, filtdir, rrna_db_dir)
 }
 }

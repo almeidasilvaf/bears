@@ -38,26 +38,30 @@ var2list <- function(sample_info, index=NULL) {
 #' @rdname gff2bed
 #' @importFrom rtracklayer import export.bed
 #' @examples 
-#' gffpath <- system.file("extdata", "Gmax_chr15_subset.gff3", package="bears")
+#' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+#'                          package="bears")
 #' gffdir <- tempdir()
 #' file.copy(from = gffpath, to=gffdir)
-#' gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gff3")
+#' gff_file <- list.files(gffdir, full.names=TRUE, pattern=".gtf")
 #' gff2bed(gff_file)
 gff2bed <- function(gffpath=NULL) {
     gff <- rtracklayer::import(gffpath)
     gff$score <- as.numeric(rep(0, length(gff)))
-    bedfile <- gsub(".gff", ".bed", gffpath)
+    bedfile <- gsub(".gff|.gtf|.gff3", ".bed", gffpath)
     rtracklayer::export.bed(gff, bedfile)
     return(NULL)
 }
 
 #' Infer library strandedness
 #'
-#' @param mapping_passed Metadata of samples that passed mapping QC. This can be obtained with
-#' \code{mapping_pass}.
+#' @param mapping_passed Metadata of samples that passed mapping QC. 
+#' This can be obtained with \code{mapping_pass}.
 #' @param bedpath Path to BED file. GFF files can be converted to BED with 
 #' \code{gff2bed}.
 #' @param mappingdir Directory where .bam files are stored.
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A data frame with sample metadata as in mapping_passed, but with
 #' an additional column named 'Orientation' containing library strandedness
@@ -68,10 +72,24 @@ gff2bed <- function(gffpath=NULL) {
 #' @importFrom stats sd
 #' @examples
 #' data(sample_info)
-#' mappingdir <- tempdir()
+#' mapping_passed <- sample_info[1, ]
+#' bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
+#'                         package="bears")
+#' mappingdir <- system.file("extdata", package="bears")
+#' if(rseqc_is_installed()) {
+#'     strandedness <- infer_strandedness(mapping_passed, bedpath, mappingdir)
+#' }
+#' 
 infer_strandedness <- function(mapping_passed = NULL,
                                bedpath = NULL,
-                               mappingdir="results/04_read_mapping") {
+                               mappingdir="results/04_read_mapping",
+                               envname = NULL,
+                               miniconda_path = NULL) {
+    if(load_env(envname, miniconda_path)) {
+        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
+    }
+    if(!rseqc_is_installed()) { stop("Unable to find RSeQC in PATH.") }
+    
     stranddir <- paste0(mappingdir, "/strandedness")
     # Create dir to store files with strandedness info
     if(!dir.exists(stranddir)) { dir.create(stranddir, recursive=TRUE) }

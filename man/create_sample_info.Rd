@@ -39,6 +39,6 @@ A data frame with the following columns:
 Search the SRA database and create a data frame of sample metadata
 }
 \examples{
-term <- "PRJNA80173[GPRJ]"
+term <- "SAMN02422669[BSPL]"
 df <- create_sample_info(term)
 }
