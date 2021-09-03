@@ -127,4 +127,33 @@ star_align(sample_info, filtdir, fastqc_table, mappingdir,
            indexdir, gff_path, envname="bear_env", miniconda_path = my_miniconda)
 
 
+#----Hsapiens_GRCh37.75_subset_transcripts.fa----
+library(Biostrings)
+library(GenomicFeatures)
+library(GenomicRanges)
+library(BSgenome)
+library(Biostrings)
+genome <- Biostrings::readDNAStringSet(
+    "~/Downloads/Homo_sapiens.GRCh37.dna_sm.chromosome.1.fa"
+)
+names(genome) <- 1
+
+# Option 1) All exons of a transcript
+transcript_ranges <- gtf[gtf$type %in% c("transcript", "exon")]
+transcripts <- split(transcript_ranges, transcript_ranges$transcript_id)
+
+# Option 2) All CDSs of a transcript
+#transcript_ranges <- gtf[gtf$type %in% c("transcript", "CDS")]
+#transcripts <- split(transcript_ranges, transcript_ranges$transcript_id)
+
+tx_seqs <- GenomicFeatures::extractTranscriptSeqs(
+    x = genome,
+    transcripts = transcripts
+)
+writeXStringSet(
+    tx_seqs,
+    filepath = here::here("inst", "extdata", 
+                          "Hsapiens_GRCh37.75_subset_transcripts.fa")
+)
+
 

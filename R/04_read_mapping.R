@@ -114,12 +114,12 @@ star_reads <- function(sample_info,
 #' @param indexdir Directory where the STAR genome index files will be stored.
 #' Default: results/04_read_mapping/genomeIndex.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
+#' @param threads Number of threads for STAR aligner.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A NULL object.
-#' @param threads Number of threads for STAR aligner.
 #' @importFrom tools file_ext
 #' @export
 #' @rdname star_align

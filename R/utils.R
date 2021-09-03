@@ -122,4 +122,62 @@ infer_strandedness <- function(mapping_passed = NULL,
     result <- merge(mapping_passed, df, by="BioProject", all.x=TRUE)
     return(result)
 }
-    
+
+
+#' Translate library orientation terminology for each program
+#' 
+#' @param orientation Library orientation, available in 
+#' the column "Orientation" from the output of \code{infer_strandedness}.
+#' @param layout Library layout, available in the column "Layout" from the
+#' output of \code{create_sample_info}.
+#' 
+#' @return A list with the following elements:
+#' \describe{
+#'   \item{salmon}{salmon library information.}
+#'   \item{fcounts}{featureCounts library information.}
+#'   \item{kallisto}{kallisto library information.}
+#'   \item{stringtie}{StringTie library information.}
+#' }
+#' @rdname translate_strandedness
+#' @export
+#' @examples 
+#' data(sample_info)
+#' orientation <- sample_info$Orientation
+#' layout <- sample_info$Layout
+#' strandedness <- translate_strandedness(orientation, layout)
+translate_strandedness <- function(orientation = NULL, layout = NULL) {
+    if(orientation == "unstranded") {
+        salmon <- "U"
+        fcounts <- 0
+        kallisto <- ""
+        stringtie <- ""
+    } else if(orientation == "first") {
+        salmon <- "SR"
+        fcounts <- 2
+        kallisto <- "--rf-stranded"
+        stringtie <- "--rf"
+    } else if(orientation == "second") {
+        salmon <- "SF"
+        fcounts <- 1
+        kallisto <- "--fr-stranded"
+        stringtie <- "--fr"
+    } else {
+        salmon <- "unknown"
+        fcounts <- "unknown"
+        kallisto <- "unknown"
+        stringtie <- "unknown"
+    }
+    if(layout == "PAIRED") {
+        salmon <- paste0("I", salmon)
+    }
+    strandedness <- list(salmon = salmon, 
+                         fcounts = fcounts, 
+                         kallisto = kallisto,
+                         stringtie = stringtie)
+    return(strandedness)
+}
+
+
+
+
+ 
