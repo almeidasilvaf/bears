@@ -74,7 +74,6 @@ trim_reads <- function(sample_info = NULL,
             }
         })
     }
-    nonfilt <- 
     return(NULL)
 }
 
