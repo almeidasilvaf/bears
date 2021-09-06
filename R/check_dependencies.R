@@ -159,6 +159,18 @@ salmon_is_installed <- function() {
 }
 
 
+#' Check if kallisto is installed
+#' 
+#' @return Logical indicating whether kallisto is instaled or not
+#' @export
+#' @rdname kallisto_is_installed
+#' @examples 
+#' kallisto_is_installed()
+kallisto_is_installed <- function() {
+    valid <- is_valid(cmd = "kallisto", args = "-h")
+    return(valid)
+}
+
 
 
 

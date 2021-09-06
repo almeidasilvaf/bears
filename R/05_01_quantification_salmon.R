@@ -12,7 +12,6 @@
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A NULL object.
-#' @importFrom tools file_ext
 #' @export
 #' @rdname salmon_index
 #' @examples

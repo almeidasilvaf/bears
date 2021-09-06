@@ -22,4 +22,6 @@ Herper::install_CondaTools("rseqc", "bear_env", updateEnv = TRUE,
 #                            updateEnv = TRUE, pathToMiniConda = my_miniconda)
 Herper::install_CondaTools("salmon", "bear_env", updateEnv = TRUE,
                            pathToMiniConda = my_miniconda)
+Herper::install_CondaTools("kallisto", "bear_env", updateEnv = TRUE,
+                           pathToMiniConda = my_miniconda)
 
