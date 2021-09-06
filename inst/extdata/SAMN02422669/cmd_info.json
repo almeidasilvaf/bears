@@ -1,0 +1,12 @@
+{
+    "salmon_version": "1.5.2",
+    "index": "/var/folders/ls/n6w3s9bx79lcr2pcd1hm77780000gn/T//RtmpA3quyJ",
+    "libType": "ISR",
+    "mates1": "/Users/almeidasilvaf/Dropbox/bears/inst/extdata/SRR1039508_1.fastq.gz",
+    "mates2": "/Users/almeidasilvaf/Dropbox/bears/inst/extdata/SRR1039508_2.fastq.gz",
+    "output": "/var/folders/ls/n6w3s9bx79lcr2pcd1hm77780000gn/T//RtmpA3quyJ/SAMN02422669",
+    "seqBias": [],
+    "gcBias": [],
+    "dumpEq": [],
+    "auxDir": "aux_info"
+}

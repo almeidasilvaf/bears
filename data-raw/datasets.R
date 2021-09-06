@@ -23,10 +23,19 @@ dir <- system.file("extdata", package="bears")
 out <- tempdir()
 mapping_qc <- multiqc(dir, out, runon="star")
 
+
+#----tx2gene----
+library(GenomicFeatures)
+gtf <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", package="bears")
+txdb <- GenomicFeatures::makeTxDbFromGFF(gtf)
+k <- keys(txdb, keytype = "TXNAME")
+tx2gene <- select(txdb, k, "GENEID", "TXNAME")
+
 #----Create data sets----
 usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
 usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
 usethis::use_data(mapping_qc, overwrite = TRUE, compress="xz")
+usethis::use_data(tx2gene, overwrite = TRUE, compress="xz")
 
 
 
@@ -155,5 +164,25 @@ writeXStringSet(
     filepath = here::here("inst", "extdata", 
                           "Hsapiens_GRCh37.75_subset_transcripts.fa")
 )
+
+
+#----SAMN02422669----
+data(sample_info)
+data(fastqc_table)
+filtdir <- system.file("extdata", package = "bears")
+salmonindex <- tempdir()
+salmondir <- tempdir()
+transcriptome_path <- system.file(
+    "extdata", "Hsapiens_GRCh37.75_subset_transcripts.fa", package="bears"
+)
+salmon_index(salmonindex, transcriptome_path, 
+             envname = "bear_env", miniconda_path = my_miniconda)
+salmon_quantify(sample_info, fastqc_table, filtdir, 
+                salmonindex, salmondir, envname = "bear_env", 
+                miniconda_path = my_miniconda)
+fs::dir_copy(file.path(salmondir, "SAMN02422669/"),
+             here::here("inst", "extdata"))
+
+
 
 

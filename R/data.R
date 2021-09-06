@@ -39,3 +39,19 @@
 #' data(mapping_qc)
 #' @usage data(mapping_qc)
 "mapping_qc"
+
+
+#' Transcript to gene mapping
+#' 
+#' The code used to create this data frame can be found in 
+#' the script datasets.R
+#' 
+#' @name tx2gene
+#' @format A data frame with transcript IDs in the first column and gene IDs
+#' in the second column.
+#' @examples 
+#' data(tx2gene)
+#' @usage data(tx2gene)
+"tx2gene"
+
+

@@ -1,0 +1,54 @@
+[2021-09-05 19:55:13.536] [jointLog] [info] setting maxHashResizeThreads to 4
+[2021-09-05 19:55:13.536] [jointLog] [info] Fragment incompatibility prior below threshold.  Incompatible fragments will be ignored.
+[2021-09-05 19:55:13.537] [jointLog] [info] Usage of --validateMappings implies use of minScoreFraction. Since not explicitly specified, it is being set to 0.65
+[2021-09-05 19:55:13.537] [jointLog] [info] Setting consensusSlack to selective-alignment default of 0.35.
+[2021-09-05 19:55:13.537] [jointLog] [info] parsing read library format
+[2021-09-05 19:55:13.539] [jointLog] [info] There is 1 library.
+[2021-09-05 19:55:14.083] [fileLog] [info] 
+At end of round 0
+==================
+Observed 7097 total fragments (7097 in most recent round)
+
+[2021-09-05 19:55:13.800] [jointLog] [info] Loading pufferfish index
+[2021-09-05 19:55:13.801] [jointLog] [info] Loading dense pufferfish index.
+[2021-09-05 19:55:13.829] [jointLog] [info] done
+[2021-09-05 19:55:13.829] [jointLog] [info] Index contained 65 targets
+[2021-09-05 19:55:13.839] [jointLog] [info] Number of decoys : 0
+[2021-09-05 19:55:14.009] [jointLog] [info] Thread saw mini-batch with a maximum of 49.02% zero probability fragments
+[2021-09-05 19:55:14.060] [jointLog] [info] Thread saw mini-batch with a maximum of 47.22% zero probability fragments
+[2021-09-05 19:55:14.082] [jointLog] [info] Computed 120 rich equivalence classes for further processing
+[2021-09-05 19:55:14.082] [jointLog] [info] Counted 3,511 total reads in the equivalence classes 
+[2021-09-05 19:55:14.085] [jointLog] [info] Number of mappings discarded because of alignment score : 2,102
+[2021-09-05 19:55:14.085] [jointLog] [info] Number of fragments entirely discarded because of alignment score : 150
+[2021-09-05 19:55:14.085] [jointLog] [info] Number of fragments discarded because they are best-mapped to decoys : 0
+[2021-09-05 19:55:14.085] [jointLog] [info] Number of fragments discarded because they have only dovetail (discordant) mappings to valid targets : 6,055
+[2021-09-05 19:55:14.086] [jointLog] [warning] Only 3511 fragments were mapped, but the number of burn-in fragments was set to 5000000.
+The effective lengths have been computed using the observed mappings.
+
+[2021-09-05 19:55:14.086] [jointLog] [info] Mapping rate = 49.4716%
+
+[2021-09-05 19:55:14.086] [jointLog] [info] finished quantifyLibrary()
+[2021-09-05 19:55:14.086] [jointLog] [info] Starting optimizer
+[2021-09-05 19:55:14.092] [jointLog] [info] Marked 0 weighted equivalence classes as degenerate
+[2021-09-05 19:55:14.092] [jointLog] [info] iteration = 0 | max rel diff. = 53.0117
+[2021-09-05 19:55:14.093] [jointLog] [info] iteration 11, adjusting effective lengths to account for biases
+[2021-09-05 19:55:17.720] [jointLog] [info] Computed expected counts (for bias correction)
+[2021-09-05 19:55:17.721] [jointLog] [info] processed bias for 4.6% of the transcripts
+[2021-09-05 19:55:17.835] [jointLog] [info] processed bias for 10.8% of the transcripts
+[2021-09-05 19:55:18.083] [jointLog] [info] processed bias for 20.0% of the transcripts
+[2021-09-05 19:55:18.287] [jointLog] [info] processed bias for 29.2% of the transcripts
+[2021-09-05 19:55:18.405] [jointLog] [info] processed bias for 41.5% of the transcripts
+[2021-09-05 19:55:18.481] [jointLog] [info] processed bias for 49.2% of the transcripts
+[2021-09-05 19:55:18.508] [jointLog] [info] processed bias for 56.9% of the transcripts
+[2021-09-05 19:55:18.743] [jointLog] [info] processed bias for 66.2% of the transcripts
+[2021-09-05 19:55:19.077] [jointLog] [info] processed bias for 80.0% of the transcripts
+[2021-09-05 19:55:19.351] [jointLog] [info] processed bias for 92.3% of the transcripts
+[2021-09-05 19:55:20.479] [jointLog] [info] processed bias for 100.0% of the transcripts
+[2021-09-05 19:55:20.482] [jointLog] [info] iteration = 100 | max rel diff. = 0.000411164
+[2021-09-05 19:55:20.483] [jointLog] [info] Finished optimizer
+[2021-09-05 19:55:20.483] [jointLog] [info] writing output 
+
+[2021-09-05 19:55:20.486] [jointLog] [info] writing equivalence class counts.
+[2021-09-05 19:55:20.487] [jointLog] [info] Collapsing factorization information into simplified equivalence classes.
+[2021-09-05 19:55:20.488] [jointLog] [info] done.
+[2021-09-05 19:55:20.489] [jointLog] [info] done writing equivalence class counts.

@@ -59,5 +59,4 @@ if(salmon_is_installed()) {
     salmon_quantify(sample_info, fastqc_table, filtdir, 
                     salmonindex, salmondir)
 }
-
 }

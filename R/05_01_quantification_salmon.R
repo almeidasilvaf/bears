@@ -38,6 +38,53 @@ salmon_index <- function(salmonindex = "results/05_quantification/salmon/idx",
     return(NULL)
 }
 
+#' Wrapper to handle technical replicates during salmon quantification
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' functions \code{create_sample_info} and \code{infer_strandedness}.
+#' The column "Orientation", added by \code{infer_strandedness}, is mandatory.
+#' @param filtdir Path to the directory where filtered reads are stored.
+#' Default: results/03_filtered_FASTQ.
+#' 
+#' @return A list with 2 elements: 
+#' \describe{
+#'   \item{paired}{List of lists, with each element corresponding to a 
+#'   BioSample. For each BioSample, there are elements 'run1' and 'run2',
+#'   which contain the paths to .fastq files.}
+#'   \item{single}{List of lists, with each element corresponding to a
+#'   BioSample. For each BioSample, there is a character object with 
+#'   path to each .fastq file}
+#' }
+#' @noRd
+run2biosample <- function(sample_info = NULL, 
+                          filtdir = "results/03_filtered_FASTQ") {
+    single <- sample_info[sample_info$Layout == "SINGLE", ]
+    paired <- sample_info[sample_info$Layout == "PAIRED", ]
+    
+    if(nrow(paired) > 0) {
+        paired$Run1 <- paste0(filtdir, "/", paired$Run, "_1.fastq.gz")
+        paired$Run2 <- paste0(filtdir, "/", paired$Run, "_2.fastq.gz")
+        pair_list <- split(paired, paired$BioSample)
+        pair_list <- lapply(pair_list, function(x) {
+            y <- list(run1 = paste(x$Run1, collapse = " "), 
+                      run2 = paste(x$Run2, collapse = " "))
+            return(y)
+        })
+    }
+    if(nrow(single) > 0) {
+        single$Run <- paste0(filtdir, "/", single$Run, ".fastq.gz")
+        single_list <- split(single, single$BioSample)
+        single_list <- lapply(single_list, function(x) {
+            y <- paste(x$Run, collapse = " ")
+            return(y)
+        })
+    }
+    if(!exists("pair_list")) { pair_list <- NULL }
+    if(!exists("single_list")) { single_list <- NULL }
+    final_list <- list(paired = pair_list, single = single_list)
+    return(final_list)
+}
+
 
 #' Quantify expression with salmon
 #' 
@@ -75,7 +122,6 @@ salmon_index <- function(salmonindex = "results/05_quantification/salmon/idx",
 #'     salmon_quantify(sample_info, fastqc_table, filtdir, 
 #'                     salmonindex, salmondir)
 #' }
-#' 
 salmon_quantify <- function(sample_info = NULL,
                             fastqc_table = NULL,
                             filtdir = "results/03_filtered_FASTQ",
@@ -90,24 +136,24 @@ salmon_quantify <- function(sample_info = NULL,
     if(!salmon_is_installed()) { stop("Unable to find salmon in PATH.") }
     if(!dir.exists(salmondir)) { dir.create(salmondir, recursive = TRUE) }
     
-    t <- lapply(seq_len(nrow(sample_info)), function(x) {
-        var <- var2list(sample_info, index = x)
+    r <- run2biosample(sample_info, filtdir)
+    sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
+    t <- lapply(seq_len(nrow(sample_meta)), function(x) {
+        var <- var2list(sample_meta, index = x)
         if(grepl("SOLiD|PacBio", var$platform)) {
             message("Skipping PacBio/SOLiD reads...")
         } else {
             if(var$layout == "SINGLE") {
-                r <- get_fastq_paths(filtdir, var$run, cmd = "S")
-                read_arg <- c("-r", r)
+                read_arg <- c("-r", r$single[[var$biosample]])
             } else if(var$layout == "PAIRED") {
-                r1 <- get_fastq_paths(filtdir, var$run, cmd = "P1")
-                r2 <- get_fastq_paths(filtdir, var$run, cmd = "P2")
-                read_arg <- c("-1", r1, "-2", r2)
+                read_arg <- c("-1", r$paired[[var$biosample]]$run1,
+                              "-2", r$paired[[var$biosample]]$run2)
             } else {
                 message("Layout information not available.")
             }
-            orientation <- sample_info[x, "Orientation"] 
+            orientation <- sample_meta[x, "Orientation"] 
             libtype <- translate_strandedness(orientation, var$layout)$salmon
-            outdir <- paste0(salmondir, "/", var$run)
+            outdir <- paste0(salmondir, "/", var$biosample)
             args <- c("quant -i", salmonindex, "-l", libtype, read_arg,
                       "-o", outdir, "--seqBias --gcBias --dumpEq")
             if(!is.null(threads)) { args <- c(args, "-p", threads) }
@@ -116,6 +162,77 @@ salmon_quantify <- function(sample_info = NULL,
     })
     return(NULL)
 }
+
+
+#' Create a SummarizedExperiment object from salmon output
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' functions \code{create_sample_info}
+#' @param level Character indicating to which level expression must be 
+#' quantified in the SE object. One of "gene" (default), "transcript", 
+#' or "both". For "both", the SE object will have two assays named "transcript"
+#' and "gene".
+#' @param salmondir Directory where quantification files will be stored.
+#' Default: results/05_quantification/salmon.
+#' @param tx2gene Data frame of correspondence between genes and transcripts, 
+#' with gene IDs in the first column and transcript IDs in the second column.
+#' Only required if level = 'gene' or 'both'. 
+#' @param envname Name of the Conda environment with external dependencies 
+#' to be included in the temporary R environment.
+#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#'
+#' @return A SummarizedExperiment object with gene/transcript expression
+#' levels and sample metadata.
+#' @importFrom tximport tximport summarizeToGene
+#' @importFrom SummarizedExperiment SummarizedExperiment
+#' @export
+#' @rdname salmon2se
+#' @examples 
+#' data(sample_info)
+#' data(tx2gene)
+#' salmondir <- system.file("extdata", package="bears")
+#' se_gene <- salmon2se(sample_info, salmondir = salmondir, tx2gene = tx2gene)
+salmon2se <- function(sample_info = NULL, level="gene", 
+                      salmondir = NULL, tx2gene = NULL) {
+    sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
+    files <- file.path(salmondir, sample_meta$BioSample, "quant.sf")
+    names(files) <- paste0(sample_meta$BioSample)
+    coldata <- data.frame(row.names = sample_meta$BioSample)
+    coldata <- cbind(coldata, sample_meta[, !names(sample_meta) == "BioSample"])
+    
+    if(level == "gene") {
+        exp <- tximport::tximport(files, type = "salmon", tx2gene = tx2gene)
+        final <- SummarizedExperiment::SummarizedExperiment(
+            assays = list(gene_TPM = exp$abundance, gene_counts = exp$counts),
+                          colData = coldata
+        )
+    } else if(level == "transcript") {
+        exp <- tximport::tximport(files, type = "salmon", txOut = TRUE)
+        final <- SummarizedExperiment::SummarizedExperiment(
+            assays = list(tx_TPM = exp$abundance, tx_counts = exp$counts),
+            colData = coldata
+        )
+    } else if(level == "both") {
+        exp_tx <- tximport::tximport(files, type = "salmon", txOut = TRUE)
+        exp_gene <- tximport::summarizeToGene(exp_tx, tx2gene)
+        se_gene <- SummarizedExperiment::SummarizedExperiment(
+            assays = list(gene_TPM = exp_gene$abundance, 
+                          gene_counts = exp_gene$counts),
+            colData = coldata
+        )
+        se_tx <- SummarizedExperiment::SummarizedExperiment(
+            assays = list(tx_TPM = exp_tx$abundance, 
+                          tx_counts = exp_tx$counts),
+            colData = coldata
+        )
+        final <- list(gene = se_gene, transcript = se_tx)
+    } else {
+        stop("Invalid parameter for the 'level' argument.")
+    }
+    return(final)
+}
+
+
 
 
 

@@ -1,0 +1,22 @@
+{
+    "read_files": "[ /Users/almeidasilvaf/Dropbox/bears/inst/extdata/SRR1039508_1.fastq.gz, /Users/almeidasilvaf/Dropbox/bears/inst/extdata/SRR1039508_2.fastq.gz]",
+    "expected_format": "ISR",
+    "compatible_fragment_ratio": 1.0,
+    "num_compatible_fragments": 3511,
+    "num_assigned_fragments": 3511,
+    "num_frags_with_concordant_consistent_mappings": 3382,
+    "num_frags_with_inconsistent_or_orphan_mappings": 131,
+    "strand_mapping_bias": 0.0,
+    "MSF": 0,
+    "OSF": 0,
+    "ISF": 0,
+    "MSR": 0,
+    "OSR": 0,
+    "ISR": 3382,
+    "SF": 59,
+    "SR": 72,
+    "MU": 0,
+    "OU": 0,
+    "IU": 0,
+    "U": 0
+}

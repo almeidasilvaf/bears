@@ -52,7 +52,9 @@ Imports:
     rtracklayer,
     Herper,
     utils,
-    stats
+    stats,
+    tximport,
+    SummarizedExperiment
 Suggests: 
     BiocStyle,
     covr,
