@@ -22,6 +22,9 @@ The function \code{infer_strandedness} adds a column named "Orientation"
 with library strandedness information, which is mandatory for
 kallisto quantification.}
 
+\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
+by \code{multiqc()}.}
+
 \item{filtdir}{Path to the directory where filtered reads are stored.
 Default: results/03_filtered_FASTQ.}
 
