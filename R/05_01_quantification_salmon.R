@@ -190,7 +190,8 @@ salmon_quantify <- function(sample_info = NULL,
 #' salmondir <- system.file("extdata", package="bears")
 #' se_gene <- salmon2se(sample_info, salmondir = salmondir, tx2gene = tx2gene)
 salmon2se <- function(sample_info = NULL, level="gene", 
-                      salmondir = NULL, tx2gene = NULL) {
+                      salmondir = "results/05_quantification/salmon", 
+                      tx2gene = NULL) {
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     files <- file.path(salmondir, sample_meta$BioSample, "quant.sf")
     names(files) <- paste0(sample_meta$BioSample)

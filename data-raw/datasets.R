@@ -183,6 +183,21 @@ salmon_quantify(sample_info, fastqc_table, filtdir,
 fs::dir_copy(file.path(salmondir, "SAMN02422669/"),
              here::here("inst", "extdata"))
 
+filtdir <- system.file("extdata", package = "bears")
+kallistoindex <- file.path(tempdir(), "transcripts.idx")
+kallistodir <- tempdir()
+transcriptome_path <- system.file(
+    "extdata", "Hsapiens_GRCh37.75_subset_transcripts.fa", package="bears"
+)
+kallisto_index(kallistoindex, transcriptome_path, envname = "bear_env",
+               miniconda_path = my_miniconda)
+kallisto_quantify(sample_info, fastqc_table, filtdir, kallistoindex,
+                  kallistodir, envname = "bear_env", 
+                  miniconda_path = my_miniconda)
+file.copy(file.path(kallistodir, "SAMN02422669", "abundance.tsv"),
+          here::here("inst", "extdata", "SAMN02422669"))
+
+
 
 
 
