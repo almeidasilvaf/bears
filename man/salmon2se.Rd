@@ -21,11 +21,6 @@ Default: results/05_quantification/salmon.}
 \item{tx2gene}{Data frame of correspondence between genes and transcripts,
 with gene IDs in the first column and transcript IDs in the second column.
 Only required if level = 'gene' or 'both'.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A SummarizedExperiment object with gene/transcript expression

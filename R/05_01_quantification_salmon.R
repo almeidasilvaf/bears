@@ -177,9 +177,6 @@ salmon_quantify <- function(sample_info = NULL,
 #' @param tx2gene Data frame of correspondence between genes and transcripts, 
 #' with gene IDs in the first column and transcript IDs in the second column.
 #' Only required if level = 'gene' or 'both'. 
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A SummarizedExperiment object with gene/transcript expression
 #' levels and sample metadata.
