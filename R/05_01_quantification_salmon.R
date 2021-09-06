@@ -55,8 +55,8 @@ salmon_index <- function(salmonindex = "results/05_quantification/salmon/idx",
 #'   path to each .fastq file}
 #' }
 #' @noRd
-run2biosample <- function(sample_info = NULL, 
-                          filtdir = "results/03_filtered_FASTQ") {
+run2biosample_salmon <- function(sample_info = NULL, 
+                                 filtdir = "results/03_filtered_FASTQ") {
     single <- sample_info[sample_info$Layout == "SINGLE", ]
     paired <- sample_info[sample_info$Layout == "PAIRED", ]
     
@@ -105,7 +105,6 @@ run2biosample <- function(sample_info = NULL,
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A NULL object.
-#' @importFrom tools file_ext
 #' @export
 #' @rdname salmon_quantify
 #' @examples
@@ -133,7 +132,7 @@ salmon_quantify <- function(sample_info = NULL,
     if(!salmon_is_installed()) { stop("Unable to find salmon in PATH.") }
     if(!dir.exists(salmondir)) { dir.create(salmondir, recursive = TRUE) }
     
-    r <- run2biosample(sample_info, filtdir)
+    r <- run2biosample_salmon(sample_info, filtdir)
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     t <- lapply(seq_len(nrow(sample_meta)), function(x) {
         var <- var2list(sample_meta, index = x)
