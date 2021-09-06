@@ -90,9 +90,10 @@ run2biosample <- function(sample_info = NULL,
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' functions \code{create_sample_info} and \code{infer_strandedness}.
-#' The column "Orientation", added by \code{infer_strandedness}, is mandatory.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
+#' The function \code{infer_strandedness} adds a column named "Orientation" 
+#' with library strandedness information. If this column is not present in 
+#' sample_info, salmon will automatically infer the library strandedness, but
+#' it will take longer to run.
 #' @param filtdir Path to the directory where filtered reads are stored.
 #' Default: results/03_filtered_FASTQ.
 #' @param salmonindex Directory where the transcriptome index is stored.
@@ -110,7 +111,6 @@ run2biosample <- function(sample_info = NULL,
 #' @rdname salmon_quantify
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
 #' filtdir <- system.file("extdata", package = "bears")
 #' salmonindex <- tempdir()
 #' salmondir <- tempdir()
@@ -119,11 +119,9 @@ run2biosample <- function(sample_info = NULL,
 #' )
 #' if(salmon_is_installed()) {
 #'     salmon_index(salmonindex, transcriptome_path)
-#'     salmon_quantify(sample_info, fastqc_table, filtdir, 
-#'                     salmonindex, salmondir)
+#'     salmon_quantify(sample_info, filtdir, salmonindex, salmondir)
 #' }
 salmon_quantify <- function(sample_info = NULL,
-                            fastqc_table = NULL,
                             filtdir = "results/03_filtered_FASTQ",
                             salmonindex = "results/05_quantification/salmon/idx",
                             salmondir = "results/05_quantification/salmon",
@@ -152,9 +150,13 @@ salmon_quantify <- function(sample_info = NULL,
                 message("Layout information not available.")
             }
             orientation <- sample_meta[x, "Orientation"] 
-            libtype <- translate_strandedness(orientation, var$layout)$salmon
+            if("Orientation" %in% names(sample_info)) {
+                lib <- translate_strandedness(orientation, var$layout)$salmon
+            } else {
+                lib <- "A"
+            }
             outdir <- paste0(salmondir, "/", var$biosample)
-            args <- c("quant -i", salmonindex, "-l", libtype, read_arg,
+            args <- c("quant -i", salmonindex, "-l", lib, read_arg,
                       "-o", outdir, "--seqBias --gcBias --dumpEq")
             if(!is.null(threads)) { args <- c(args, "-p", threads) }
             system2("salmon", args = args)

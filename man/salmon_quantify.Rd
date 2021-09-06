@@ -6,7 +6,6 @@
 \usage{
 salmon_quantify(
   sample_info = NULL,
-  fastqc_table = NULL,
   filtdir = "results/03_filtered_FASTQ",
   salmonindex = "results/05_quantification/salmon/idx",
   salmondir = "results/05_quantification/salmon",
@@ -18,10 +17,10 @@ salmon_quantify(
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
 functions \code{create_sample_info} and \code{infer_strandedness}.
-The column "Orientation", added by \code{infer_strandedness}, is mandatory.}
-
-\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
-by \code{multiqc()}.}
+The function \code{infer_strandedness} adds a column named "Orientation"
+with library strandedness information. If this column is not present in
+sample_info, salmon will automatically infer the library strandedness, but
+it will take longer to run.}
 
 \item{filtdir}{Path to the directory where filtered reads are stored.
 Default: results/03_filtered_FASTQ.}
@@ -47,7 +46,6 @@ Quantify expression with salmon
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
 filtdir <- system.file("extdata", package = "bears")
 salmonindex <- tempdir()
 salmondir <- tempdir()
@@ -56,7 +54,6 @@ transcriptome_path <- system.file(
 )
 if(salmon_is_installed()) {
     salmon_index(salmonindex, transcriptome_path)
-    salmon_quantify(sample_info, fastqc_table, filtdir, 
-                    salmonindex, salmondir)
+    salmon_quantify(sample_info, filtdir, salmonindex, salmondir)
 }
 }
