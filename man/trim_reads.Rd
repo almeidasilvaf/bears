@@ -24,7 +24,8 @@ by \code{multiqc()}.}
 Default: results/01_FASTQ_files.}
 
 \item{filtdir}{Path to the directory where filtered .fastq files will
-be stored. Default: results/03_filtered_FASTQ.}
+be temporarily stored. After trimming, filtered reads are moved back to
+fastqdir. Default: results/03_filtered_FASTQ.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}
@@ -32,7 +33,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with run accession in the first column
+and Trimmomatic run status in the second column, with "OK" if it ran
+successfully and NA if a file could not be run.
 }
 \description{
 Run Trimmomatic on reads that failed on FastQC check
@@ -40,8 +43,13 @@ Run Trimmomatic on reads that failed on FastQC check
 \examples{
 data(sample_info)
 data(fastqc_table)
-fastqdir <- system.file("extdata", package = "bears")
-filtdir <- tempdir()
+fastqdir <- tempdir()
+file.copy(system.file("extdata", "SRR1039508_1.fastq.gz", package = "bears"),
+          fastqdir)
+file.copy(system.file("extdata", "SRR1039508_2.fastq.gz", package = "bears"),
+          fastqdir)
+dir.create(paste0(fastqdir, "/filtdir"))
+filtdir <- paste0(fastqdir, "/filtdir")
 if(trimmomatic_is_installed()) {
     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
 }

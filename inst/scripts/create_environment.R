@@ -6,7 +6,7 @@
 
 my_miniconda <- file.path("/Users/almeidasilvaf", "miniconda_herper")
 Herper::install_CondaTools("multiqc", "bear_env", pathToMiniConda = my_miniconda)
-Herper::install_CondaTools("sra-tools", "bear_env", updateEnv = TRUE, 
+Herper::install_CondaTools("sra-tools==2.10.1", "bear_env", updateEnv = TRUE, 
                            pathToMiniConda = my_miniconda) # 2.11.0
 Herper::install_CondaTools("fastqc", "bear_env", updateEnv = TRUE, 
                            pathToMiniConda = my_miniconda)

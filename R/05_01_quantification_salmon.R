@@ -11,7 +11,9 @@
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return A NULL object.
+#' @return A 2-column data frame with path to index in the first column and
+#' index build status in the second column, with "OK" if the transcriptome
+#' index was successfully created, and NA otherwise.
 #' @export
 #' @rdname salmon_index
 #' @examples
@@ -34,7 +36,10 @@ salmon_index <- function(salmonindex = "results/05_quantification/salmon/idx",
     if(!dir.exists(salmonindex)) { dir.create(salmonindex, recursive = TRUE) }
     args <- c("index -t", transcriptome_path, "-i", salmonindex, "-k", klen)
     system2("salmon", args = args)
-    return(NULL)
+    status <- "OK"
+    if(length(dir(salmonindex)) == 0) { status <- NA }
+    df_status <- data.frame(index_path = salmonindex, status = status)
+    return(df_status)
 }
 
 #' Wrapper to handle technical replicates during salmon quantification
@@ -104,7 +109,9 @@ run2biosample_salmon <- function(sample_info = NULL,
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return A NULL object.
+#' @return A 2-column data frame with BioSample IDs in the first column and
+#' salmon quantification status in the second column, with "OK" if salmon
+#' sucessfully quantified expression for a given BioSample, and NA otherwise.
 #' @export
 #' @rdname salmon_quantify
 #' @examples
@@ -160,7 +167,10 @@ salmon_quantify <- function(sample_info = NULL,
             system2("salmon", args = args)
         }
     })
-    return(NULL)
+    dirlist <- list.dirs(salmondir, recursive = FALSE, full.names = FALSE)
+    df_status <- data.frame(sample = sample_meta$BioSample)
+    df_status$status <- ifelse(df_status$sample %in% dirlist, "OK", NA)
+    return(df_status)
 }
 
 

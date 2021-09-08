@@ -9,7 +9,7 @@ star_genome_index(
   gff_path = NULL,
   mappingdir = "results/04_read_mapping",
   indexdir = "results/04_read_mapping/genomeIndex",
-  threads = 10,
+  threads = 2,
   envname = NULL,
   miniconda_path = NULL
 )
@@ -25,7 +25,7 @@ be stored.}
 \item{indexdir}{Directory where the STAR genome index files will be stored.
 Default: results/04_read_mapping/genomeIndex.}
 
-\item{threads}{Number of threads for STAR aligner.}
+\item{threads}{Number of threads for STAR aligner. Default: 2.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}
@@ -33,7 +33,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with path to index in the first column and
+index build status in the second column, with "OK" if the index was
+built successfully and NA otherwise.
 }
 \description{
 Index genome for STAR alignment

@@ -119,20 +119,6 @@ star_is_installed <- function() {
     return(valid)
 }
 
-
-#' Check if SHRiMP is installed
-#' 
-#' @return Logical indicating whether SHRiMP is instaled or not
-#' @export
-#' @rdname shrimp_is_installed
-#' @examples 
-#' shrimp_is_installed()
-shrimp_is_installed <- function() {
-    valid <- is_valid(cmd = "gmapper-cs", args = "-h")
-    return(valid)
-}
-
-
 #' Check if RSeQC is installed
 #' 
 #' @return Logical indicating whether RSeQC is instaled or not

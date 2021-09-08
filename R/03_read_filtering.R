@@ -8,7 +8,8 @@
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
 #' @param filtdir Path to the directory where filtered .fastq files will
-#' be stored. Default: results/03_filtered_FASTQ.
+#' be temporarily stored. After trimming, filtered reads are moved back to
+#' fastqdir. Default: results/03_filtered_FASTQ.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
@@ -16,12 +17,19 @@
 #' @export
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
-#' @return A NULL object.
+#' @return A 2-column data frame with run accession in the first column
+#' and Trimmomatic run status in the second column, with "OK" if it ran 
+#' successfully and NA if a file could not be run.
 #' @examples
 #' data(sample_info)
 #' data(fastqc_table)
-#' fastqdir <- system.file("extdata", package = "bears")
-#' filtdir <- tempdir()
+#' fastqdir <- tempdir()
+#' file.copy(system.file("extdata", "SRR1039508_1.fastq.gz", package = "bears"),
+#'           fastqdir)
+#' file.copy(system.file("extdata", "SRR1039508_2.fastq.gz", package = "bears"),
+#'           fastqdir)
+#' dir.create(paste0(fastqdir, "/filtdir"))
+#' filtdir <- paste0(fastqdir, "/filtdir")
 #' if(trimmomatic_is_installed()) {
 #'     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
 #' }
@@ -38,13 +46,12 @@ trim_reads <- function(sample_info = NULL,
     if(!trimmomatic_is_installed()) { stop("Unable to find Trimmomatic in PATH.") }
     pe_ad <- system.file("extdata", "PE_adapter.fa", package="bears")
     se_ad <- system.file("extdata", "SE_adapter.fa", package="bears")
-
     failed <- fastqc_table[fastqc_table$per_base_sequence_quality == "fail", 1]
     failed <- unique(gsub("_1$|_2$", "", failed))
-    sample_info <- sample_info[sample_info$Run %in% failed, ]
-    if(nrow(sample_info) > 0) {
-        t <- lapply(seq_len(nrow(sample_info)), function(x) {
-            var <- var2list(sample_info, index = x)
+    sample_info2 <- sample_info[sample_info$Run %in% failed, ]
+    if(nrow(sample_info2) > 0) {
+        t <- lapply(seq_len(nrow(sample_info2)), function(x) {
+            var <- var2list(sample_info2, index = x)
             if(grepl("SOLiD|PacBio", var$platform)) {
                 message("Skipping PacBio/SOLiD reads...")
             } else {
@@ -74,7 +81,11 @@ trim_reads <- function(sample_info = NULL,
             }
         })
     }
-    return(NULL)
+    flist <- list.files(path = fastqdir, pattern=".fastq.gz")
+    flist <- unique(gsub("_[0-9].fastq.gz|.fastq.gz", "", flist))
+    df_status <- data.frame(run = sample_info$Run)
+    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
+    return(df_status)
 }
 
 
@@ -136,7 +147,9 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
-#' @return A NULL object.
+#' @return A 2-column data frame with run accessions in the first column
+#' and SortMeRNA running status in the second column, with "OK" if SortMeRNA
+#' ran successfully for each file and NA otherwise.
 #' @export
 #' @rdname remove_rrna
 #' @importFrom fs dir_delete
@@ -197,7 +210,11 @@ remove_rrna <- function(sample_info,
     logfiles <- list.files(filtdir, pattern = "*.log", full.names = TRUE)
     move_logs <- lapply(logfiles, function(x) fs::file_move(x, logdir))
     clean <- clean_sortmerna(filtdir)
-    return(NULL)
+    flist <- list.files(path = filtdir, pattern=".fastq.gz")
+    flist <- unique(gsub("_[0-9].fastq.gz|.fastq.gz", "", flist))
+    df_status <- data.frame(run = sample_info$Run)
+    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
+    return(df_status)
 }
 
 

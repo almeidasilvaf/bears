@@ -100,7 +100,10 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' 
 #' @importFrom fs file_move
 #' @importFrom Herper local_CondaEnv
-#' @return A NULL object.
+#' @return A 2-column data frame with run accession in the first column and
+#' FastQC run status. If FastQC ran successfully, the status "OK" is displayed.
+#' If FastQC failed to process a particular file, NA will be displayed on its 
+#' corresponding name.
 #' @export
 #' @rdname run_fastqc
 #' @examples
@@ -145,7 +148,11 @@ run_fastqc <- function(sample_info,
             }
         }
     })
-    return(NULL)
+    flist <- list.files(path = fastqcdir, pattern = ".zip")
+    flist <- unique(gsub("_[0-9]_fastqc.zip|_fastqc.zip", "", flist))
+    df_status <- data.frame(run = sample_info$Run)
+    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
+    return(df_status)
 }
 
 #' Run MultiQC to get a summary of QC results

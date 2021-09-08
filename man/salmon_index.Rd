@@ -26,7 +26,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with path to index in the first column and
+index build status in the second column, with "OK" if the transcriptome
+index was successfully created, and NA otherwise.
 }
 \description{
 Index the transcriptome for salmon

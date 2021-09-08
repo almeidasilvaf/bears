@@ -28,7 +28,10 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with run accession in the first column and
+FastQC run status. If FastQC ran successfully, the status "OK" is displayed.
+If FastQC failed to process a particular file, NA will be displayed on its
+corresponding name.
 }
 \description{
 Run FastQC on .fastq files

@@ -35,8 +35,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-NULL, with .sra files in the directory specified in sradir, and
-fastq files in the directories specified in fastqdir and soliddir.
+A 2-column data frame with run accession in the first column
+and status in the second column. If file is present, the status "OK"
+is returned, otherwise NA is returned.
 }
 \description{
 Download FASTQ files
@@ -44,8 +45,9 @@ Download FASTQ files
 \examples{
 \donttest{
 data(sample_info)
+fastqdir <- tempdir()
 if(sratoolkit_is_installed()) {
-    download_fastq(sample_info)
+    download_fastq(sample_info, fastqdir)
 }
 }
 }

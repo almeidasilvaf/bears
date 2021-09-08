@@ -8,11 +8,13 @@
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return A NULL object.
+#' @return A 2-column data frame with path to index file in the first column
+#' and index build status in the second column, with "OK" if the transcriptome
+#' index was successfully created, and NA otherwise.
 #' @export
 #' @rdname kallisto_index
-#' @examples 
-#' kallistoindex <- file.path(tempdir(), "transcripts.idx")
+#' @examples
+#' kallistoindex <- file.path(tempdir(), "idx")
 #' transcriptome_path <- system.file(
 #'      "extdata", "Hsapiens_GRCh37.75_subset_transcripts.fa", package="bears"
 #' )
@@ -34,7 +36,10 @@ kallisto_index <- function(
     idx <- paste0(kallistoindex, "/transcripts.idx")
     args <- c("index -i", idx, transcriptome_path)
     system2("kallisto", args = args)
-    return(NULL)
+    status <- "OK"
+    if(!file.exists(idx)) { status <- NA }
+    df_status <- data.frame(index_path = idx, status = status)
+    return(df_status)
 }
 
 
@@ -102,7 +107,9 @@ run2biosample_kallisto <- function(sample_info = NULL,
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return A NULL object.
+#' @return A 2-column data frame with BioSample IDs in the first column and 
+#' quantification status in the second column, with "OK" if kallisto 
+#' successfully quantified expression for a given BioSample, and NA otherwise.
 #' @export
 #' @rdname kallisto_quantify
 #' @examples
@@ -168,7 +175,10 @@ kallisto_quantify <- function(
             system2("kallisto", args = args)
         }
     })
-    return(NULL)
+    dirlist <- list.dirs(kallistodir, recursive = FALSE, full.names = FALSE)
+    df_status <- data.frame(sample = sample_meta$BioSample)
+    df_status$status <- ifelse(df_status$sample %in% dirlist, "OK", NA)
+    return(df_status)
 }
 
 

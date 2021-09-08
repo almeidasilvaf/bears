@@ -34,7 +34,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with run accessions in the first column
+and SortMeRNA running status in the second column, with "OK" if SortMeRNA
+ran successfully for each file and NA otherwise.
 }
 \description{
 Remove rRNA sequences from .fastq files with SortMeRNA

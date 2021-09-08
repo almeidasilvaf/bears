@@ -7,12 +7,14 @@
 #' be stored.
 #' @param indexdir Directory where the STAR genome index files will be stored.
 #' Default: results/04_read_mapping/genomeIndex.
-#' @param threads Number of threads for STAR aligner.
+#' @param threads Number of threads for STAR aligner. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
-#' @return A NULL object.
+#' @return A 2-column data frame with path to index in the first column and
+#' index build status in the second column, with "OK" if the index was 
+#' built successfully and NA otherwise.
 #' @export
 #' @rdname star_genome_index
 #' @importFrom tools file_ext
@@ -33,7 +35,7 @@ star_genome_index <- function(genome_path = NULL,
                               gff_path = NULL,
                               mappingdir = "results/04_read_mapping",
                               indexdir = "results/04_read_mapping/genomeIndex",
-                              threads = 10,
+                              threads = 2,
                               envname = NULL,
                               miniconda_path = NULL) {
     if(load_env(envname, miniconda_path)) {
@@ -50,7 +52,11 @@ star_genome_index <- function(genome_path = NULL,
               "--sjdbGTFtagExonParentTranscript", exonparent, 
               "--sjdbOverhang 25")
     system2("STAR", args = args)
-    return(NULL)
+    status <- "OK"
+    if(length(dir(indexdir)) == 0) { status <- NA }
+    df_status <- data.frame(index_path = indexdir,
+                            status = status)
+    return(df_status)
 }
 
 
@@ -114,12 +120,14 @@ star_reads <- function(sample_info,
 #' @param indexdir Directory where the STAR genome index files will be stored.
 #' Default: results/04_read_mapping/genomeIndex.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
-#' @param threads Number of threads for STAR aligner.
+#' @param threads Number of threads for STAR aligner. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
-#' @return A NULL object.
+#' @return A 2-column data frame with BioSample IDs in the first column
+#' and STAR running status in the second column, with "OK" if reads 
+#' were mapped (.bam files were created) and NA if STAR failed to map reads.
 #' @importFrom tools file_ext
 #' @export
 #' @rdname star_align
@@ -137,7 +145,7 @@ star_reads <- function(sample_info,
 #' filtdir <- system.file("extdata", package="bears")
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-#'     star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
+#'     star_align(sample_info, filtdir, fastqc_table, mappingdir, 
 #'                indexdir, gff_path, threads)
 #' }
 #' }
@@ -147,7 +155,7 @@ star_align <- function(sample_info = NULL,
                        mappingdir = "results/04_read_mapping",
                        indexdir = "results/04_read_mapping/genomeIndex",
                        gff_path = NULL,
-                       threads = 20,
+                       threads = 2,
                        envname = NULL,
                        miniconda_path = NULL) {
     if(load_env(envname, miniconda_path)) {
@@ -180,7 +188,11 @@ star_align <- function(sample_info = NULL,
             system2("STAR", args = args)
         }
     })
-    return(NULL)
+    flist <- list.files(path = mappingdir, pattern = ".bam")
+    flist <- gsub("Aligned.*", "", flist)
+    df_status <- data.frame(sample = sample_info$BioSample)
+    df_status$status <- ifelse(flist %in% df_status$sample, "OK", NA)
+    return(df_status)
 }
 
 
@@ -197,7 +209,7 @@ star_align <- function(sample_info = NULL,
 #' @return Data frame with metadata of samples that passed alignment QC.
 #' @export
 #' @rdname mapping_pass
-#' @examples 
+#' @examples
 #' data(sample_info)
 #' data(mapping_qc)
 #' mapping_passed <- mapping_pass(mapping_qc, sample_info)

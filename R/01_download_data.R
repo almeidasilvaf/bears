@@ -138,16 +138,18 @@ create_sample_info <- function(term, retmax=5000) {
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
-#' @return NULL, with .sra files in the directory specified in sradir, and 
-#' fastq files in the directories specified in fastqdir and soliddir.
+#' @return A 2-column data frame with run accession in the first column
+#' and status in the second column. If file is present, the status "OK"
+#' is returned, otherwise NA is returned.
 #' @export
 #' @rdname download_fastq
 #' @importFrom fs dir_delete
 #' @examples
 #' \donttest{
 #' data(sample_info)
+#' fastqdir <- tempdir()
 #' if(sratoolkit_is_installed()) {
-#'     download_fastq(sample_info)
+#'     download_fastq(sample_info, fastqdir)
 #' }
 #' }
 download_fastq <- function(sample_info, 
@@ -185,7 +187,11 @@ download_fastq <- function(sample_info,
     })
     message("Compressing .fastq files...")
     system2("gzip", args = paste0(fastqdir, "/*.fastq"))
-    return(NULL)
+    flist <- list.files(path = fastqdir, pattern=".fastq.gz")
+    flist <- unique(gsub("_[0-9].fastq.gz|.fastq.gz", "", flist))
+    df_status <- data.frame(run = sample_info$Run)
+    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
+    return(df_status)
 }
 
 

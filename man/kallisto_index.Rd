@@ -23,13 +23,15 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with path to index file in the first column
+and index build status in the second column, with "OK" if the transcriptome
+index was successfully created, and NA otherwise.
 }
 \description{
 Index the transcriptome for kallisto
 }
 \examples{
-kallistoindex <- file.path(tempdir(), "transcripts.idx")
+kallistoindex <- file.path(tempdir(), "idx")
 transcriptome_path <- system.file(
      "extdata", "Hsapiens_GRCh37.75_subset_transcripts.fa", package="bears"
 )

@@ -33,7 +33,9 @@ var2list <- function(sample_info, index=NULL) {
 #'
 #' @param gffpath Path to .gff file with genome annotation.
 #' 
-#' @return A NULL object.
+#' @return A 2-column data frame with path to BED file in the first column
+#' and status in the second column, with "OK" if the BED file was successfully
+#' created from the GFF/GTF file, and NA otherwise.
 #' @export
 #' @rdname gff2bed
 #' @importFrom rtracklayer import export.bed
@@ -49,7 +51,11 @@ gff2bed <- function(gffpath=NULL) {
     gff$score <- as.numeric(rep(0, length(gff)))
     bedfile <- gsub(".gff|.gtf|.gff3", ".bed", gffpath)
     rtracklayer::export.bed(gff, bedfile)
-    return(NULL)
+    status <- "OK"
+    if(!file.exists(bedfile)) { status <- NA }
+    df_status <- data.frame(bed_path = bedfile,
+                            status = status)
+    return(df_status)
 }
 
 #' Infer library strandedness
@@ -107,7 +113,7 @@ infer_strandedness <- function(mapping_passed = NULL,
     strandedness <- unlist(lapply(filelist, function(x) {
         failed <- x$V7[1]
         explainedin <- x$V7[3]
-        std <- sd(c(failed, explainedin))
+        std <- stats::sd(c(failed, explainedin))
         if(std < 0.1) {
             strand <- "unstranded"
         } else if(explainedin > failed) {

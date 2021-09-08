@@ -11,7 +11,7 @@ star_align(
   mappingdir = "results/04_read_mapping",
   indexdir = "results/04_read_mapping/genomeIndex",
   gff_path = NULL,
-  threads = 20,
+  threads = 2,
   envname = NULL,
   miniconda_path = NULL
 )
@@ -34,7 +34,7 @@ Default: results/04_read_mapping/genomeIndex.}
 
 \item{gff_path}{Path to the .gff/.gtf file with annotations.}
 
-\item{threads}{Number of threads for STAR aligner.}
+\item{threads}{Number of threads for STAR aligner. Default: 2.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}
@@ -42,7 +42,9 @@ to be included in the temporary R environment.}
 \item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
-A NULL object.
+A 2-column data frame with BioSample IDs in the first column
+and STAR running status in the second column, with "OK" if reads
+were mapped (.bam files were created) and NA if STAR failed to map reads.
 }
 \description{
 Align reads to a reference genome using STAR
@@ -61,7 +63,7 @@ threads <- 2
 filtdir <- system.file("extdata", package="bears")
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-    star_align(sample_info[1, ], filtdir, fastqc_table, mappingdir, 
+    star_align(sample_info, filtdir, fastqc_table, mappingdir, 
                indexdir, gff_path, threads)
 }
 }
