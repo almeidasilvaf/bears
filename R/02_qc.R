@@ -126,8 +126,12 @@ run_fastqc <- function(sample_info,
     
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
-        if(grepl("SOLiD|PacBio", var$platform)) {
-            message("Skipping PacBio/SOLiD reads...")
+        file <- paste0(fastqdir, "/", var$run, ".fastq.gz")
+        if(var$layout == "PAIRED") { 
+            file <- paste0(fastqdir, "/", var$run, "_1.fastq.gz") 
+        }
+        if(skip(var$platform, path = file)) {
+            message("Skipping file...")
         } else {
             if(var$layout == "SINGLE") {
                 p <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="S")

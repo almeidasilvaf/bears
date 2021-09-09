@@ -146,8 +146,12 @@ kallisto_quantify <- function(
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     t <- lapply(seq_len(nrow(sample_meta)), function(x) {
         var <- var2list(sample_meta, index = x)
-        if(grepl("SOLiD|PacBio", var$platform)) {
-            message("Skipping PacBio/SOLiD reads...")
+        file <- paste0(filtdir, "/", var$run, ".fastq.gz")
+        if(var$layout == "PAIRED") { 
+            file <- paste0(filtdir, "/", var$run, "_1.fastq.gz") 
+        }
+        if(skip(var$platform, path = file)) {
+            message("Skipping file...")
         } else {
             outdir <- paste0(kallistodir, "/", var$biosample)
             orientation <- sample_meta[x, "Orientation"]

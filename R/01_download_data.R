@@ -167,16 +167,8 @@ download_fastq <- function(sample_info,
     if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
-        if(grepl("SOLiD", var$platform)) {
-            if(!dir.exists(soliddir)) { dir.create(soliddir, recursive = TRUE) }
-            if(!dir.exists(sradir)) { dir.create(sradir, recursive = TRUE) }
-            args <- c("progress 3 -O", sradir, var$run)
-            system2("prefetch", args = args)
-            
-            system2("abi-dump", args = c(
-                "--outdir", soliddir, paste0(sradir, "/", var$run, ".sra")  
-            ))
-            fs::dir_delete(sradir)
+        if(skip(var$platform)) {
+            message("Skipping files...")
         } else {
             args <- c(var$run, "-e", threads, "-p --outdir", fastqdir)
             if(var$layout == "PAIRED") {

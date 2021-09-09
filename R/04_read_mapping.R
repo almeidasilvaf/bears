@@ -172,9 +172,13 @@ star_align <- function(sample_info = NULL,
                           qc_table, by.x="Run", "Sample")
     reads <- star_reads(sample_info, filtdir)
     aln <- lapply(seq_len(nrow(sample_info2)), function(x) {
-        platform <- sample_info2[x, "Instrument"]
-        if(grepl("SOLiD|PacBio", platform)) {
-            message("Skipping PacBio/SOLiD reads...")
+        var <- var2list(sample_info2, index = x)
+        file <- paste0(filtdir, "/", var$run, ".fastq.gz")
+        if(var$layout == "PAIRED") { 
+            file <- paste0(filtdir, "/", var$run, "_1.fastq.gz") 
+        }
+        if(skip(var$platform, path = file)) {
+            message("Skipping file...")
         } else {
             prefix <- paste0(mappingdir, "/", sample_info2[x, "BioSample"])
             args <- c("--runThreadN", threads, "--genomeDir", indexdir, 

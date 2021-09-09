@@ -52,8 +52,12 @@ trim_reads <- function(sample_info = NULL,
     if(nrow(sample_info2) > 0) {
         t <- lapply(seq_len(nrow(sample_info2)), function(x) {
             var <- var2list(sample_info2, index = x)
-            if(grepl("SOLiD|PacBio", var$platform)) {
-                message("Skipping PacBio/SOLiD reads...")
+            file <- paste0(fastqdir, "/", var$run, ".fastq.gz")
+            if(var$layout == "PAIRED") { 
+                file <- paste0(fastqdir, "/", var$run, "_1.fastq.gz") 
+            }
+            if(skip(var$platform, path = file)) {
+                message("Skipping file...")
             } else {
                 trim <- c("LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36")
                 if(var$layout == "SINGLE") {
@@ -178,8 +182,12 @@ remove_rrna <- function(sample_info,
     refs <- rrna_ref_args(rrna_db_dir)
     t <- lapply(seq_len(nrow(sample_info)), function(x) {
         var <- var2list(sample_info, index = x)
-        if(grepl("SOLiD|PacBio", var$platform)) {
-            message("Skipping PacBio/SOLiD reads...")
+        file <- paste0(fastqdir, "/", var$run, ".fastq.gz")
+        if(var$layout == "PAIRED") { 
+            file <- paste0(fastqdir, "/", var$run, "_1.fastq.gz") 
+        }
+        if(skip(var$platform, path = file)) {
+            message("Skipping file...")
         } else {
             workdir <- paste0(filtdir, "/", var$run)
             if(var$layout == "SINGLE") {

@@ -1,4 +1,31 @@
 
+#' Wrapper to skip reads
+#' 
+#' Files are skipped if they do not exist where they should or if they are
+#' SOLiD/PacBio reads.
+#' 
+#' @param platform Sequencing platform.
+#' @param path Path to file to be tested.
+#' 
+#' @return Logical indicating whether to skip reads or not.
+#' @noRd
+skip <- function(platform = NULL, path = NULL) {
+    p_skip <- FALSE
+    if(grepl("SOLiD|PacBio", platform)) {
+        p_skip <- TRUE
+    }
+    if(is.null(path)) {
+        f_skip <- FALSE
+    } else {
+        f_skip <- !file.exists(path)
+    }
+    final <- FALSE
+    if(p_skip | f_skip) {
+        final <- TRUE
+    }
+    return(final)
+}
+
 #' Wrapper to extract variables for each Run or BioSample
 #' 
 #' @param sample_info Data frame of sample metadata created with the
