@@ -121,7 +121,7 @@ star_is_installed <- function() {
 
 #' Check if RSeQC is installed
 #' 
-#' @return Logical indicating whether RSeQC is instaled or not
+#' @return Logical indicating whether RSeQC is installed or not
 #' @export
 #' @rdname rseqc_is_installed
 #' @examples 
@@ -134,7 +134,7 @@ rseqc_is_installed <- function() {
 
 #' Check if salmon is installed
 #' 
-#' @return Logical indicating whether salmon is instaled or not
+#' @return Logical indicating whether salmon is installed or not
 #' @export
 #' @rdname salmon_is_installed
 #' @examples 
@@ -147,7 +147,7 @@ salmon_is_installed <- function() {
 
 #' Check if kallisto is installed
 #' 
-#' @return Logical indicating whether kallisto is instaled or not
+#' @return Logical indicating whether kallisto is installed or not
 #' @export
 #' @rdname kallisto_is_installed
 #' @examples 
@@ -157,6 +157,18 @@ kallisto_is_installed <- function() {
     return(valid)
 }
 
+
+#' Check if subread is installed
+#' 
+#' @return Logical indicating whether subread is installed or not
+#' @export
+#' @rdname subread_is_installed
+#' @examples 
+#' subread_is_installed()
+subread_is_installed <- function() {
+    valid <- is_valid(cmd = "featureCounts", args = "-h")
+    return(valid)
+}
 
 
 

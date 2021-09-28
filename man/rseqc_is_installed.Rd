@@ -7,7 +7,7 @@
 rseqc_is_installed()
 }
 \value{
-Logical indicating whether RSeQC is instaled or not
+Logical indicating whether RSeQC is installed or not
 }
 \description{
 Check if RSeQC is installed

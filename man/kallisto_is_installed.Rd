@@ -7,7 +7,7 @@
 kallisto_is_installed()
 }
 \value{
-Logical indicating whether kallisto is instaled or not
+Logical indicating whether kallisto is installed or not
 }
 \description{
 Check if kallisto is installed

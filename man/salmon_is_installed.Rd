@@ -7,7 +7,7 @@
 salmon_is_installed()
 }
 \value{
-Logical indicating whether salmon is instaled or not
+Logical indicating whether salmon is installed or not
 }
 \description{
 Check if salmon is installed
