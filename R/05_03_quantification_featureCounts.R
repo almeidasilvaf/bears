@@ -19,6 +19,7 @@
 #' @importFrom rtracklayer import export
 #' @importFrom tools file_ext
 #' @importFrom Rsubread featureCounts
+#' @importFrom utils write.table
 #' @export
 #' @rdname fcount
 #' @examples 
@@ -68,7 +69,7 @@ fcount <- function(sample_info = NULL,
     )
     exp_matrix <- fc$counts
     colnames(exp_matrix) <- gsub("Aligned.*", "", colnames(exp_matrix))
-    write.table(exp_matrix, quote=FALSE, sep = "\t", row.names = TRUE,
+    utils::write.table(exp_matrix, quote=FALSE, sep = "\t", row.names = TRUE,
                 file = paste0(fcountsdir, "/exp_matrix.tsv"))
     write.table(fc$stat, quote=FALSE, sep="\t", row.names = FALSE, 
                 file = paste0(fcountsdir, "/count_stats_per_sample.tsv"))
