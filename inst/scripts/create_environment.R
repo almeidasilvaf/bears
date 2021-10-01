@@ -29,3 +29,7 @@ Herper::install_CondaTools("subread", "bear_env", updateEnv = TRUE,
 Herper::install_CondaTools("stringtie", "bear_env", updateEnv = TRUE,
                            pathToMiniConda = my_miniconda)
 
+# Create new env for TACO
+Herper::install_CondaTools("taco", "taco_env", pathToMiniConda = my_miniconda,
+                           updateEnv = TRUE)
+

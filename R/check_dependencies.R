@@ -171,6 +171,31 @@ subread_is_installed <- function() {
 }
 
 
+#' Check if StringTie is installed
+#' 
+#' @return Logical indicating whether StringTie is installed or not
+#' @export
+#' @rdname stringtie_is_installed
+#' @examples
+#' stringtie_is_installed()
+stringtie_is_installed <- function() {
+    valid <- is_valid(cmd = "stringtie", args = "-h")
+    return(valid)
+}
+
+
+#' Check if TACO is installed
+#' 
+#' @return Logical indicating whether TACO is installed or not
+#' @export
+#' @rdname taco_is_installed
+#' @examples
+#' taco_is_installed()
+taco_is_installed <- function() {
+    valid <- is_valid(cmd = "taco_run", args = "-h")
+    return(valid)
+}
+
 
 
 
