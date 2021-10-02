@@ -7,8 +7,6 @@
 download_fastq(
   sample_info,
   fastqdir = "results/01_FASTQ_files",
-  sradir = "results/00_SRA_files",
-  soliddir = "results/01_SOLiD_dir",
   threads = 2,
   envname = NULL,
   miniconda_path = NULL
@@ -20,12 +18,6 @@ function \code{create_sample_info}.}
 
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
-
-\item{sradir}{Path to the directory where .sra files will be temporarily
-stored. Default: results/00_SRA_files.}
-
-\item{soliddir}{Path to the directory where .fastq files for SOLiD data
-will be stored. Default: results/01_SOLiD_dir.}
 
 \item{threads}{Number of threads to use. Default: 2.}
 

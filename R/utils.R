@@ -211,6 +211,66 @@ translate_strandedness <- function(orientation = NULL, layout = NULL) {
 }
 
 
+#' Wrapper to create directory if it doesn't exist
+#' 
+#' @param dir Character with directory name.
+#' 
+#' @return A NULL object.
+#' @noRd
+c_createdir <- function(dir) {
+    r <- NULL
+    if(!dir.exists(dir)) { r <- dir.create(dir, recursive = TRUE) }
+    return(r)
+}
+
+
+#' Create a standard directory for bears
+#' 
+#' @param rootdir Root directory where all subdirectories will be created.
+#' If not specified, a directory named "results_YYYY-MM-DD" will be created,
+#' where Y, M and D represent year, month and day, respectively.
+#' 
+#' @return A list of paths with following elements:
+#' \describe{
+#'   \item{fastqdir}{Path to directory where FASTQ files are.}
+#'   \item{fastqcdir}{Path to directory where FastQC output is stored.}
+#'   \item{filtdir}{Path to directory where filtered FASTQ files are.}
+#'   \item{mappingdir}{Path to directory where STAR-derived BAM files are.}
+#'   \item{salmonindex}{Path to directory where salmon transcriptome index is.}
+#'   \item{salmondir}{Path to directory where salmon output files are.}
+#'   \item{kallistoindex}{Path to directory where kallisto transcriptome index is.}
+#'   \item{kallistodir}{Path to directory where kallisto output files are.}
+#'   \item{fcountsdir}{Path to directory where featureCounts output files are.}
+#'   \item{stringtiedir}{Path to directory where StringTie output files are.}
+#' }
+#' @export
+#' @rdname create_dir_structure
+#' @examples 
+#' rootdir <- tempdir()
+#' dirs <- create_dir_structure(rootdir)
+create_dir_structure <- function(rootdir = NULL) {
+    
+    if(is.null(rootdir)) { rootdir <- paste0("results_", Sys.Date()) }
+    root <- c_createdir(rootdir)
+    fastqdir <- paste0(rootdir, "/01_FASTQ_files")
+    fastqcdir <- paste0(rootdir, "/02_FastQC_dir")
+    filtdir <- paste0(rootdir, "/03_filtered_FASTQ")
+    mappingdir <- paste0(rootdir, "/04_read_mapping")
+    salmonindex <- paste0(rootdir, "/05_quantification/salmon/idx")
+    salmondir <- paste0(rootdir, "/05_quantification/salmon")
+    kallistoindex <- paste0(rootdir, "/05_quantification/kallisto/idx")
+    kallistodir <- paste0(rootdir, "/05_quantification/kallisto")
+    fcountsdir <- paste0(rootdir, "/05_quantification/featureCounts")
+    stringtiedir <- paste0(rootdir, "/05_quantification/stringtie")
+    
+    dirs <- list(fastqdir = fastqdir, fastqcdir = fastqcdir, 
+                 filtdir = filtdir, mappingdir = mappingdir,
+                 salmonindex = salmonindex, salmondir = salmondir,
+                 kallistoindex = kallistoindex, kallistodir = kallistodir,
+                 fcountsdir = fcountsdir, stringtiedir = stringtiedir)
+    create <- lapply(dirs, c_createdir)    
+    return(dirs)
+}
 
 
  

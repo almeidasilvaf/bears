@@ -127,12 +127,8 @@ create_sample_info <- function(term, retmax=5000) {
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
-#' @param sradir Path to the directory where .sra files will be temporarily
-#' stored. Default: results/00_SRA_files.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
-#' @param soliddir Path to the directory where .fastq files for SOLiD data
-#' will be stored. Default: results/01_SOLiD_dir.
 #' @param threads Number of threads to use. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
@@ -154,8 +150,6 @@ create_sample_info <- function(term, retmax=5000) {
 #' }
 download_fastq <- function(sample_info, 
                            fastqdir = "results/01_FASTQ_files",
-                           sradir = "results/00_SRA_files", 
-                           soliddir = "results/01_SOLiD_dir", 
                            threads = 2,
                            envname = NULL, 
                            miniconda_path = NULL) {
