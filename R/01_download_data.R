@@ -7,7 +7,8 @@
 #' the same.
 #' @noRd
 check_empty <- function(vector) {
-    if(length(vector) == 0 | is.null(vector)) {
+    vector <- vector
+    if(length(vector) != 1 | is.null(vector)) {
         vector <- NA
     }
     return(vector)
@@ -79,7 +80,7 @@ sra_xml2df <- function(id) {
         Study_title = check_empty(title), Study_abstract = check_empty(abstract),
         Date = as.character(check_empty(date)), Origin = check_empty(origin)
     )
-    return(df)
+    return(df[!is.na(df$Run), ])
 } 
 
 #' Search the SRA database and create a data frame of sample metadata

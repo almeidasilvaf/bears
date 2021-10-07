@@ -6,7 +6,7 @@ sample_info$Study_abstract <- textclean::replace_non_ascii(
     sample_info$Study_abstract
 )
 sample_info$Orientation <- "first"
-    
+
 #----fastqc_table----
 data(sample_info)
 fq <- system.file("extdata", package="bears")
