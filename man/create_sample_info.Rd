@@ -4,7 +4,7 @@
 \alias{create_sample_info}
 \title{Search the SRA database and create a data frame of sample metadata}
 \usage{
-create_sample_info(term, retmax = 5000)
+create_sample_info(term, retmax = 5000, bp_param = BiocParallel::SerialParam())
 }
 \arguments{
 \item{term}{Character with the search term,

@@ -8,12 +8,63 @@
 #' @noRd
 check_empty <- function(vector) {
     vector <- vector
-    if(length(vector) != 1 | is.null(vector)) {
+    if(length(vector) == 0 | is.null(vector)) {
         vector <- NA
     }
     return(vector)
 }
 
+
+#' Create metadata data frame
+#' 
+#' @param res_list List containing variables to include in the metadata 
+#' data frame.
+#'
+#' @return A data frame with the following columns:
+#' \describe{
+#'   \item{BioSample}{BioSample accession.}
+#'   \item{Experiment}{Experiment accession (SRX*).}
+#'   \item{Run}{Run accession (SRR*).}
+#'   \item{Tissue}{Tissue from which RNA was extracted.}
+#'   \item{Pubmed}{Pubmed ID of articles associated with the project, if any.}
+#'   \item{BioProject}{Bioproject accession.}
+#'   \item{Instrument}{Sequencing instrument}
+#'   \item{Layout}{Library layout (single- or paired-end sequencing).}
+#'   \item{Selection_method}{Library selection method.}
+#'   \item{SRA_sample}{SRA sample accession (SRS*).}
+#'   \item{SRA_study}{SRA study accession (SRP*).}
+#'   \item{Treatment}{Treatment for the biosample.}
+#'   \item{Cultivar}{Plant cultivar.}
+#'   \item{Study_title}{Study title, if any.}
+#'   \item{Study_abstract}{Study abstract, if any.}
+#'   \item{Date}{Date of release.}
+#'   \item{Origin}{Country of origin.}
+#' }
+#' @noRd
+create_meta_df <- function(res_list) {
+    nruns <- length(res_list$run)
+    r <- res_list
+    df <- data.frame(
+        BioSample = rep(check_empty(r$biosample), nruns), 
+        Experiment = rep(check_empty(r$experiment), nruns), 
+        Run = check_empty(r$run),
+        Tissue = rep(check_empty(r$tissue), nruns), 
+        Pubmed = rep(check_empty(r$pubmed), nruns),
+        BioProject = rep(check_empty(r$bioproject), nruns), 
+        Instrument = rep(check_empty(r$instrument), nruns),
+        Layout = rep(check_empty(r$layout), nruns), 
+        Selection_method = rep(check_empty(r$selection), nruns),
+        SRA_sample = rep(check_empty(r$srasample), nruns), 
+        SRA_study = rep(check_empty(r$srastudy), nruns),
+        Treatment = rep(check_empty(r$treatment), nruns), 
+        Cultivar = rep(check_empty(r$cultivar), nruns),
+        Study_title = rep(check_empty(r$title), nruns), 
+        Study_abstract = rep(check_empty(r$abstract), nruns),
+        Date = rep(as.character(check_empty(r$date))[1], nruns), 
+        Origin = rep(check_empty(r$origin), nruns)
+    )
+    return(df)
+}
 
 #' Wrapper to create a data frame from efetch results in XML
 #' 
@@ -69,18 +120,16 @@ sra_xml2df <- function(id) {
     treatment <- gsub("treatment", "", samp_at[grep("treatment", samp_at)])
     date <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)["published",]
     
-    df <- data.frame(
-        BioSample = check_empty(biosample), 
-        Experiment = check_empty(experiment), Run = check_empty(run),
-        Tissue = check_empty(tissue), Pubmed = check_empty(pubmed),
-        BioProject = check_empty(bioproject), Instrument = check_empty(instr),
-        Layout = check_empty(layout), Selection_method = check_empty(selection),
-        SRA_sample = check_empty(srasample), SRA_study = check_empty(srastudy),
-        Treatment = check_empty(treatment), Cultivar = check_empty(cultivar),
-        Study_title = check_empty(title), Study_abstract = check_empty(abstract),
-        Date = as.character(check_empty(date)), Origin = check_empty(origin)
+    res_list <- list(
+        biosample = biosample, experiment = experiment, run = run, 
+        tissue = tissue, pubmed = pubmed, bioproject = bioproject, 
+        instrument = instr, layout = layout, selection = selection, 
+        srasample = srasample, srastudy = srastudy, treatment = treatment,
+        cultivar = cultivar, title = title, abstract = abstract, date = date,
+        origin = origin
     )
-    return(df[!is.na(df$Run), ])
+    df <- create_meta_df(res_list)
+    return(df)
 } 
 
 #' Search the SRA database and create a data frame of sample metadata
@@ -113,13 +162,17 @@ sra_xml2df <- function(id) {
 #' @export
 #' @rdname create_sample_info
 #' @importFrom rentrez entrez_search
+#' @importFrom BiocParallel bplapply SerialParam
 #' @examples 
 #' term <- "SAMN02422669[BSPL]"
 #' df <- create_sample_info(term)
-create_sample_info <- function(term, retmax=5000) {
+create_sample_info <- function(term, retmax=5000, 
+                               bp_param = BiocParallel::SerialParam()) {
     search <- rentrez::entrez_search(db="sra", term=term,
                                      retmax = retmax, use_history = TRUE)
-    final_df <- Reduce(rbind, lapply(search$ids, sra_xml2df))
+    final_list <- BiocParallel::bplapply(search$ids, sra_xml2df, 
+                                         BPPARAM = bp_param)
+    final_df <- Reduce(rbind, final_list)
     return(final_df)
 }
 

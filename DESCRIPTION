@@ -56,7 +56,8 @@ Imports:
     methods,
     tximport,
     SummarizedExperiment,
-    Rsubread
+    Rsubread,
+    BiocParallel
 Suggests: 
     BiocStyle,
     covr,
