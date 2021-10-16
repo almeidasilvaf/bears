@@ -138,6 +138,8 @@ sra_xml2df <- function(id) {
 #' e.g. "Glycine max\[ORGN\] AND RNA-seq\[STRA\]".
 #' @param retmax Numeric with the maximum number of hits returned 
 #' by the search.
+#' @param bp_param BiocParallel back-end to be used. 
+#' Default: BiocParallel::SerialParam().
 #' 
 #' @return A data frame with the following columns:
 #' \describe{
