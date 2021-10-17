@@ -2,12 +2,18 @@
 #' Wrapper to check if character vector is empty
 #' 
 #' @param vector Character vector to be inspected.
-#' 
+#' @param unique Logical indicating whether or not to pick only 
+#' the first element if the character vector has 2 or more elements.
 #' @return If the vector is empty, it is assigned NA. Otherwise, it remains
 #' the same.
 #' @noRd
-check_empty <- function(vector) {
-    vector <- vector
+check_empty <- function(vector, unique=TRUE) {
+    if(unique) {
+        vector <- vector[1]
+    } else {
+        vector <- vector
+    }
+    
     if(length(vector) == 0 | is.null(vector)) {
         vector <- NA
     }
@@ -47,7 +53,7 @@ create_meta_df <- function(res_list) {
     df <- data.frame(
         BioSample = rep(check_empty(r$biosample), nruns), 
         Experiment = rep(check_empty(r$experiment), nruns), 
-        Run = check_empty(r$run),
+        Run = check_empty(r$run, unique=FALSE),
         Tissue = rep(check_empty(r$tissue), nruns), 
         Pubmed = rep(check_empty(r$pubmed), nruns),
         BioProject = rep(check_empty(r$bioproject), nruns), 
