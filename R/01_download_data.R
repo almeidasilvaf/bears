@@ -17,6 +17,10 @@ check_empty <- function(vector, unique=TRUE) {
     if(length(vector) == 0 | is.null(vector)) {
         vector <- NA
     }
+    
+    if(is.list(vector)) {
+        vector <- NA
+    }
     return(vector)
 }
 
@@ -124,12 +128,7 @@ sra_xml2df <- function(id) {
     title <- XML::xpathSApply(run_info, "//STUDY_TITLE", XML::xmlValue)
     abstract <- XML::xpathSApply(run_info, "//STUDY_ABSTRACT", XML::xmlValue)
     treatment <- gsub("treatment", "", samp_at[grep("treatment", samp_at)])
-    date <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
-    if(methods::is(date, "matrix")) {
-        date <- date["published",]
-    } else {
-        date <- date[[1]]["published"]
-    }
+    date <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)["published",]
     
     res_list <- list(
         biosample = biosample, experiment = experiment, run = run, 
