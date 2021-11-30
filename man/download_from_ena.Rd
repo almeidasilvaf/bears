@@ -29,5 +29,7 @@ Download FASTQ files from ENA's ftp
 \examples{
 data(sample_info)
 fastqdir <- tempdir()
+\donttest{
 download_from_ena(sample_info, fastqdir)
+}
 }

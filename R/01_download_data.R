@@ -354,7 +354,9 @@ get_url_ena <- function(sample_info = NULL) {
 #' @examples 
 #' data(sample_info)
 #' fastqdir <- tempdir()
+#' \donttest{
 #' download_from_ena(sample_info, fastqdir)
+#' }
 download_from_ena <- function(sample_info = NULL, 
                               fastqdir = "results/01_FASTQ_files", 
                               method = "auto") {
