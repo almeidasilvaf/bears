@@ -16,6 +16,9 @@ function \code{create_sample_info}.}
 
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
+
+\item{method}{Method to be used for downloading files. One of "internal",
+"libcurl", "wget", "libcurl", "curl", "wininet" (Windows only), or "auto".}
 }
 \value{
 A data frame as returned by \code{fastq_exists}.
