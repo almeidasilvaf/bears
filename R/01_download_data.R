@@ -347,6 +347,7 @@ get_url_ena <- function(sample_info = NULL) {
 #' @return A data frame as returned by \code{fastq_exists}.
 #' @rdname download_from_ena
 #' @export
+#' @importFrom utils download.file tail
 #' @examples 
 #' data(sample_info)
 #' fastqdir <- tempdir()
