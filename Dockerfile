@@ -29,6 +29,11 @@ ENV LD_LIBRARY_PATH="/usr/local/lib/:$LD_LIBRARY_PATH"
 RUN wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.11.1/sratoolkit.2.11.1-ubuntu64.tar.gz -O /tmp/sratoolkit.tar.gz && \
       tar zxvf /tmp/sratoolkit.tar.gz -C /opt/ && \
       rm /tmp/sratoolkit.tar.gz
+      
+# Configure sratoolkit
+RUN vdb-config --restore-defaults && \
+      echo '/LIBS/GUID = "a924eb97-2c35-47ed-89da-5b82f13e6804"' >> /root/.ncbi/user-settings.mkfg
+
 
 #----Install FastQC-------------------------------------------------------------
 RUN wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip -O /tmp/fastqc_v0.11.19.zip && \
