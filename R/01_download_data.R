@@ -252,3 +252,127 @@ download_fastq <- function(sample_info,
 }
 
 
+#' Check if FASTQ files were properly downloaded
+#'
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' @param fastqdir Path to the directory where .fastq files will be stored.
+#' Default: results/01_FASTQ_files.
+#' 
+#' @return Data frame with run accession in the first column, and
+#' status in the second column. If the FASTQ file for a given run exists,
+#' its status will be "OK", otherwise it will be NA.
+#' @export
+#' @rdname fastq_exists
+#' @examples
+#' data(sample_info)
+#' fastqdir <- system.file("extdata", package = "bears")
+#' fastq_exists(sample_info, fastqdir)
+fastq_exists <- function(sample_info = NULL, 
+                         fastqdir = "results/01_FASTQ_files") {
+    
+    files <- lapply(seq_len(nrow(sample_info)), function(x) {
+        vars <- var2list(sample_info, index = x)
+        if(vars$layout == "PAIRED") {
+            file <- c(
+                paste0(fastqdir, "/", vars$run, "_1.fastq.gz"),
+                paste0(fastqdir, "/", vars$run, "_2.fastq.gz")
+            )
+        } else {
+            file <- paste0(fastqdir, "/", vars$run, ".fastq.gz")
+        }
+        return(file)
+    })
+    file_df <- data.frame(Run = unlist(files), Status = NA)
+    file_df$Status <- ifelse(file.exists(file_df$Run), "OK", NA)
+    file_df$Run <- vapply(strsplit(file_df$Run, "/"), tail, n=1, character(1))
+    file_df$Run <- gsub("_.*|\\.fastq.*", "", file_df$Run)
+    file_df <- file_df[!duplicated(file_df$Run), ]
+    return(file_df)
+}
+
+
+#' Get URL for each file in the ENA's ftp repository
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' 
+#' @return A list with the URL for each accession.
+#' @export
+#' @rdname get_url_ena
+#' @examples 
+#' data(sample_info)
+#' get_url_ena(sample_info)
+get_url_ena <- function(sample_info = NULL) {
+    
+    base_url <- "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"
+    urls <- lapply(seq_len(nrow(sample_info)), function(x) {
+        run <- sample_info$Run[x]
+        layout <- sample_info$Layout[x]
+        ext <- ".fastq.gz"
+        subdir <- paste0(substr(run, 1, 6), "/")
+        if(layout == "PAIRED") { ext <- c("_1.fastq.gz", "_2.fastq.gz") }
+        file <- paste0(run, ext) 
+        if(startsWith(run, "SRR")) {
+            ssubdir <- paste0(0, substr(run, nchar(run)-1, nchar(run)), "/")
+            url <- paste0(base_url, subdir, ssubdir, paste0(run, "/"), file)
+        } else {
+            url <- paste0(base_url, subdir, paste0(run, "/"), file)
+        }
+        check <- vapply(url, valid_url, logical(1))
+        if(any(check == FALSE)) {
+            idx <- which(check == FALSE)
+            url[idx] <- gsub("/[0-9][0-9][0-9]/", "/", url[idx])
+            
+            check2 <- vapply(url[idx], valid_url, logical(1))
+            if(any(check2 == FALSE)) {
+                idx2 <- which(check2 == FALSE)
+                nidx2 <- paste(which(check2 == FALSE), collapse = ", ")
+                message("Could not find URL for run accessions ", nidx2)
+                url <- url[-idx2]
+            }
+        }
+        return(url)
+    })
+    return(urls)
+}
+
+#' Download FASTQ files from ENA's ftp
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' @param fastqdir Path to the directory where .fastq files will be stored.
+#' Default: results/01_FASTQ_files.
+#' 
+#' @return A data frame as returned by \code{fastq_exists}.
+#' @rdname download_from_ena
+#' @export
+#' @examples 
+#' data(sample_info)
+#' fastqdir <- tempdir()
+#' download_from_ena(sample_info, fastqdir)
+download_from_ena <- function(sample_info = NULL, 
+                              fastqdir = "results/01_FASTQ_files", 
+                              method = "auto") {
+    if(missing(method)) 
+        method <- ifelse(!is.null(getOption("download.file.method")), 
+                         getOption("download.file.method"), "auto")
+    
+    urls <- unlist(get_url_ena(sample_info))
+    d <- lapply(seq_along(urls), function(x) {
+        message("Downloading file ", urls[x])
+        file <- vapply(strsplit(urls[x], "/"), tail, n=1, character(1))
+        file <- paste0(fastqdir, "/", file)
+        x <- download.file(urls[x], destfile = file, method = method)
+    })
+    
+    df <- fastq_exists(sample_info, fastqdir)
+    return(df)
+     
+}
+
+
+
+
+
+

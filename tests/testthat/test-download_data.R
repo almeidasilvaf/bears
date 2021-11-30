@@ -5,3 +5,9 @@ test_that("create_sample_info() creates a data frame of search results", {
     expect_equal(ncol(df), 17)
     expect_equal(class(df), "data.frame")
 })
+
+test_that("get_url_ena() correcly gets ENA's URL to FASTQ files", {
+    term <- "PRJNA80173[GPRJ]"
+    sample_info <- create_sample_info(term)
+    urls <- get_url_ena(sample_info)
+})
