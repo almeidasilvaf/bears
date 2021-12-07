@@ -305,6 +305,9 @@ fastq_exists <- function(sample_info = NULL,
 #' get_url_ena(sample_info)
 get_url_ena <- function(sample_info = NULL) {
     
+    check_internet <- valid_url("ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR155/003/SRR1555233/SRR1555233.fastq.gz")
+    if(!check_internet) { stop("You have an internet connection problem.") }
+    
     base_url <- "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"
     urls <- lapply(seq_len(nrow(sample_info)), function(x) {
         run <- sample_info$Run[x]
