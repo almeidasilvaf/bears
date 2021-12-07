@@ -314,7 +314,7 @@ get_url_ena <- function(sample_info = NULL) {
         if(layout == "PAIRED") { ext <- c("_1.fastq.gz", "_2.fastq.gz") }
         file <- paste0(run, ext) 
         if(startsWith(run, "SRR")) {
-            ssubdir <- paste0(0, substr(run, nchar(run)-1, nchar(run)), "/")
+            ssubdir <- paste0("00", substr(run, nchar(run), nchar(run)), "/")
             url <- paste0(base_url, subdir, ssubdir, paste0(run, "/"), file)
         } else {
             url <- paste0(base_url, subdir, paste0(run, "/"), file)
