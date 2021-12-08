@@ -292,21 +292,36 @@ fastq_exists <- function(sample_info = NULL,
 }
 
 
-#' Get URL for each file in the ENA's ftp repository
+#' Get URL for each FASTQ file in the ENA's ftp repository via API
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
 #' 
-#' @return A list with the URL for each accession.
-#' @export
-#' @rdname get_url_ena
-#' @examples 
-#' data(sample_info)
-#' get_url_ena(sample_info)
-get_url_ena <- function(sample_info = NULL) {
+#' @return A character vector with the URL for each file.
+#' @importFrom utils read.table
+#' @noRd
+get_url_ena_api <- function(sample_info = NULL) {
     
-    check_internet <- valid_url("ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR155/003/SRR1555233/SRR1555233.fastq.gz")
-    if(!check_internet) { stop("You have an internet connection problem.") }
+    base_url <- "https://www.ebi.ac.uk/ena/portal/api/filereport?accession="
+    runs <- sample_info$Run
+    link <- unlist(lapply(runs, function(x) {
+        l <- paste0(base_url, x, 
+                    "&result=read_run&fields=study_accession,sample_accession,experiment_accession,run_accession,tax_id,scientific_name,fastq_ftp,submitted_ftp,sra_ftp&format=tsv&limit=0")
+        ftp_url <- utils::read.table(l, header=TRUE)$submitted_ftp
+        ftp_url <- unlist(strsplit(ftp_url, ";"))
+        return(ftp_url)
+    }))
+    return(link)
+}
+
+#' Get URL for each FASTQ file in the ENA's ftp repository via iterations on possible links
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' 
+#' @return A character vector with the URL for each file.
+#' @noRd
+get_url_ena_iterative <- function(sample_info = NULL) {
     
     base_url <- "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"
     urls <- lapply(seq_len(nrow(sample_info)), function(x) {
@@ -343,6 +358,35 @@ get_url_ena <- function(sample_info = NULL) {
     return(urls)
 }
 
+
+#' Get URL for each file in the ENA's ftp repository
+#' 
+#' @param sample_info Data frame of sample metadata created with the
+#' function \code{create_sample_info}.
+#' @param link_from Method to extract the URL to each FASTQ file in the ENA's
+#' ftp repository. One of 'api' or 'iterative'. Default: 'api'.
+#' 
+#' @return A character vector with the URL for each accession.
+#' @export
+#' @rdname get_url_ena
+#' @examples 
+#' data(sample_info)
+#' get_url_ena(sample_info)
+get_url_ena <- function(sample_info = NULL, link_from = "api") {
+    
+    check_internet <- valid_url("ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR155/003/SRR1555233/SRR1555233.fastq.gz")
+    if(!check_internet) { stop("You have an internet connection problem.") }
+    
+    if(link_from == "api") {
+        urls <- get_url_ena_api(sample_info)
+    } else if(link_from == "iterative") {
+        urls <- get_url_ena_iterative(sample_info)
+    } else {
+        stop("Invalid 'link_from'. Choose one of 'api' or 'iterative'.")
+    }
+    return(urls)
+}
+
 #' Download FASTQ files from ENA's ftp
 #' 
 #' @param sample_info Data frame of sample metadata created with the
@@ -370,7 +414,7 @@ download_from_ena <- function(sample_info = NULL,
         method <- ifelse(!is.null(getOption("download.file.method")), 
                          getOption("download.file.method"), "auto")
     
-    urls <- unlist(get_url_ena(sample_info))
+    urls <- get_url_ena(sample_info)
     d <- lapply(seq_along(urls), function(x) {
         message("Downloading file ", urls[x])
         file <- vapply(strsplit(urls[x], "/"), tail, n=1, character(1))

@@ -4,14 +4,17 @@
 \alias{get_url_ena}
 \title{Get URL for each file in the ENA's ftp repository}
 \usage{
-get_url_ena(sample_info = NULL)
+get_url_ena(sample_info = NULL, link_from = "api")
 }
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
 function \code{create_sample_info}.}
+
+\item{link_from}{Method to extract the URL to each FASTQ file in the ENA's
+ftp repository. One of 'api' or 'iterative'. Default: 'api'.}
 }
 \value{
-A list with the URL for each accession.
+A character vector with the URL for each accession.
 }
 \description{
 Get URL for each file in the ENA's ftp repository
