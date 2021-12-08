@@ -41,5 +41,5 @@ test_that("create_sample_info() creates a data frame of search results", {
 test_that("get_url_ena() correcly gets ENA's URL to FASTQ files", {
     idx <- sample(seq_len(nrow(sinfo)), 1)
     urls <- get_url_ena(sinfo[idx, ])
-    expect_equal(class(urls), "list")
+    expect_equal(class(urls), "character")
 })
