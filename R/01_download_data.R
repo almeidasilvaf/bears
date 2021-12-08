@@ -324,11 +324,17 @@ get_url_ena <- function(sample_info = NULL) {
         }
         check <- vapply(url, valid_url, logical(1))
         if(any(check == FALSE)) {
-            url <- gsub("/[0-9][0-9][0-9]/", "/", url)
+            ssubdir <- paste0("0", substr(run, nchar(run)-1, nchar(run)), "/")
+            url <- paste0(base_url, subdir, ssubdir, paste0(run, "/"), file)
             check <- vapply(url, valid_url, logical(1))
+            
             if(any(check == FALSE)) {
-                message("Could not find URL for run ", run)
-                url <- NULL
+                url <- gsub("/[0-9][0-9][0-9]/", "/", url)
+                check <- vapply(url, valid_url, logical(1))
+                if(any(check == FALSE)) {
+                    message("Could not find URL for run ", run)
+                    url <- NULL
+                }
             }
         }
         return(url)
