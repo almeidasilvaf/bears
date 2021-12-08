@@ -324,19 +324,16 @@ get_url_ena <- function(sample_info = NULL) {
         }
         check <- vapply(url, valid_url, logical(1))
         if(any(check == FALSE)) {
-            idx <- which(check == FALSE)
-            url[idx] <- gsub("/[0-9][0-9][0-9]/", "/", url[idx])
-            
-            check2 <- vapply(url[idx], valid_url, logical(1))
-            if(any(check2 == FALSE)) {
-                idx2 <- which(check2 == FALSE)
-                nidx2 <- paste(which(check2 == FALSE), collapse = ", ")
-                message("Could not find URL for run accessions ", nidx2)
-                url <- url[-idx2]
+            url <- gsub("/[0-9][0-9][0-9]/", "/", url)
+            check <- vapply(url, valid_url, logical(1))
+            if(any(check == FALSE)) {
+                message("Could not find URL for run ", run)
+                url <- NULL
             }
         }
         return(url)
     })
+    urls <- urls[!vapply(urls, is.null, logical(1))]
     return(urls)
 }
 

@@ -281,7 +281,7 @@ create_dir_structure <- function(rootdir = NULL) {
 #' @return Logical indicating whether URL is valid or not.
 valid_url <- function(url_in) {
     con <- url(url_in)
-    check <- suppressWarnings(try(open.connection(con, open = "rt", timeout = 5),
+    check <- suppressWarnings(try(open.connection(con, open = "rt", timeout = 3),
                                   silent = TRUE)[1])
     suppressWarnings(try(close.connection(con), silent = TRUE))
     valid <- FALSE
