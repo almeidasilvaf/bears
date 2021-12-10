@@ -376,7 +376,7 @@ get_url_ena_iterative <- function(sample_info = NULL) {
 #' get_url_ena(sample_info)
 get_url_ena <- function(sample_info = NULL, link_from = "api") {
     
-    check_internet <- valid_url("ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR155/003/SRR1555233/SRR1555233.fastq.gz")
+    check_internet <- valid_url("https://google.com")
     if(!check_internet) { stop("You have an internet connection problem.") }
     
     if(link_from == "api") {
@@ -422,7 +422,7 @@ download_from_ena <- function(sample_info = NULL,
         method <- ifelse(!is.null(getOption("download.file.method")), 
                          getOption("download.file.method"), "auto")
     if(is.null(urls)) {
-        urls <- get_url_ena(sample_info)
+        urls <- get_url_ena(sample_info, link_from = link_from)
     }
     d <- lapply(seq_along(urls), function(x) {
         message("Downloading file ", urls[x])
