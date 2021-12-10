@@ -308,13 +308,14 @@ get_url_ena_api <- function(sample_info = NULL) {
         l <- paste0(base_url, x, 
                     "&result=read_run&fields=study_accession,sample_accession,experiment_accession,run_accession,tax_id,scientific_name,fastq_ftp,submitted_ftp,sra_ftp&format=tsv&limit=0")
         ftp_url <- utils::read.table(l, header=TRUE)$submitted_ftp
+        Sys.sleep(1)
         ftp_url <- unlist(strsplit(ftp_url, ";"))
         return(ftp_url)
     }))
     return(link)
 }
 
-#' Get URL for each FASTQ file in the ENA's ftp repository via iterations on possible links
+#' Get URL for each FASTQ file in the ENA's FTP repository via iterations on possible links
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
@@ -355,11 +356,12 @@ get_url_ena_iterative <- function(sample_info = NULL) {
         return(url)
     })
     urls <- urls[!vapply(urls, is.null, logical(1))]
+    urls <- unlist(urls)
     return(urls)
 }
 
 
-#' Get URL for each file in the ENA's ftp repository
+#' Get URL for each file in the ENA's FTP repository
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
@@ -387,15 +389,19 @@ get_url_ena <- function(sample_info = NULL, link_from = "api") {
     return(urls)
 }
 
-#' Download FASTQ files from ENA's ftp
+#' Download FASTQ files from ENA's FTP
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
+#' @param urls Character vector returned by \code{get_url_ena()} with
+#' the URLs to each file in the ENA's FTP repository. If NULL, this function
+#' will run \code{get_url_ena()} to get the URLs before downloading.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
 #' @param method Method to be used for downloading files. One of "internal",
 #' "libcurl", "wget", "libcurl", "curl", "wininet" (Windows only), or "auto".
-#' 
+#' @param link_from Method to extract the URL to each FASTQ file in the ENA's
+#' ftp repository. One of 'api' or 'iterative'. Default: 'api'.
 #' 
 #' @return A data frame as returned by \code{fastq_exists}.
 #' @rdname download_from_ena
@@ -408,13 +414,16 @@ get_url_ena <- function(sample_info = NULL, link_from = "api") {
 #' download_from_ena(sample_info, fastqdir)
 #' }
 download_from_ena <- function(sample_info = NULL, 
+                              urls = NULL,
                               fastqdir = "results/01_FASTQ_files", 
-                              method = "auto") {
+                              method = "auto",
+                              link_from = "api") {
     if(missing(method)) 
         method <- ifelse(!is.null(getOption("download.file.method")), 
                          getOption("download.file.method"), "auto")
-    
-    urls <- get_url_ena(sample_info)
+    if(is.null(urls)) {
+        urls <- get_url_ena(sample_info)
+    }
     d <- lapply(seq_along(urls), function(x) {
         message("Downloading file ", urls[x])
         file <- vapply(strsplit(urls[x], "/"), tail, n=1, character(1))

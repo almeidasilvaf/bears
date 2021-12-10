@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_download_data.R
 \name{get_url_ena}
 \alias{get_url_ena}
-\title{Get URL for each file in the ENA's ftp repository}
+\title{Get URL for each file in the ENA's FTP repository}
 \usage{
 get_url_ena(sample_info = NULL, link_from = "api")
 }
@@ -17,7 +17,7 @@ ftp repository. One of 'api' or 'iterative'. Default: 'api'.}
 A character vector with the URL for each accession.
 }
 \description{
-Get URL for each file in the ENA's ftp repository
+Get URL for each file in the ENA's FTP repository
 }
 \examples{
 data(sample_info)

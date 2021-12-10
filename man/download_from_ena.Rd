@@ -2,29 +2,38 @@
 % Please edit documentation in R/01_download_data.R
 \name{download_from_ena}
 \alias{download_from_ena}
-\title{Download FASTQ files from ENA's ftp}
+\title{Download FASTQ files from ENA's FTP}
 \usage{
 download_from_ena(
   sample_info = NULL,
+  urls = NULL,
   fastqdir = "results/01_FASTQ_files",
-  method = "auto"
+  method = "auto",
+  link_from = "api"
 )
 }
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
 function \code{create_sample_info}.}
 
+\item{urls}{Character vector returned by \code{get_url_ena()} with
+the URLs to each file in the ENA's FTP repository. If NULL, this function
+will run \code{get_url_ena()} to get the URLs before downloading.}
+
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
 
 \item{method}{Method to be used for downloading files. One of "internal",
 "libcurl", "wget", "libcurl", "curl", "wininet" (Windows only), or "auto".}
+
+\item{link_from}{Method to extract the URL to each FASTQ file in the ENA's
+ftp repository. One of 'api' or 'iterative'. Default: 'api'.}
 }
 \value{
 A data frame as returned by \code{fastq_exists}.
 }
 \description{
-Download FASTQ files from ENA's ftp
+Download FASTQ files from ENA's FTP
 }
 \examples{
 data(sample_info)
