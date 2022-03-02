@@ -131,6 +131,8 @@ sra_xml2df <- function(id) {
     date <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
     if(methods::is(date, "matrix")) {
         date <- date["published", ]
+    } else if(length(date) == 0) {
+        date <- NA
     } else {
         date <- date[[1]]["published"]
     }
