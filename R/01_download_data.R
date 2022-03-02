@@ -153,8 +153,6 @@ sra_xml2df <- function(id) {
 #' e.g. "Glycine max\[ORGN\] AND RNA-seq\[STRA\]".
 #' @param retmax Numeric with the maximum number of hits returned 
 #' by the search.
-#' @param bp_param BiocParallel back-end to be used. 
-#' Default: BiocParallel::SerialParam().
 #' 
 #' @return A data frame with the following columns:
 #' \describe{
@@ -179,16 +177,13 @@ sra_xml2df <- function(id) {
 #' @export
 #' @rdname create_sample_info
 #' @importFrom rentrez entrez_search
-#' @importFrom BiocParallel bplapply SerialParam
 #' @examples 
 #' term <- "SAMN02422669[BSPL]"
 #' df <- create_sample_info(term)
-create_sample_info <- function(term, retmax=5000, 
-                               bp_param = BiocParallel::SerialParam()) {
+create_sample_info <- function(term, retmax=5000) {
     search <- rentrez::entrez_search(db="sra", term=term,
                                      retmax = retmax, use_history = TRUE)
-    final_list <- BiocParallel::bplapply(search$ids, sra_xml2df, 
-                                         BPPARAM = bp_param)
+    final_list <- lapply(search$ids, sra_xml2df)
     final_df <- Reduce(rbind, final_list)
     return(final_df)
 }
