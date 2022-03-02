@@ -52,7 +52,11 @@ check_empty <- function(vector, unique=TRUE) {
 #' }
 #' @noRd
 create_meta_df <- function(res_list) {
-    nruns <- length(res_list$run)
+    if(length(res_list$run) != 0) {
+        nruns <- length(res_list$run)
+    } else {
+        nruns <- length(res_list$experiment)
+    }
     r <- res_list
     df <- data.frame(
         BioSample = rep(check_empty(r$biosample), nruns), 
