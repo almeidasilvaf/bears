@@ -1,0 +1,22 @@
+name: salmon_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - boost-cpp=1.74.0=h6cacc03_7
+  - bzip2=1.0.8=h7b6447c_0
+  - icu=69.1=h9c3ff4c_0
+  - libgcc-ng=11.2.0=h1234567_0
+  - libgomp=11.2.0=h1234567_0
+  - libjemalloc=5.2.1=h9c3ff4c_6
+  - libstdcxx-ng=11.2.0=h1234567_0
+  - libzlib=1.2.11=h166bdaf_1014
+  - lz4-c=1.9.3=h295c915_1
+  - salmon=1.8.0=h7e5ed60_1
+  - tbb=2021.5.0=hd09550d_0
+  - xz=5.2.5=h7f8727e_1
+  - zstd=1.5.2=h8a70e8d_1
+prefix: /tmp/RtmppDVWVN/miniconda_bears/envs/salmon_env

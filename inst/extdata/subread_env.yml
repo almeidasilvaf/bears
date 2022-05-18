@@ -1,0 +1,14 @@
+name: subread_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - libgcc-ng=11.2.0=h1234567_0
+  - libgomp=11.2.0=h1234567_0
+  - libzlib=1.2.11=h166bdaf_1014
+  - subread=2.0.1=h7132678_2
+  - zlib=1.2.11=h166bdaf_1014
+prefix: /tmp/RtmppDVWVN/miniconda_bears/envs/subread_env

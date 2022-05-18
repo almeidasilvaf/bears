@@ -1,0 +1,8 @@
+name: sortmerna_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - sortmerna=4.3.4=h9ee0642_0
+prefix: /tmp/RtmppDVWVN/miniconda_bears/envs/sortmerna_env

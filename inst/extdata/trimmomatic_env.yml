@@ -1,0 +1,37 @@
+name: trimmomatic_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - ca-certificates=2022.4.26=h06a4308_0
+  - certifi=2021.10.8=py39h06a4308_2
+  - dbus=1.13.18=hb2f20db_0
+  - expat=2.4.4=h295c915_0
+  - freetype=2.11.0=h70c0345_0
+  - glib=2.69.1=h4ff587b_1
+  - ld_impl_linux-64=2.38=h1181459_0
+  - libffi=3.3=he6710b0_2
+  - libgcc-ng=11.2.0=h1234567_0
+  - libgomp=11.2.0=h1234567_0
+  - libpng=1.6.37=hbc83047_0
+  - libstdcxx-ng=11.2.0=h1234567_0
+  - libxcb=1.15=h7f8727e_0
+  - ncurses=6.3=h7f8727e_2
+  - openjdk=11.0.13=h87a67e3_0
+  - openssl=1.1.1o=h7f8727e_0
+  - pcre=8.45=h295c915_0
+  - pip=21.2.4=py39h06a4308_0
+  - python=3.9.12=h12debd9_0
+  - readline=8.1.2=h7f8727e_1
+  - setuptools=61.2.0=py39h06a4308_0
+  - sqlite=3.38.3=hc218d9a_0
+  - tk=8.6.11=h1ccaba5_1
+  - trimmomatic=0.39=hdfd78af_2
+  - tzdata=2022a=hda174b7_0
+  - wheel=0.37.1=pyhd3eb1b0_0
+  - xz=5.2.5=h7f8727e_1
+  - zlib=1.2.12=h7f8727e_2
+prefix: /tmp/RtmppDVWVN/miniconda_bears/envs/trimmomatic_env

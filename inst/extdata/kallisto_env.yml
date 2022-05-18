@@ -1,0 +1,18 @@
+name: kallisto_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - hdf5=1.10.6=hb1b8bf9_0
+  - kallisto=0.48.0=h0d531b0_1
+  - libgcc-ng=11.2.0=h1234567_0
+  - libgfortran-ng=7.5.0=ha8ba4b0_17
+  - libgfortran4=7.5.0=ha8ba4b0_17
+  - libgomp=11.2.0=h1234567_0
+  - libstdcxx-ng=11.2.0=h1234567_0
+  - libzlib=1.2.11=h166bdaf_1014
+  - zlib=1.2.11=h166bdaf_1014
+prefix: /tmp/RtmppDVWVN/miniconda_bears/envs/kallisto_env
