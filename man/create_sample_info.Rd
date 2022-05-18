@@ -4,7 +4,7 @@
 \alias{create_sample_info}
 \title{Search the SRA database and create a data frame of sample metadata}
 \usage{
-create_sample_info(term, retmax = 5000, bp_param = BiocParallel::SerialParam())
+create_sample_info(term, retmax = 5000)
 }
 \arguments{
 \item{term}{Character with the search term,
@@ -13,8 +13,6 @@ e.g. "Glycine max[ORGN] AND RNA-seq[STRA]".}
 \item{retmax}{Numeric with the maximum number of hits returned
 by the search.}
 
-\item{bp_param}{BiocParallel back-end to be used.
-Default: BiocParallel::SerialParam().}
 }
 \value{
 A data frame with the following columns:
