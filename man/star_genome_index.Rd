@@ -8,7 +8,6 @@ star_genome_index(
   genome_path = NULL,
   gff_path = NULL,
   mappingdir = "results/04_read_mapping",
-  indexdir = "results/04_read_mapping/genomeIndex",
   threads = 2,
   envname = NULL,
   miniconda_path = NULL
@@ -21,9 +20,6 @@ star_genome_index(
 
 \item{mappingdir}{Path to the directory where read mapping files (.bam) will
 be stored.}
-
-\item{indexdir}{Directory where the STAR genome index files will be stored.
-Default: results/04_read_mapping/genomeIndex.}
 
 \item{threads}{Number of threads for STAR aligner. Default: 2.}
 
@@ -47,8 +43,6 @@ genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa",
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                          package="bears")
 mappingdir <- tempdir()
-indexdir <- tempdir()
-threads <- 2
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
 }

@@ -9,7 +9,6 @@ star_align(
   filtdir = "results/03_filtered_FASTQ",
   fastqc_table = NULL,
   mappingdir = "results/04_read_mapping",
-  indexdir = "results/04_read_mapping/genomeIndex",
   gff_path = NULL,
   threads = 2,
   envname = NULL,
@@ -28,9 +27,6 @@ by \code{multiqc()}.}
 
 \item{mappingdir}{Path to the directory where read mapping files (.bam) will
 be stored.}
-
-\item{indexdir}{Directory where the STAR genome index files will be stored.
-Default: results/04_read_mapping/genomeIndex.}
 
 \item{gff_path}{Path to the .gff/.gtf file with annotations.}
 
@@ -58,8 +54,6 @@ genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa",
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                          package="bears")
 mappingdir <- tempdir()
-indexdir <- tempdir()
-threads <- 2
 filtdir <- system.file("extdata", package="bears")
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)

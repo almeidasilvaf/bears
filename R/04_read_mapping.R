@@ -5,8 +5,6 @@
 #' @param gff_path Path to the .gff/.gtf file with annotations.
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
-#' @param indexdir Directory where the STAR genome index files will be stored.
-#' Default: results/04_read_mapping/genomeIndex.
 #' @param threads Number of threads for STAR aligner. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
@@ -25,8 +23,6 @@
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
 #'                          package="bears")
 #' mappingdir <- tempdir()
-#' indexdir <- tempdir()
-#' threads <- 2
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
 #' }
@@ -34,7 +30,6 @@
 star_genome_index <- function(genome_path = NULL,
                               gff_path = NULL,
                               mappingdir = "results/04_read_mapping",
-                              indexdir = "results/04_read_mapping/genomeIndex",
                               threads = 2,
                               envname = NULL,
                               miniconda_path = NULL) {
@@ -43,6 +38,7 @@ star_genome_index <- function(genome_path = NULL,
     }
     if(!star_is_installed()) { stop("Unable to find STAR in PATH.") }
 
+    indexdir <- file.path(mappingdir, "genomeIndex")
     if(!dir.exists(indexdir)) { dir.create(indexdir, recursive = TRUE) }
     exonparent <- "Parent"
     if(tools::file_ext(gff_path) == "gtf") { exonparent <- "transcript_id" }
@@ -117,8 +113,6 @@ star_reads <- function(sample_info,
 #' by \code{multiqc()}.
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
-#' @param indexdir Directory where the STAR genome index files will be stored.
-#' Default: results/04_read_mapping/genomeIndex.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
 #' @param threads Number of threads for STAR aligner. Default: 2.
 #' @param envname Name of the Conda environment with external dependencies 
@@ -140,8 +134,6 @@ star_reads <- function(sample_info,
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
 #'                          package="bears")
 #' mappingdir <- tempdir()
-#' indexdir <- tempdir()
-#' threads <- 2
 #' filtdir <- system.file("extdata", package="bears")
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
@@ -153,7 +145,6 @@ star_align <- function(sample_info = NULL,
                        filtdir = "results/03_filtered_FASTQ",
                        fastqc_table = NULL,
                        mappingdir = "results/04_read_mapping",
-                       indexdir = "results/04_read_mapping/genomeIndex",
                        gff_path = NULL,
                        threads = 2,
                        envname = NULL,
@@ -162,6 +153,7 @@ star_align <- function(sample_info = NULL,
         Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
     }
     if(!star_is_installed()) { stop("Unable to find STAR in PATH.") }
+    indexdir <- file.path(mappingdir, "genomeIndex")
     
     exonparent <- "Parent"
     if(tools::file_ext(gff_path) == "gtf") { exonparent <- "transcript_id" }
