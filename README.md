@@ -29,7 +29,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
     install.packages("remotes")
 }
 
-remotes::install("almeidasilvaf/bears")
+remotes::install_github("almeidasilvaf/bears")
 ```
 
 ## Code of Conduct
