@@ -59,9 +59,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">multiqc</span><span class="op">(</span>
   dir <span class="op">=</span> <span class="st">"results/02_FastQC_dir"</span>,
   outdir <span class="op">=</span> <span class="st">"results/multiqc/fastqc"</span>,
-  runon <span class="op">=</span> <span class="st">"fastqc"</span>,
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  miniconda_path <span class="op">=</span> <span class="cn">NULL</span>
+  runon <span class="op">=</span> <span class="st">"fastqc"</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -75,11 +73,6 @@ Default: results/02_FastQC_dir (for FastQC results).</p></dd>
 Default: results/multiqc/fastqc.</p></dd>
 <dt>runon</dt>
 <dd><p>Type of QC report to generate. One of "fastqc" or "star".</p></dd>
-<dt>envname</dt>
-<dd><p>Name of the Conda environment with external dependencies
-to be included in the temporary R environment.</p></dd>
-<dt>miniconda_path</dt>
-<dd><p>Path to miniconda. Only valid if envname is specified.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>

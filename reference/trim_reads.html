@@ -60,9 +60,7 @@
   sample_info <span class="op">=</span> <span class="cn">NULL</span>,
   fastqc_table <span class="op">=</span> <span class="cn">NULL</span>,
   fastqdir <span class="op">=</span> <span class="st">"results/01_FASTQ_files"</span>,
-  filtdir <span class="op">=</span> <span class="st">"results/03_filtered_FASTQ"</span>,
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  miniconda_path <span class="op">=</span> <span class="cn">NULL</span>
+  filtdir <span class="op">=</span> <span class="st">"results/03_filtered_FASTQ"</span>
 <span class="op">)</span></code></pre></div>
     </div>
 
@@ -81,11 +79,6 @@ Default: results/01_FASTQ_files.</p></dd>
 <dd><p>Path to the directory where filtered .fastq files will
 be temporarily stored. After trimming, filtered reads are moved back to
 fastqdir. Default: results/03_filtered_FASTQ.</p></dd>
-<dt>envname</dt>
-<dd><p>Name of the Conda environment with external dependencies
-to be included in the temporary R environment.</p></dd>
-<dt>miniconda_path</dt>
-<dd><p>Path to miniconda. Only valid if envname is specified.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -101,10 +94,10 @@ successfully and NA if a file could not be run.</p>
 <span class="r-in"><span class="va">fastqdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"SRR1039508_1.fastq.gz"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>,</span>
 <span class="r-in">          <span class="va">fastqdir</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"SRR1039508_2.fastq.gz"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>,</span>
 <span class="r-in">          <span class="va">fastqdir</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">fastqdir</span>, <span class="st">"/filtdir"</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">filtdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">fastqdir</span>, <span class="st">"/filtdir"</span><span class="op">)</span></span>
 <span class="r-in"><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="trimmomatic_is_installed.html">trimmomatic_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>

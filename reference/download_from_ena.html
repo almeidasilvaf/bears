@@ -94,12 +94,11 @@ ftp repository. One of 'api' or 'iterative'. Default: 'api'.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sample_info</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">fastqdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span class="r-in"><span class="co"># \donttest{</span></span>
-<span class="r-in"><span class="fu">download_from_ena</span><span class="op">(</span><span class="va">sample_info</span>, <span class="va">fastqdir</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading file /tmp/RtmptWDiTS</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>URL /tmp/RtmptWDiTS: cannot open destfile 'results/01_FASTQ_files/RtmptWDiTS', reason 'No such file or directory'</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>download had nonzero exit status</span>
+<span class="r-in"><span class="fu">download_from_ena</span><span class="op">(</span><span class="va">sample_info</span>, fastqdir <span class="op">=</span> <span class="va">fastqdir</span><span class="op">)</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_1.fastq.gz</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_2.fastq.gz</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Run Status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 SRR1039508     NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 SRR1039508     OK</span>
 <span class="r-in"><span class="co"># }</span></span>
 </code></pre></div>
     </div>
