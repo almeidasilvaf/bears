@@ -10,9 +10,6 @@
 #' @param filtdir Path to the directory where filtered .fastq files will
 #' be temporarily stored. After trimming, filtered reads are moved back to
 #' fastqdir. Default: results/03_filtered_FASTQ.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @export
 #' @rdname trim_reads
@@ -36,13 +33,8 @@
 trim_reads <- function(sample_info = NULL,
                        fastqc_table = NULL,
                        fastqdir = "results/01_FASTQ_files",
-                       filtdir = "results/03_filtered_FASTQ",
-                       envname = NULL,
-                       miniconda_path = NULL) {
+                       filtdir = "results/03_filtered_FASTQ") {
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!trimmomatic_is_installed()) { stop("Unable to find Trimmomatic in PATH.") }
     pe_ad <- system.file("extdata", "PE_adapter.fa", package="bears")
     se_ad <- system.file("extdata", "SE_adapter.fa", package="bears")
@@ -147,9 +139,6 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' @param rrna_db_dir Path to directory containing reference rRNA database,
 #' which must be stored as FASTA files.
 #' @param threads Number of threads for SortMeRna. Default: 1.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A 2-column data frame with run accessions in the first column
 #' and SortMeRNA running status in the second column, with "OK" if SortMeRNA
@@ -171,13 +160,8 @@ remove_rrna <- function(sample_info,
                         fastqdir = "results/01_FASTQ_files",
                         filtdir = "results/03_filtered_FASTQ",
                         rrna_db_dir = NULL,
-                        threads = 1,
-                        envname = NULL,
-                        miniconda_path = NULL) {
+                        threads = 1) {
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!sortmerna_is_installed()) { stop("Unable to find SortMeRNA in PATH.") }
     refs <- rrna_ref_args(rrna_db_dir)
     t <- lapply(seq_len(nrow(sample_info)), function(x) {

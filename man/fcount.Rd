@@ -9,9 +9,7 @@ fcount(
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
   fcountsdir = "results/05_quantification/featureCounts",
-  threads = 2,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = 2
 )
 }
 \arguments{
@@ -26,11 +24,6 @@ functions \code{create_sample_info} and \code{infer_strandedness}.}
 be stored.}
 
 \item{threads}{Number of threads for featureCounts. Default: 2.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A gene expression matrix with genes in row names and samples in

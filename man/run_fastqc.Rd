@@ -7,9 +7,7 @@
 run_fastqc(
   sample_info,
   fastqdir = "results/01_FASTQ_files",
-  fastqcdir = "results/02_FastQC_dir",
-  envname = NULL,
-  miniconda_path = NULL
+  fastqcdir = "results/02_FastQC_dir"
 )
 }
 \arguments{
@@ -20,12 +18,7 @@ function \code{create_sample_info}.}
 Default: results/01_FASTQ_files.}
 
 \item{fastqcdir}{Path to the directory where FastQC output will be stored.
-Default: results/02_FastQC_dir}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
+Default: results/02_FastQC_dir.}
 }
 \value{
 A 2-column data frame with run accession in the first column and

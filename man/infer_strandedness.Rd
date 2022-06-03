@@ -7,9 +7,7 @@
 infer_strandedness(
   mapping_passed = NULL,
   bedpath = NULL,
-  mappingdir = "results/04_read_mapping",
-  envname = NULL,
-  miniconda_path = NULL
+  mappingdir = "results/04_read_mapping"
 )
 }
 \arguments{
@@ -20,11 +18,6 @@ This can be obtained with \code{mapping_pass}.}
 \code{gff2bed}.}
 
 \item{mappingdir}{Directory where .bam files are stored.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A data frame with sample metadata as in mapping_passed, but with

@@ -92,9 +92,6 @@ gff2bed <- function(gffpath=NULL) {
 #' @param bedpath Path to BED file. GFF files can be converted to BED with 
 #' \code{gff2bed}.
 #' @param mappingdir Directory where .bam files are stored.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A data frame with sample metadata as in mapping_passed, but with
 #' an additional column named 'Orientation' containing library strandedness
@@ -115,12 +112,8 @@ gff2bed <- function(gffpath=NULL) {
 #' 
 infer_strandedness <- function(mapping_passed = NULL,
                                bedpath = NULL,
-                               mappingdir="results/04_read_mapping",
-                               envname = NULL,
-                               miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+                               mappingdir="results/04_read_mapping") {
+
     if(!rseqc_is_installed()) { stop("Unable to find RSeQC in PATH.") }
     
     stranddir <- paste0(mappingdir, "/strandedness")

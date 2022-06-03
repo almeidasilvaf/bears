@@ -7,9 +7,7 @@
 salmon_index(
   salmonindex = "results/05_quantification/salmon/idx",
   transcriptome_path = NULL,
-  klen = 31,
-  envname = NULL,
-  miniconda_path = NULL
+  klen = 31
 )
 }
 \arguments{
@@ -19,11 +17,6 @@ Default: results/05_quantification/salmon/idx.}
 \item{transcriptome_path}{Path to the reference transcriptome FASTA file.}
 
 \item{klen}{K-mer length. Default: 31.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with path to index in the first column and

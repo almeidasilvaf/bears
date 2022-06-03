@@ -10,9 +10,7 @@ kallisto_quantify(
   filtdir = "results/03_filtered_FASTQ",
   kallistoindex = "results/05_quantification/kallisto/idx",
   kallistodir = "results/05_quantification/kallisto",
-  threads = NULL,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = NULL
 )
 }
 \arguments{
@@ -35,11 +33,6 @@ Default: results/05_quantification/kallisto/idx.}
 Default: results/05_quantification/kallisto.}
 
 \item{threads}{Number of threads for kallisto quant.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with BioSample IDs in the first column and

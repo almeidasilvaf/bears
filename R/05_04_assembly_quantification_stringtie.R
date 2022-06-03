@@ -11,15 +11,11 @@
 #' @param mappingdir Directory where .bam files are stored.
 #' @param gff_path Path to GFF/GTF file with annotations.
 #' @param stringtiedir Directory where StringTie output files will be stored.
-#' @param threads Number of threads to use. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' @param threads Number of threads to use. Default: 1.
 #' 
 #' @return A 2-column data frame with samples in the first column and status
 #' in the second column, with "OK" if transcripts were assembled, and 
 #' NA otherwise.
-#' @importFrom Herper local_CondaEnv
 #' @export
 #' @rdname stringtie_assemble
 #' @examples
@@ -38,13 +34,8 @@ stringtie_assemble <- function(
     mappingdir = "results/04_read_mapping",
     gff_path = NULL,
     stringtiedir = "results/05_quantification/stringtie",
-    threads = 2,
-    envname = NULL, miniconda_path = NULL
-    ) {
+    threads = 1) {
     
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!stringtie_is_installed()) { stop("Unable to find StringTie in PATH.") }
     if(!dir.exists(stringtiedir)) { dir.create(stringtiedir, recursive = TRUE) }
     
@@ -105,10 +96,7 @@ taco_clean <- function(out2dir = NULL, final_dir = NULL) {
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
 #' @param stringtiedir Directory where StringTie output files will be stored.
-#' @param threads Number of threads to use. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' @param threads Number of threads to use. Default: 1.
 #'
 #' @details The GFF files for each BioSample are first merged into 
 #' BioProject-level GFF files. Then, these Bioproject-level GFF files are
@@ -116,7 +104,6 @@ taco_clean <- function(out2dir = NULL, final_dir = NULL) {
 #'
 #' @return A 2-column data frame with the TACO run status, with "OK" if the
 #' program merged transcripts successfully, and NA otherwise.
-#' @importFrom Herper local_CondaEnv
 #' @export
 #' @rdname taco_merge
 #' @examples
@@ -136,13 +123,8 @@ taco_clean <- function(out2dir = NULL, final_dir = NULL) {
 taco_merge <- function(
     sample_info = NULL, 
     stringtiedir = "results/05_quantification/stringtie",
-    threads = 2,
-    envname = NULL, miniconda_path = NULL
-    ) {
+    threads = 1) {
     
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!taco_is_installed()) { stop("Unable to find TACO in PATH.") }
     assemblydir <- paste0(stringtiedir, "/assembly")
     mergeddir <- paste0(assemblydir, "/merged_assembly")
@@ -196,15 +178,11 @@ taco_merge <- function(
 #' @param mappingdir Directory where .bam files are stored.
 #' @param gff_path Path to GFF/GTF file with annotations.
 #' @param stringtiedir Directory where StringTie output files will be stored.
-#' @param threads Number of threads to use. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' @param threads Number of threads to use. Default: 1.
 #' 
 #' @return A 2-column data frame with samples in the first column and status
 #' in the second column, with "OK" if expression in TPM was obtained, and 
 #' NA otherwise.
-#' @importFrom Herper local_CondaEnv
 #' @export
 #' @rdname stringtie_quantify
 #' @examples
@@ -223,13 +201,8 @@ stringtie_quantify <- function(
     mappingdir = "results/04_read_mapping",
     gff_path = NULL,
     stringtiedir = "results/05_quantification/stringtie",
-    threads = 2,
-    envname = NULL, miniconda_path = NULL
-) {
+    threads = 1) {
     
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!stringtie_is_installed()) { stop("Unable to find StringTie in PATH.") }
     if(!dir.exists(stringtiedir)) { dir.create(stringtiedir, recursive = TRUE) }
     quantdir <- paste0(stringtiedir, "/quant/")

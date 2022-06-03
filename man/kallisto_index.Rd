@@ -6,9 +6,7 @@
 \usage{
 kallisto_index(
   kallistoindex = "results/05_quantification/kallisto/idx",
-  transcriptome_path = NULL,
-  envname = NULL,
-  miniconda_path = NULL
+  transcriptome_path = NULL
 )
 }
 \arguments{
@@ -16,11 +14,6 @@ kallisto_index(
 Default: results/05_quantification/kallisto/idx.}
 
 \item{transcriptome_path}{Path to the reference transcriptome FASTA file.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with path to index file in the first column

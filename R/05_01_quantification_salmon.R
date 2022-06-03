@@ -5,9 +5,6 @@
 #' Default: results/05_quantification/salmon/idx.
 #' @param transcriptome_path Path to the reference transcriptome FASTA file.
 #' @param klen K-mer length. Default: 31.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A 2-column data frame with path to index in the first column and
 #' index build status in the second column, with "OK" if the transcriptome
@@ -24,12 +21,8 @@
 #' }
 salmon_index <- function(salmonindex = "results/05_quantification/salmon/idx",
     transcriptome_path = NULL, 
-    klen = 31,
-    envname = NULL,
-    miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+    klen = 31) {
+
     if(!salmon_is_installed()) { stop("Unable to find salmon in PATH.") }
     if(!dir.exists(salmonindex)) { dir.create(salmonindex, recursive = TRUE) }
     args <- c("index -t", transcriptome_path, "-i", salmonindex, "-k", klen)
@@ -103,9 +96,6 @@ run2biosample_salmon <- function(sample_info = NULL,
 #' @param salmondir Directory where quantification files will be stored.
 #' Default: results/05_quantification/salmon.
 #' @param threads Number of threads for salmon quant.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A 2-column data frame with BioSample IDs in the first column and
 #' salmon quantification status in the second column, with "OK" if salmon
@@ -128,12 +118,7 @@ salmon_quantify <- function(sample_info = NULL,
                             filtdir = "results/03_filtered_FASTQ",
                             salmonindex = "results/05_quantification/salmon/idx",
                             salmondir = "results/05_quantification/salmon",
-                            threads = NULL,
-                            envname = NULL,
-                            miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+                            threads = NULL) {
     if(!salmon_is_installed()) { stop("Unable to find salmon in PATH.") }
     if(!dir.exists(salmondir)) { dir.create(salmondir, recursive = TRUE) }
     

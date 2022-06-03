@@ -93,13 +93,9 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
 #' @param fastqcdir Path to the directory where FastQC output will be stored.
-#' Default: results/02_FastQC_dir
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' Default: results/02_FastQC_dir.
 #' 
 #' @importFrom fs file_move
-#' @importFrom Herper local_CondaEnv
 #' @return A 2-column data frame with run accession in the first column and
 #' FastQC run status. If FastQC ran successfully, the status "OK" is displayed.
 #' If FastQC failed to process a particular file, NA will be displayed on its 
@@ -115,13 +111,8 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
 #' }
 run_fastqc <- function(sample_info,
                        fastqdir = "results/01_FASTQ_files",
-                       fastqcdir = "results/02_FastQC_dir",
-                       envname = NULL,
-                       miniconda_path = NULL) {
+                       fastqcdir = "results/02_FastQC_dir") {
     if(!dir.exists(fastqcdir)) { dir.create(fastqcdir, recursive = TRUE) }
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!fastqc_is_installed()) { stop("Unable to find FastQC in PATH.") }
     
     d <- lapply(seq_len(nrow(sample_info)), function(x) {
@@ -166,9 +157,6 @@ run_fastqc <- function(sample_info,
 #' @param outdir Path the output directory. 
 #' Default: results/multiqc/fastqc.
 #' @param runon Type of QC report to generate. One of "fastqc" or "star".
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A data frame with QC summary for each sample.
 #' @export
@@ -182,13 +170,8 @@ run_fastqc <- function(sample_info,
 #' }
 multiqc <- function(dir="results/02_FastQC_dir",
                     outdir = "results/multiqc/fastqc",
-                    runon="fastqc",
-                    envname = NULL,
-                    miniconda_path = NULL) {
+                    runon="fastqc") {
     if(!dir.exists(outdir)) { dir.create(outdir, recursive = TRUE) }
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!multiqc_is_installed()) { stop("Unable to find MultiQC in PATH.") }
     
     args <- c("-o", outdir, dir)

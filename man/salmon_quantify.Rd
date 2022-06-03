@@ -9,9 +9,7 @@ salmon_quantify(
   filtdir = "results/03_filtered_FASTQ",
   salmonindex = "results/05_quantification/salmon/idx",
   salmondir = "results/05_quantification/salmon",
-  threads = NULL,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = NULL
 )
 }
 \arguments{
@@ -32,11 +30,6 @@ Default: results/05_quantification/salmon/idx.}
 Default: results/05_quantification/salmon.}
 
 \item{threads}{Number of threads for salmon quant.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with BioSample IDs in the first column and

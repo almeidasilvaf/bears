@@ -10,9 +10,7 @@ stringtie_quantify(
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
   stringtiedir = "results/05_quantification/stringtie",
-  threads = 2,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = 1
 )
 }
 \arguments{
@@ -30,12 +28,7 @@ by \code{multiqc()}.}
 
 \item{stringtiedir}{Directory where StringTie output files will be stored.}
 
-\item{threads}{Number of threads to use. Default: 2.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
+\item{threads}{Number of threads to use. Default: 1.}
 }
 \value{
 A 2-column data frame with samples in the first column and status

@@ -8,9 +8,7 @@ trim_reads(
   sample_info = NULL,
   fastqc_table = NULL,
   fastqdir = "results/01_FASTQ_files",
-  filtdir = "results/03_filtered_FASTQ",
-  envname = NULL,
-  miniconda_path = NULL
+  filtdir = "results/03_filtered_FASTQ"
 )
 }
 \arguments{
@@ -26,11 +24,6 @@ Default: results/01_FASTQ_files.}
 \item{filtdir}{Path to the directory where filtered .fastq files will
 be temporarily stored. After trimming, filtered reads are moved back to
 fastqdir. Default: results/03_filtered_FASTQ.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with run accession in the first column

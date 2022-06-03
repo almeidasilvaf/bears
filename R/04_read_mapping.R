@@ -6,9 +6,6 @@
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
 #' @param threads Number of threads for STAR aligner. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A 2-column data frame with path to index in the first column and
 #' index build status in the second column, with "OK" if the index was 
@@ -24,18 +21,13 @@
 #'                          package="bears")
 #' mappingdir <- tempdir()
 #' if(star_is_installed()) {
-#'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
+#'     star_genome_index(genome_path, gff_path, mapping_dir)
 #' }
 #' }
 star_genome_index <- function(genome_path = NULL,
                               gff_path = NULL,
                               mappingdir = "results/04_read_mapping",
-                              threads = 2,
-                              envname = NULL,
-                              miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+                              threads = 2) {
     if(!star_is_installed()) { stop("Unable to find STAR in PATH.") }
 
     indexdir <- file.path(mappingdir, "genomeIndex")
@@ -115,9 +107,6 @@ star_reads <- function(sample_info,
 #' be stored.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
 #' @param threads Number of threads for STAR aligner. Default: 1.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A 2-column data frame with BioSample IDs in the first column
 #' and STAR running status in the second column, with "OK" if reads 
@@ -145,12 +134,7 @@ star_align <- function(sample_info = NULL,
                        fastqc_table = NULL,
                        mappingdir = "results/04_read_mapping",
                        gff_path = NULL,
-                       threads = 1,
-                       envname = NULL,
-                       miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+                       threads = 1) {
     if(!star_is_installed()) { stop("Unable to find STAR in PATH.") }
     indexdir <- file.path(mappingdir, "genomeIndex")
     

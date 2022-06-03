@@ -9,9 +9,7 @@ remove_rrna(
   fastqdir = "results/01_FASTQ_files",
   filtdir = "results/03_filtered_FASTQ",
   rrna_db_dir = NULL,
-  threads = 1,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = 1
 )
 }
 \arguments{
@@ -27,11 +25,6 @@ Default: results/03_filtered_FASTQ.}
 which must be stored as FASTA files.}
 
 \item{threads}{Number of threads for SortMeRna. Default: 1.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with run accessions in the first column

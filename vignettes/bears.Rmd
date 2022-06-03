@@ -63,6 +63,8 @@ common directories that you will need to specify in several functions of this
 package.
 
 ```{r setup_dir}
+library(bears)
+
 # Create directory structure using a temporary directory as root
 ds <- create_dir_structure(rootdir = tempdir())
 

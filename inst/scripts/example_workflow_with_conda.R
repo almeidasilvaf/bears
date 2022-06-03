@@ -93,7 +93,7 @@ with_CondaEnv(
 )
 
 #----6) Read mapping to reference genome----------------------------------------
-## Index genome
+## Index genome - replace with paths to your .fa and .gff files
 genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
                            package = "bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 

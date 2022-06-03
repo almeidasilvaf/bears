@@ -8,9 +8,7 @@ star_genome_index(
   genome_path = NULL,
   gff_path = NULL,
   mappingdir = "results/04_read_mapping",
-  threads = 2,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = 2
 )
 }
 \arguments{
@@ -22,11 +20,6 @@ star_genome_index(
 be stored.}
 
 \item{threads}{Number of threads for STAR aligner. Default: 2.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with path to index in the first column and
@@ -44,7 +37,7 @@ gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                          package="bears")
 mappingdir <- tempdir()
 if(star_is_installed()) {
-    star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
+    star_genome_index(genome_path, gff_path, mapping_dir)
 }
 }
 }

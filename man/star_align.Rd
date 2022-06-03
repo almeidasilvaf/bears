@@ -10,9 +10,7 @@ star_align(
   fastqc_table = NULL,
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
-  threads = 1,
-  envname = NULL,
-  miniconda_path = NULL
+  threads = 1
 )
 }
 \arguments{
@@ -31,11 +29,6 @@ be stored.}
 \item{gff_path}{Path to the .gff/.gtf file with annotations.}
 
 \item{threads}{Number of threads for STAR aligner. Default: 1.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A 2-column data frame with BioSample IDs in the first column

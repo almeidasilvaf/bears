@@ -201,10 +201,7 @@ create_sample_info <- function(term, retmax=5000) {
 #' function \code{create_sample_info}.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
-#' @param threads Number of threads to use. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
+#' @param threads Number of threads to use. Default: 1.
 #' 
 #' @return A 2-column data frame with run accession in the first column
 #' and status in the second column. If file is present, the status "OK"
@@ -222,12 +219,7 @@ create_sample_info <- function(term, retmax=5000) {
 #' }
 download_fastq <- function(sample_info, 
                            fastqdir = "results/01_FASTQ_files",
-                           threads = 2,
-                           envname = NULL, 
-                           miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
+                           threads = 1) {
     if(!sratoolkit_is_installed()) { stop("Unable to find SRAToolkit in PATH.") }
 
     if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }

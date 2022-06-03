@@ -4,13 +4,7 @@
 \alias{download_fastq}
 \title{Download FASTQ files}
 \usage{
-download_fastq(
-  sample_info,
-  fastqdir = "results/01_FASTQ_files",
-  threads = 2,
-  envname = NULL,
-  miniconda_path = NULL
-)
+download_fastq(sample_info, fastqdir = "results/01_FASTQ_files", threads = 1)
 }
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
@@ -19,12 +13,7 @@ function \code{create_sample_info}.}
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
 
-\item{threads}{Number of threads to use. Default: 2.}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
+\item{threads}{Number of threads to use. Default: 1.}
 }
 \value{
 A 2-column data frame with run accession in the first column

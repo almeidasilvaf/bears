@@ -7,9 +7,7 @@
 multiqc(
   dir = "results/02_FastQC_dir",
   outdir = "results/multiqc/fastqc",
-  runon = "fastqc",
-  envname = NULL,
-  miniconda_path = NULL
+  runon = "fastqc"
 )
 }
 \arguments{
@@ -20,11 +18,6 @@ Default: results/02_FastQC_dir (for FastQC results).}
 Default: results/multiqc/fastqc.}
 
 \item{runon}{Type of QC report to generate. One of "fastqc" or "star".}
-
-\item{envname}{Name of the Conda environment with external dependencies
-to be included in the temporary R environment.}
-
-\item{miniconda_path}{Path to miniconda. Only valid if envname is specified.}
 }
 \value{
 A data frame with QC summary for each sample.

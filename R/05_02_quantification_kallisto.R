@@ -4,9 +4,6 @@
 #' @param kallistoindex Directory where kallisto index file will be stored.
 #' Default: results/05_quantification/kallisto/idx.
 #' @param transcriptome_path Path to the reference transcriptome FASTA file.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A 2-column data frame with path to index file in the first column
 #' and index build status in the second column, with "OK" if the transcriptome
@@ -23,12 +20,8 @@
 #' }
 kallisto_index <- function(
     kallistoindex = "results/05_quantification/kallisto/idx",
-    transcriptome_path = NULL,
-    envname = NULL, miniconda_path = NULL) {
+    transcriptome_path = NULL) {
     
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!kallisto_is_installed()) { stop("Unable to find kallisto in PATH.") }
     if(!dir.exists(kallistoindex)) { 
         dir.create(kallistoindex, recursive = TRUE) 
@@ -103,9 +96,6 @@ run2biosample_kallisto <- function(sample_info = NULL,
 #' @param kallistodir Directory where quantification files will be stored.
 #' Default: results/05_quantification/kallisto.
 #' @param threads Number of threads for kallisto quant.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #'
 #' @return A 2-column data frame with BioSample IDs in the first column and 
 #' quantification status in the second column, with "OK" if kallisto 
@@ -132,12 +122,8 @@ kallisto_quantify <- function(
     filtdir = "results/03_filtered_FASTQ",
     kallistoindex = "results/05_quantification/kallisto/idx",
     kallistodir = "results/05_quantification/kallisto",
-    threads = NULL,
-    envname = NULL, miniconda_path = NULL
+    threads = NULL
     ) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
     if(!kallisto_is_installed()) { stop("Unable to find kallisto in PATH.") }
     if(!dir.exists(kallistodir)) { dir.create(kallistodir, recursive = TRUE) }
     

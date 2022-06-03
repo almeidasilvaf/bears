@@ -8,14 +8,10 @@
 #' @param fcountsdir Directory where the matrix of gene-level read counts will
 #' be stored.
 #' @param threads Number of threads for featureCounts. Default: 2.
-#' @param envname Name of the Conda environment with external dependencies 
-#' to be included in the temporary R environment.
-#' @param miniconda_path Path to miniconda. Only valid if envname is specified.
 #' 
 #' @return A gene expression matrix with genes in row names and samples in 
 #' column names. Two .tsv files with the gene expression matrix and count stats
 #' are saved to `fcountsdir`.
-#' @importFrom Herper local_CondaEnv
 #' @importFrom rtracklayer import export
 #' @importFrom tools file_ext
 #' @importFrom Rsubread featureCounts
@@ -35,13 +31,9 @@ fcount <- function(sample_info = NULL,
                    mappingdir = "results/04_read_mapping",
                    gff_path = NULL,
                    fcountsdir = "results/05_quantification/featureCounts",
-                   threads = 2,
-                   envname = NULL, 
-                   miniconda_path = NULL) {
-    if(load_env(envname, miniconda_path)) {
-        Herper::local_CondaEnv(envname, pathToMiniConda = miniconda_path)
-    }
-    if(!subread_is_installed()) { stop("Unable to find subread in PATH.") }
+                   threads = 2) {
+
+        if(!subread_is_installed()) { stop("Unable to find subread in PATH.") }
     if(!dir.exists(fcountsdir)) { dir.create(fcountsdir, recursive = TRUE) }
     
     bamfiles <- list.files(mappingdir, pattern = ".bam", full.names = FALSE)
