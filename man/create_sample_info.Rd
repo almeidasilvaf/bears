@@ -12,7 +12,6 @@ e.g. "Glycine max[ORGN] AND RNA-seq[STRA]".}
 
 \item{retmax}{Numeric with the maximum number of hits returned
 by the search.}
-
 }
 \value{
 A data frame with the following columns:

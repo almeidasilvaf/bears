@@ -146,7 +146,7 @@ clean_sortmerna <- function(filtdir = "results/03_filtered_FASTQ") {
 #' Default: results/03_filtered_FASTQ.
 #' @param rrna_db_dir Path to directory containing reference rRNA database,
 #' which must be stored as FASTA files.
-#' @param threads Number of threads for SortMeRna. Default: 2.
+#' @param threads Number of threads for SortMeRna. Default: 1.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
@@ -171,7 +171,7 @@ remove_rrna <- function(sample_info,
                         fastqdir = "results/01_FASTQ_files",
                         filtdir = "results/03_filtered_FASTQ",
                         rrna_db_dir = NULL,
-                        threads = 2,
+                        threads = 1,
                         envname = NULL,
                         miniconda_path = NULL) {
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }

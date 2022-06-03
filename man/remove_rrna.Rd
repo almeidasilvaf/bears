@@ -9,7 +9,7 @@ remove_rrna(
   fastqdir = "results/01_FASTQ_files",
   filtdir = "results/03_filtered_FASTQ",
   rrna_db_dir = NULL,
-  threads = 2,
+  threads = 1,
   envname = NULL,
   miniconda_path = NULL
 )
@@ -26,7 +26,7 @@ Default: results/03_filtered_FASTQ.}
 \item{rrna_db_dir}{Path to directory containing reference rRNA database,
 which must be stored as FASTA files.}
 
-\item{threads}{Number of threads for SortMeRna. Default: 2.}
+\item{threads}{Number of threads for SortMeRna. Default: 1.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}

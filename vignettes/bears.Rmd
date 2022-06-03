@@ -14,7 +14,7 @@ output:
     code_folding: show
 date: "`r Sys.Date()`"
 vignette: >
-  %\VignetteIndexEntry{Introduction to bears}
+  %\VignetteIndexEntry{Building expression atlases in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
 ---
@@ -23,7 +23,6 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
@@ -110,7 +109,8 @@ the output directory where .fastq files will be stored. For example:
 
 ```{r download_from_ena, eval = FALSE}
 # Download sample to temporary directory
-download <- download_from_ena(metadata, ds$fastqdir)
+options(timeout = 6000)
+download <- download_from_ena(metadata, fastqdir = ds$fastqdir)
 ```
 
 # Sequence quality check and trimming
@@ -120,6 +120,13 @@ to check if you don't have poor-quality base calling or sequence adapters.
 These can be done with the function `run_fastqc()`, which (guess what?) 
 runs FastQC from the R session. FastQC results can then be summarized 
 with MultiQC.
+
+```{r echo=FALSE}
+# For running time issues, copy example FASTQ files to ds$fastqdir
+f <- list.files(system.file("extdata", package = "bears"), 
+                pattern = ".fastq.gz")
+file.copy(f, ds$fastqdir)
+```
 
 ```{r run_fastqc}
 data(fastqc_table)
@@ -152,12 +159,15 @@ removal relies on the SortMeRNA program.
 Here, as you can see in the *fastqc_table* above, the files passed the "Per
 Base Sequence Quality" check, so we don't need to trim anything. For this
 particular case, we can skip `trim_reads()` and only run `remove_rrna()`.
-As rRNA database, we will use an example file in this package's /extdata 
-subdirectory.
+As rRNA database, we will create a directory and store an example rRNA file
+in it.
 
 ```{r remove_rrna}
 # Specify path to rRNA db
+rrna_db_dir <- file.path(tempdir(), "rrna")
+dir.create(rrna_db_dir)
 rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
+file.copy(from = rrna_file, to = rrna_db_dir)
 
 # Run SortMeRNA
 options(timeout = 200)
@@ -165,12 +175,21 @@ if(sortmerna_is_installed()) {
     remove_rrna(
         metadata, 
         fastqdir = ds$fastqdir,
-        filtdir = ds$filtdir
+        filtdir = ds$filtdir,
+        rrna_db_dir = rrna_db_dir
     )
 }
 ```
 
-Now that we have performed all quality checks, we're good to go.
+Now that we have performed all quality checks, we're good to go. [^1]
+
+[^1]: **NOTE:** After running `remove_rrna()`, filtered .fastq files are stored
+in the directory specified in `filtdir`. If you think this step is not 
+necessary for your data set and want to skip it, the `filtdir` directory will
+remain empty, so all your .fastq files will be stored in `fastqdir`. Keep this
+in mind when specifying the path to .fastq files in the following steps of
+the pipeline.
+
 
 # Read mapping (optional)
 
@@ -193,6 +212,7 @@ genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa",
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                          package="bears")
 
+# Create genome index
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, ds$mapping_dir)
 }

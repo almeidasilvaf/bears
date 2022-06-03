@@ -408,11 +408,12 @@ get_url_ena <- function(sample_info = NULL, link_from = "api") {
 #' @rdname download_from_ena
 #' @export
 #' @importFrom utils download.file tail
+#' @importFrom downloader download
 #' @examples 
 #' data(sample_info)
 #' fastqdir <- tempdir()
 #' \donttest{
-#' download_from_ena(sample_info, fastqdir)
+#' download_from_ena(sample_info, fastqdir = fastqdir)
 #' }
 download_from_ena <- function(sample_info = NULL, 
                               urls = NULL,
@@ -429,7 +430,20 @@ download_from_ena <- function(sample_info = NULL,
         message("Downloading file ", urls[x])
         file <- vapply(strsplit(urls[x], "/"), tail, n=1, character(1))
         file <- paste0(fastqdir, "/", file)
-        x <- download.file(urls[x], destfile = file, method = method)
+        #x <- download.file(urls[x], destfile = file, method = method)
+        # Try to download file: if it doesn't work, delete intermediate file
+        x <- tryCatch({
+            downloader::download(urls[x], destfile = file, method = method)
+            res <- TRUE
+        },
+        error = function(e) {
+            message("Could not download file ", urls[x])
+            return(FALSE)
+        },
+        warning = function(w) {
+            message("Could not download file ", urls[x])
+            return(FALSE)
+        })
     })
     
     df <- fastq_exists(sample_info, fastqdir)

@@ -10,7 +10,7 @@ star_align(
   fastqc_table = NULL,
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
-  threads = 2,
+  threads = 1,
   envname = NULL,
   miniconda_path = NULL
 )
@@ -30,7 +30,7 @@ be stored.}
 
 \item{gff_path}{Path to the .gff/.gtf file with annotations.}
 
-\item{threads}{Number of threads for STAR aligner. Default: 2.}
+\item{threads}{Number of threads for STAR aligner. Default: 1.}
 
 \item{envname}{Name of the Conda environment with external dependencies
 to be included in the temporary R environment.}
@@ -57,8 +57,7 @@ mappingdir <- tempdir()
 filtdir <- system.file("extdata", package="bears")
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-    star_align(sample_info, filtdir, fastqc_table, mappingdir, 
-               indexdir, gff_path, threads)
+    star_align(sample_info, filtdir, fastqc_table, mappingdir, gff_path)
 }
 }
 }

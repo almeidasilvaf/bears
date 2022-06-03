@@ -114,7 +114,7 @@ star_reads <- function(sample_info,
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
-#' @param threads Number of threads for STAR aligner. Default: 2.
+#' @param threads Number of threads for STAR aligner. Default: 1.
 #' @param envname Name of the Conda environment with external dependencies 
 #' to be included in the temporary R environment.
 #' @param miniconda_path Path to miniconda. Only valid if envname is specified.
@@ -137,8 +137,7 @@ star_reads <- function(sample_info,
 #' filtdir <- system.file("extdata", package="bears")
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-#'     star_align(sample_info, filtdir, fastqc_table, mappingdir, 
-#'                indexdir, gff_path, threads)
+#'     star_align(sample_info, filtdir, fastqc_table, mappingdir, gff_path)
 #' }
 #' }
 star_align <- function(sample_info = NULL,
@@ -146,7 +145,7 @@ star_align <- function(sample_info = NULL,
                        fastqc_table = NULL,
                        mappingdir = "results/04_read_mapping",
                        gff_path = NULL,
-                       threads = 2,
+                       threads = 1,
                        envname = NULL,
                        miniconda_path = NULL) {
     if(load_env(envname, miniconda_path)) {
