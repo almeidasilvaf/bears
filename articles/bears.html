@@ -121,34 +121,34 @@
 <span class="co"># Look at the output</span>
 <span class="va">ds</span>
 <span class="co">#&gt; $fastqdir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/01_FASTQ_files"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/01_FASTQ_files"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $fastqcdir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/02_FastQC_dir"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/02_FastQC_dir"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $filtdir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/03_filtered_FASTQ"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/03_filtered_FASTQ"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $mappingdir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/04_read_mapping"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/04_read_mapping"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $salmonindex</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/salmon/idx"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/salmon/idx"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $salmondir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/salmon"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/salmon"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $kallistoindex</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/kallisto/idx"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/kallisto/idx"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $kallistodir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/kallisto"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/kallisto"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $fcountsdir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/featureCounts"</span>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/featureCounts"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $stringtiedir</span>
-<span class="co">#&gt; [1] "/tmp/RtmpA7CNB5/05_quantification/stringtie"</span></code></pre></div>
+<span class="co">#&gt; [1] "/tmp/RtmpzzrZ5v/05_quantification/stringtie"</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="retrieve-sample-metadata">Retrieve sample metadata<a class="anchor" aria-label="anchor" href="#retrieve-sample-metadata"></a>
@@ -201,10 +201,10 @@
 </h2>
 <p>After downloading the .fastq files, you need to perform some quality checks to check if you don’t have poor-quality base calling or sequence adapters. These can be done with the function <code><a href="../reference/run_fastqc.html">run_fastqc()</a></code>, which (guess what?) runs FastQC from the R session. FastQC results can then be summarized with MultiQC.</p>
 <pre><code><span class="co">#&gt; Warning in file.copy(f, ds$fastqdir): problem copying ./SRR1039508_1.fastq.gz</span>
-<span class="co">#&gt; to /tmp/RtmpA7CNB5/01_FASTQ_files/SRR1039508_1.fastq.gz: No such file or</span>
+<span class="co">#&gt; to /tmp/RtmpzzrZ5v/01_FASTQ_files/SRR1039508_1.fastq.gz: No such file or</span>
 <span class="co">#&gt; directory</span>
 <span class="co">#&gt; Warning in file.copy(f, ds$fastqdir): problem copying ./SRR1039508_2.fastq.gz</span>
-<span class="co">#&gt; to /tmp/RtmpA7CNB5/01_FASTQ_files/SRR1039508_2.fastq.gz: No such file or</span>
+<span class="co">#&gt; to /tmp/RtmpzzrZ5v/01_FASTQ_files/SRR1039508_2.fastq.gz: No such file or</span>
 <span class="co">#&gt; directory</span>
 <span class="co">#&gt; [1] FALSE FALSE</span></code></pre>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
