@@ -300,9 +300,22 @@ get_url_ena_api <- function(sample_info = NULL) {
     link <- unlist(lapply(runs, function(x) {
         l <- paste0(base_url, x, 
                     "&result=read_run&fields=study_accession,sample_accession,experiment_accession,run_accession,tax_id,scientific_name,fastq_ftp,submitted_ftp,sra_ftp&format=tsv&limit=0")
-        ftp_url <- utils::read.table(l, header=TRUE)$submitted_ftp
-        Sys.sleep(1)
-        ftp_url <- unlist(strsplit(ftp_url, ";"))
+        
+        ftp_url <- NULL
+        try <- tryCatch({
+            url <- utils::read.table(l, sep = "\t", header = TRUE)
+            url <- url$fastq_ftp
+            ftp_url <- unlist(strsplit(url, ";"))
+            Sys.sleep(1)
+        },
+        error = function(e) {
+            message("Could not find URL for run ", x)
+            return(NULL)
+        },
+        warning = function(w) {
+            message("Could not find URL for run ", x)
+            return(NULL)
+        })
         return(ftp_url)
     }))
     return(link)
