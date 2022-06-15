@@ -71,23 +71,36 @@
     <dl><dt>sample_info</dt>
 <dd><p>Data frame of sample metadata created with the
 function <code>create_sample_info</code>.</p></dd>
+
+
 <dt>filtdir</dt>
 <dd><p>Path to the directory where filtered reads will be stored.
 Default: results/03_filtered_FASTQ.</p></dd>
+
+
 <dt>fastqc_table</dt>
 <dd><p>Data frame of summary statistics for FastQC as returned
 by <code><a href="multiqc.html">multiqc()</a></code>.</p></dd>
+
+
 <dt>mappingdir</dt>
 <dd><p>Path to the directory where read mapping files (.bam) will
 be stored.</p></dd>
+
+
 <dt>gff_path</dt>
 <dd><p>Path to the .gff/.gtf file with annotations.</p></dd>
+
+
 <dt>threads</dt>
 <dd><p>Number of threads for STAR aligner. Default: 1.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A 2-column data frame with BioSample IDs in the first column
+    
+
+<p>A 2-column data frame with BioSample IDs in the first column
 and STAR running status in the second column, with "OK" if reads
 were mapped (.bam files were created) and NA if STAR failed to map reads.</p>
     </div>
@@ -122,7 +135,7 @@ were mapped (.bam files were created) and NA if STAR failed to map reads.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

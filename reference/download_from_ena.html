@@ -70,23 +70,34 @@
     <dl><dt>sample_info</dt>
 <dd><p>Data frame of sample metadata created with the
 function <code>create_sample_info</code>.</p></dd>
+
+
 <dt>urls</dt>
 <dd><p>Character vector returned by <code><a href="get_url_ena.html">get_url_ena()</a></code> with
 the URLs to each file in the ENA's FTP repository. If NULL, this function
 will run <code><a href="get_url_ena.html">get_url_ena()</a></code> to get the URLs before downloading.</p></dd>
+
+
 <dt>fastqdir</dt>
 <dd><p>Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>Method to be used for downloading files. One of "internal",
 "libcurl", "wget", "libcurl", "curl", "wininet" (Windows only), or "auto".</p></dd>
+
+
 <dt>link_from</dt>
 <dd><p>Method to extract the URL to each FASTQ file in the ENA's
 ftp repository. One of 'api' or 'iterative'. Default: 'api'.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A data frame as returned by <code>fastq_exists</code>.</p>
+    
+
+<p>A data frame as returned by <code>fastq_exists</code>.</p>
     </div>
 
     <div id="ref-examples">
@@ -96,9 +107,7 @@ ftp repository. One of 'api' or 'iterative'. Default: 'api'.</p></dd>
 <span class="r-in"><span class="co"># \donttest{</span></span>
 <span class="r-in"><span class="fu">download_from_ena</span><span class="op">(</span><span class="va">sample_info</span>, fastqdir <span class="op">=</span> <span class="va">fastqdir</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_1.fastq.gz</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Could not download file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_1.fastq.gz</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_2.fastq.gz</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Could not download file ftp.sra.ebi.ac.uk/vol1/fastq/SRR103/008/SRR1039508/SRR1039508_2.fastq.gz</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Run Status</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 SRR1039508     OK</span>
 <span class="r-in"><span class="co"># }</span></span>
@@ -116,7 +125,7 @@ ftp repository. One of 'api' or 'iterative'. Default: 'api'.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

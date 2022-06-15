@@ -69,20 +69,29 @@
     <dl><dt>sample_info</dt>
 <dd><p>Data frame of sample metadata created with the
 function <code>create_sample_info</code>.</p></dd>
+
+
 <dt>fastqc_table</dt>
 <dd><p>Data frame of summary statistics for FastQC as returned
 by <code><a href="multiqc.html">multiqc()</a></code>.</p></dd>
+
+
 <dt>fastqdir</dt>
 <dd><p>Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.</p></dd>
+
+
 <dt>filtdir</dt>
 <dd><p>Path to the directory where filtered .fastq files will
 be temporarily stored. After trimming, filtered reads are moved back to
 fastqdir. Default: results/03_filtered_FASTQ.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A 2-column data frame with run accession in the first column
+    
+
+<p>A 2-column data frame with run accession in the first column
 and Trimmomatic run status in the second column, with "OK" if it ran
 successfully and NA if a file could not be run.</p>
     </div>
@@ -117,7 +126,7 @@ successfully and NA if a file could not be run.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

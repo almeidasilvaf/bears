@@ -63,10 +63,13 @@
     <h2>Arguments</h2>
     <dl><dt>gffpath</dt>
 <dd><p>Path to .gff file with genome annotation.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A 2-column data frame with path to BED file in the first column
+    
+
+<p>A 2-column data frame with path to BED file in the first column
 and status in the second column, with "OK" if the BED file was successfully
 created from the GFF/GTF file, and NA otherwise.</p>
     </div>
@@ -81,7 +84,7 @@ created from the GFF/GTF file, and NA otherwise.</p>
 <span class="r-in"><span class="va">gff_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">gffdir</span>, full.names<span class="op">=</span><span class="cn">TRUE</span>, pattern<span class="op">=</span><span class="st">".gtf"</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu">gff2bed</span><span class="op">(</span><span class="va">gff_file</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                            bed_path status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /tmp/RtmpGq5CrH/Homo_sapiens.GRCh37.75_subset.bed     OK</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 /tmp/RtmpxkQDfM/Homo_sapiens.GRCh37.75_subset.bed     OK</span>
 </code></pre></div>
     </div>
   </div>
@@ -96,7 +99,7 @@ created from the GFF/GTF file, and NA otherwise.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
