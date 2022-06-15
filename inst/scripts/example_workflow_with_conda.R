@@ -18,7 +18,6 @@ sapply(envs, function(x) {
 ## Check if all environments were created
 list_CondaEnv(my_miniconda)
 
-
 #----1) Create directory structure ---------------------------------------------
 rootdir <- tempdir() # WARNING: replace with your own directory
 ds <- create_dir_structure(rootdir = rootdir)
@@ -91,16 +90,17 @@ with_CondaEnv(
     ),
     pathToMiniConda = my_miniconda
 )
+sortmerna # check status
 
 #----6) Read mapping to reference genome----------------------------------------
 ## Index genome - replace with paths to your .fa and .gff files
-genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
+genome_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.fa", 
                            package = "bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                         package = "bears")
 with_CondaEnv(
     "star_env",
-    gen_idx <- star_genome_index(genome_path, gff_path, ds$mapping_dir),
+    gen_idx <- star_genome_index(genome_path, gff_path, ds$mappingdir),
     pathToMiniConda = my_miniconda
 )
 
@@ -108,12 +108,13 @@ with_CondaEnv(
 with_CondaEnv(
     "star_env",
     mapping <- star_align(
-        metadata, filtdir = ds$filtdir, 
+        metadata, 
+        filtdir = ds$filtdir, 
         fastqc_table = fastqc_table, 
-        mappingdir = mappingdir, 
+        mappingdir = ds$mappingdir, 
         gff_path = gff_path
     ),
-    pathToMiniconda = my_miniconda
+    pathToMiniConda = my_miniconda
 )
 
 

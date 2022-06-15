@@ -1,5 +1,11 @@
-## Code to prepare data in data/
-#----sample_info----
+Data acquisition
+================
+
+# Data in data/
+
+## sample_info.rda
+
+``` r
 term <- "SAMN02422669[BSPL]"
 sample_info <- create_sample_info(term)
 sample_info$Study_abstract <- textclean::replace_non_ascii(
@@ -7,7 +13,13 @@ sample_info$Study_abstract <- textclean::replace_non_ascii(
 )
 sample_info$Orientation <- "first"
 
-#----fastqc_table----
+# Save data
+usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
+```
+
+## fastqc_table.rda
+
+``` r
 data(sample_info)
 fq <- system.file("extdata", package="bears")
 out <- tempdir()
@@ -17,47 +29,61 @@ run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc,
 fastqc_table <- multiqc(fqc, out, envname = "bear_env", 
                         miniconda_path = my_miniconda)
 
-#----mapping_qc----
+# Save data
+usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
+```
+
+## mapping_qc.rda
+
+``` r
 data(sample_info)
 dir <- system.file("extdata", package="bears")
 out <- tempdir()
 mapping_qc <- multiqc(dir, out, runon="star")
 
+# Save data
+usethis::use_data(mapping_qc, overwrite = TRUE, compress="xz")
+```
 
-#----tx2gene----
+## tx2gene.rda
+
+``` r
 library(GenomicFeatures)
 gtf <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", package="bears")
 txdb <- GenomicFeatures::makeTxDbFromGFF(gtf)
 k <- keys(txdb, keytype = "TXNAME")
 tx2gene <- select(txdb, k, "GENEID", "TXNAME")
 
-#----Create data sets----
-usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
-usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
-usethis::use_data(mapping_qc, overwrite = TRUE, compress="xz")
+# Save data
 usethis::use_data(tx2gene, overwrite = TRUE, compress="xz")
+```
 
+# Data in inst/extdata
 
+## SRR1039508.fastq
 
-###################################################
-# Code to prepare data in inst/extdata
-#----SRR1039508.fastq and SRR1039508.bam----
+``` r
 library(here)
 
 bampath1 <- system.file("extdata", "SRR1039508_subset.bam", package="airway")
 file.copy(from = bampath1, to = here("inst", "extdata"))
-# Bash:
-# cd inst/extdata
-# samtools sort -n SRR1039508.bam -o SRR1039508_sorted.bam
-# samtools fastq -@ 8 SRR1039508_sorted.bam \
-#   -1 SRR1039508_1.fastq.gz \
-#   -2 SRR1039508_2.fastq.gz \
-#   -0 /dev/null -s /dev/null -n
+```
 
-#----Homo_sapiens.GRCh37.75_subset.gtf----
+``` bash
+# Bash:
+cd inst/extdata
+samtools sort -n SRR1039508.bam -o SRR1039508_sorted.bam
+samtools fastq -@ 8 SRR1039508_sorted.bam \
+  -1 SRR1039508_1.fastq.gz \
+  -2 SRR1039508_2.fastq.gz \
+  -0 /dev/null -s /dev/null -n
+```
+
+## Homo_sapiens.GRCh37.75_subset.gtf
+
+``` r
 gtf_hsapiens <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                             package="airway")
-file.copy(from = gtf_hsapiens, to = here("inst", "extdata"), overwrite = TRUE)
 
 ## Include only genes "ENSG00000171819" and "ENSG00000120942" for test reasons
 genes <- c("ENSG00000171819", "ENSG00000120942")
@@ -75,95 +101,78 @@ rtracklayer::export(
     con = here::here("inst", "extdata", "Homo_sapiens.GRCh37.75_subset.gtf"),
     format = "gtf"
 )
+```
 
+## Homo_sapiens.GRCh37.75_subset.bed
 
-#----Homo_sapiens.GRCh37.75_subset.bed----
+``` r
 gtf_hsapiens <- here("inst", "extdata", "Homo_sapiens.GRCh37.75_subset.gtf")
 gtf <- rtracklayer::import(gtf_hsapiens)
 gtf$score <- as.numeric(rep(0, length(gtf)))
 bedfile <- gsub(".gtf", ".bed", gtf_hsapiens)
 rtracklayer::export.bed(gtf, bedfile)
+```
 
+## SRR1039508_1\_fastqc.zip
 
-#----SRR6967125.fastq.gz----
-my_miniconda <- file.path("/Users/almeidasilvaf", "miniconda_herper")
-data(sample_info)
-fastqdir <- "~/Documents/bear/results/01_FASTQ_files"
-sradir <- "~/Documents/bear/results/00_SRA_files"
-download_fastq(sample_info[1, ], 
-               fastqdir = fastqdir,
-               sradir = sradir,
-               threads = 2,
-               envname = "bear_env", 
-               miniconda_path = my_miniconda)
-system2("cat", 
-        args = c(
-            "~/Documents/bear/results/01_FASTQ_files/SRR3725560.fastq.gz",
-            " | zcat | head -n 1000",
-            "> ~/Documents/bear/results/01_FASTQ_files/SRR3725560.fastq"
-            )
-        )
-
-#----SRR1039508_1_fastqc.zip----
+``` r
 data(sample_info)
 fq <- system.file("extdata", package="bear")
 fqc <- tempdir()
 run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc)
 file.copy(from = paste0(fqc, "/SRR1039508_1_fastqc.zip"), 
           to = here::here("inst", "extdata"))
+```
 
+## Homo_sapiens.GRCh37.75_subset.fa
 
-#----Hsapiens_GRCh37.75_subset.fa----
+Here, we will only include the sequences of the genes “ENSG00000171819”
+and “ENSG00000120942”, as we did in the example GTF file.
+
+``` r
 library(GenomicRanges)
-gtf_hsapiens <- here("inst", "extdata", "Homo_sapiens.GRCh37.75_subset.gtf")
+# Load GTF file
+gtf_hsapiens <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
+                            package="airway")
 gtf <- rtracklayer::import(gtf_hsapiens) # this contains only chr1
+gtf <- gtf[gtf$gene_id %in% c("ENSG00000171819", "ENSG00000120942")]
 
-start <- min(GenomicRanges::start(gtf)) - 50
-end <- max(GenomicRanges::end(gtf)) + 50
+# Load sequences of chromosome 1
 chr1 <- Biostrings::readDNAStringSet(
-    "~/Downloads/Homo_sapiens.GRCh37.dna_sm.chromosome.1.fa"
-    )
+    "ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna_sm.chromosome.1.fa.gz"
+)
+
+# Subset regions for the target genes in the GTF file
+start_pos <- min(start(gtf))
+end_pos <- max(end(gtf)) + 10 # also get +10 nucleotides after gene end
+
 chr_subset <- Biostrings::subseq(chr1, start = start, end = end)
 Biostrings::writeXStringSet(
     chr_subset, 
-    filepath = here::here("inst", "extdata", "Hsapiens_GRCh37.75_subset.fa")
+    filepath = here::here("inst", "extdata", 
+                          "Homo_sapiens.GRCh37.75_subset.fa")
 )
+```
 
+## bac_16s_subset.fa
 
-#----bac_16s_subset.fa----
+``` r
 bac_16s <- Biostrings::readDNAStringSet("https://raw.githubusercontent.com/biocore/sortmerna/master/data/rRNA_databases/silva-bac-16s-id90.fasta")
 bac_16s_subset <- bac_16s[1:50]
 Biostrings::writeXStringSet(bac_16s_subset, 
                             filepath = "inst/extdata/bac_16s_subset.fa")
+```
 
+## Hsapiens_GRCh37.75_subset_transcripts.fa
 
-#----SAMN05300278.bam----
-# Bash: 
-# wget ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna_sm.chromosome.1.fa.gz
-# gunzip *.gz
-# On server:
-data(sample_info)
-data(fastqc_table)
-genome_path <- list.files(pattern=".fa")
-gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
-                        package="bears")
-mappingdir <- "results"
-indexdir <- "results/index"
-filtdir <- system.file("extdata", package="bears")
-star_genome_index(genome_path, gff_path, mapping_dir, indexdir, 
-                  envname="bear_env", miniconda_path = my_miniconda)
-star_align(sample_info, filtdir, fastqc_table, mappingdir, 
-           indexdir, gff_path, envname="bear_env", miniconda_path = my_miniconda)
-
-
-#----Hsapiens_GRCh37.75_subset_transcripts.fa----
+``` r
 library(Biostrings)
 library(GenomicFeatures)
 library(GenomicRanges)
 library(BSgenome)
 library(Biostrings)
 genome <- Biostrings::readDNAStringSet(
-    "~/Downloads/Homo_sapiens.GRCh37.dna_sm.chromosome.1.fa"
+    "ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna_sm.chromosome.1.fa.gz"
 )
 names(genome) <- 1
 
@@ -182,11 +191,14 @@ tx_seqs <- GenomicFeatures::extractTranscriptSeqs(
 writeXStringSet(
     tx_seqs,
     filepath = here::here("inst", "extdata", 
-                          "Hsapiens_GRCh37.75_subset_transcripts.fa")
+                          "Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz"),
+    compress = TRUE
 )
+```
 
+## SAMN02422669
 
-#----SAMN02422669----
+``` r
 data(sample_info)
 data(fastqc_table)
 filtdir <- system.file("extdata", package = "bears")
@@ -216,8 +228,4 @@ kallisto_quantify(sample_info, fastqc_table, filtdir, kallistoindex,
                   miniconda_path = my_miniconda)
 file.copy(file.path(kallistodir, "SAMN02422669", "abundance.tsv"),
           here::here("inst", "extdata", "SAMN02422669"))
-
-
-
-
-
+```

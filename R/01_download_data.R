@@ -428,6 +428,7 @@ download_from_ena <- function(sample_info = NULL,
     if(missing(method)) 
         method <- ifelse(!is.null(getOption("download.file.method")), 
                          getOption("download.file.method"), "auto")
+    
     if(is.null(urls)) {
         urls <- get_url_ena(sample_info, link_from = link_from)
     }
@@ -435,7 +436,6 @@ download_from_ena <- function(sample_info = NULL,
         message("Downloading file ", urls[x])
         file <- vapply(strsplit(urls[x], "/"), tail, n=1, character(1))
         file <- paste0(fastqdir, "/", file)
-        #x <- download.file(urls[x], destfile = file, method = method)
         # Try to download file: if it doesn't work, delete intermediate file
         x <- tryCatch({
             downloader::download(urls[x], destfile = file, method = method)
@@ -449,6 +449,7 @@ download_from_ena <- function(sample_info = NULL,
             message("Could not download file ", urls[x])
             return(FALSE)
         })
+        if(!x) { unlink(file) }
     })
     
     df <- fastq_exists(sample_info, fastqdir)
