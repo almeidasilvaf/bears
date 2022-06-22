@@ -1,0 +1,414 @@
+---
+title: "bears: building expression atlases in R"
+author: 
+  - name: Fabricio Almeida-Silva
+    affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
+  - name: Thiago Motta Venancio
+    affiliation: Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ, Brazil
+output: 
+  BiocStyle::html_document:
+    self_contained: yes
+    toc: true
+    toc_depth: 2
+    number_sections: yes
+    code_folding: show
+date: "`r Sys.Date()`"
+vignette: >
+  %\VignetteIndexEntry{Building expression atlases in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+)
+```
+
+
+# Introduction
+
+In the past decades, there has been an exponential accumulation of RNA-seq
+data in public repositories. This steep increase paved the way to the creation
+of gene expression atlases, which consist in comprehensive collections of
+expression data from public databases, analyzed with a single pipeline for
+consistency and cross-project comparison. `bears` is a package that allows
+you to create your own gene expression atlas for a given species using
+public data. The package features:
+
+- Data download from NCBI's Sequence Read Archive (SRA) or the European
+Nucleotide Archive (ENA).
+- Sequence quality check and trimming of low-quality sequences.
+- Removal of rRNA, which are typical problems of libraries that were prepared
+with the rRNA depletion protocol.
+- Read mapping against a reference genome.
+- Transcript assembly.
+- Quantification of gene and transcript expression with 
+either **alignment-based** or **alignment-free** methods.
+
+# Installation and setup
+
+To install `bears`, use the following code:
+
+```{r install, eval = FALSE}
+remotes::install_github("almeidasilvaf/bears")
+```
+
+Then, create a standard directory structure with `create_dir_structure()` to
+store your results. This is optional, 
+but **it will make your life much easier.** The output is a list of paths to
+common directories that you will need to specify in several functions of this
+package.
+
+```{r setup_dir}
+library(bears)
+
+# Create directory structure using a temporary directory as root
+ds <- create_dir_structure(rootdir = tempdir())
+
+# Look at the output
+ds
+```
+
+To run the full pipeline implemented in `bears`, you will need to have some 
+external software tools installed in your machine. They are:
+
+```{r external_software, echo = FALSE, fig.align='center'}
+software_df <- data.frame(
+    Software = c("FastQC", "kallisto", "MultiQC", "RSeQC",
+                 "salmon", "SortMeRNA", "STAR", "StringTie",
+                 "Subread", "TACO", "Trimmomatic"),
+    Version = c(">=0.11.9", ">=0.11.9", ">=1.12", ">=4.0.0",
+                ">=1.8.0", ">=4.3.4", ">=2.7.10a", ">=2.2.1",
+                ">=2.0.1", ">=0.7.3", ">=0.39")
+)
+knitr::kable(software_df)
+```
+
+To make your life easier, we have created .yml files with Conda environments
+containing each of these external tools. In this vignette, we will manage
+external dependencies with the Bioconductor package
+`r BiocStyle::Biocpkg("Herper")`. We will 
+use `BiocStyle::Biocpkg("Herper")` to:
+
+1. **Install miniconda**. For this vignette, we will install miniconda in a 
+temporary directory, which means that miniconda will be automatically deleted
+when the R session closes. 
+    - "But I already have miniconda installed!"
+    Great! In that case, just create an object (e.g., `my_miniconda`) with the
+    path to your miniconda installation.
+    - "Can I have a permanent installation of miniconda instead of installing 
+    it in a temporary directory?"
+    For sure. You can specify a path to a different directory in your object
+    containing the miniconda installation path. For instance, you can try 
+    `my_miniconda <- "~/Documents/miniconda"`.
+
+2. **Create a different environment for each external tool**. To avoid 
+conflicts, it is important to keep each tool in its own environment. Here,
+each tool will be installed in an environment named `<tool>_env` 
+(e.g., `star_env`).
+
+3. **Run R functions that require external tools**. We will run functions that
+call external tools inside a call to `Herper::withCondaEnv()`. This 
+`r BiocStyle::Biocpkg("Herper")` function allows us to run an R function inside
+a particular Conda environment, which we need to specify.
+
+Below is the code to install miniconda and create tool-specific 
+environments from the .yml files.
+
+```{r install_conda_envs}
+library(Herper)
+
+# Path to directory where miniconda will be installed
+my_miniconda <- file.path(tempdir(), "miniconda")
+
+# Path to .yml files to create environments
+envs <- list.files(
+    system.file("extdata", package = "bears"), pattern = ".yml",
+    full.names = TRUE
+)
+
+# Install miniconda in `my_miniconda` and create envs
+create_envs <- sapply(envs, function(x) {
+    import_CondaEnv(x, pathToMiniConda = my_miniconda)
+})
+```
+
+Let's see the environments and their names.
+
+```{r check_envs}
+list_CondaEnv(pathToMiniConda = my_miniconda)
+```
+
+# Retrieve sample metadata
+
+First of all, you need to choose which samples you want to download and create
+a **metadata data frame** for your samples. To create this data frame, you will
+pass a search term to the function `create_sample_info()`. The search term
+has the same syntax of the SRA search term syntax. For example, you can search
+by:
+
+- BioSample accession - **SAMN08903403[BSPL]**
+- BioProject accession - **PRJNA229998[GPRJ]**
+- All BioSamples for an organism - **Glycine max[ORGN] AND RNA-seq[STRA]**
+- And so on...
+
+Let's create a metadata data frame for a human RNA-seq sample that is included
+in the `r BiocStyle::Biocpkg("airway")` Bioconductor package.
+
+```{r sample_metadata}
+# Create metadata data frame
+term <- "SAMN02422669[BSPL]"
+metadata <- create_sample_info(term)
+metadata
+```
+
+# Download FASTQ files
+
+To download the .fastq files with the reads, you have 2 options:
+
+- Using `download_fastq()`, which relies on the popular SRA Toolkit to 
+download reads from NCBI's SRA. You need to have SRA Toolkit installed 
+in your machine to run this function.
+- Using `download_from_ena()` (recommended), which downloads reads from ENA. 
+This function does not require any external dependency and it is much
+faster than using SRA Toolkit.
+
+As input, you only need to give the metadata data frame and the path
+the output directory where .fastq files will be stored. For example:
+
+```{r download_from_ena, eval = FALSE}
+# Download sample to temporary directory
+options(timeout = 6000)
+download <- download_from_ena(metadata, fastqdir = ds$fastqdir)
+```
+
+# Sequence quality check
+
+After downloading the .fastq files, you need to perform some quality checks
+to check if you don't have poor-quality base calling or sequence adapters. 
+These can be done with the functions `run_fastqc()` and `multiqc()`, which
+will run FastQC and summarize FastQC results with MultiQC.
+
+**NOTE:** Both `run_fastqc` and `multiqc` require external tools, so we will
+wrap them inside `Herper::with_CondaEnv()` calls.
+
+```{r echo=FALSE}
+# For running time issues, copy example FASTQ files to ds$fastqdir
+f <- list.files(system.file("extdata", package = "bears"), 
+                pattern = ".fastq.gz", full.names = TRUE)
+copy <- file.copy(f, ds$fastqdir)
+```
+
+```{r run_fastqc}
+multiqc_out <- file.path(tempdir(), "multiqc")
+
+# Run FastQC for all .fastq files in fastqdir
+with_CondaEnv(
+    "fastqc_env",
+    fastqc <- run_fastqc(
+        metadata, 
+        fastqdir = ds$fastqdir,
+        fastqcdir = ds$fastqcdir
+    ),
+    pathToMiniConda = my_miniconda
+)
+fastqc # check status
+
+
+# Summarize FastQC results with MultiQC
+with_CondaEnv(
+    "multiqc_env",
+    fastqc_table <- multiqc(ds$fastqcdir, outdir = multiqc_out),
+    pathToMiniConda = my_miniconda
+)
+
+fastqc_table # check results
+```
+
+# Read filtering
+
+Read filtering consists in 2 steps:
+
+1. `trim_reads()` - trim adapters and low-quality bases. This function
+runs Trimmomatic and saves filtered .fastq files in a 
+directory named `filtdir`.
+2. `remove_rrna()` - remove rRNA (if any) from .fastq files. rRNA
+removal relies on the SortMeRNA program.
+
+**NOTE:** `trim_reads()` and `remove_rrna()` require external tools. You can
+use the environments containing these tools with `Herper::with_CondaEnv()`.
+
+Here, as you can see in the *fastqc_table* above, the files passed the "Per
+Base Sequence Quality" check, so we don't need to trim anything. For this
+particular case, we can skip `trim_reads()` and only run `remove_rrna()`.
+As the rRNA database, we will create a directory and store an example rRNA file
+in it.
+
+```{r remove_rrna}
+# Create a directory to store the rRNA db
+rrna_db_dir <- file.path(tempdir(), "rrna")
+dir.create(rrna_db_dir)
+
+# Copy the example 16S rRNA file to the db directory.
+rrna_file <- system.file("extdata", "bac_16s_subset.fa", package="bears")
+copy <- file.copy(from = rrna_file, to = rrna_db_dir)
+
+# Run SortMeRNA from the Conda env
+with_CondaEnv(
+    "sortmerna_env",
+    rrna_removal <- remove_rrna(
+        metadata,
+        fastqdir = ds$fastqdir,
+        filtdir = ds$filtdir,
+        rrna_db_dir = rrna_db_dir
+    ),
+    pathToMiniConda = my_miniconda
+)
+rrna_removal # check status
+```
+
+Now that we have performed all quality checks, we're good to go. [^1]
+
+[^1]: **NOTE:** After running `remove_rrna()`, filtered .fastq files are stored
+in the directory specified in `filtdir`. If you think this step is not 
+necessary for your data set and want to skip it, the `filtdir` directory will
+remain empty, so all your .fastq files will be stored in `fastqdir`. Keep this
+in mind when specifying the path to .fastq files in the following steps of
+the pipeline.
+
+
+# Read mapping (optional)
+
+Read mapping is only required if you want to quantify the expression with
+alignment-based methods (e.g., StringTie and featureCounts) or 
+if you want to assemble transcripts. In `bears`, reads are mapped to the
+reference genome with the software tool STAR.
+
+Here, for the purpose of demonstration, we will map reads to a subset of the
+human genome. The FASTA and GTF files corresponding to the subset of the genome
+are available in /extdata.
+
+Before mapping reads, we need to create a genome index. This can be done 
+with `star_genome_index()`.
+
+```{r star_genome_index}
+# Get paths to genome subset
+genome_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.fa", 
+                            package="bears")
+gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
+                         package="bears")
+
+# Create genome index
+with_CondaEnv(
+    "star_env",
+    genome_idx <- star_genome_index(
+        genome_path = genome_path, 
+        gff_path = gff_path, 
+        mappingdir = ds$mappingdir
+    ),
+    pathToMiniConda = my_miniconda
+)
+genome_idx # check status
+```
+
+Now that we have the genome index, we can map reads to it.
+
+```{r star_align}
+# Map reads to the genome
+with_CondaEnv(
+    "star_env",
+    read_mapping <- star_align(
+        metadata, 
+        filtdir = ds$filtdir,
+        fastqc_table = fastqc_table,
+        mappingdir = ds$mappingdir,
+        gff_path = gff_path
+    ),
+    pathToMiniConda = my_miniconda
+)
+```
+
+Finally, let's get read mapping statistics.
+
+```{r mapping_stats}
+# Obtaining read mapping statistics
+with_CondaEnv(
+    "multiqc_env",
+    star_stats <- multiqc(
+        dir = ds$mappingdir, 
+        outdir = tempdir(),
+        runon = "star"
+    ),
+    pathToMiniConda = my_miniconda
+)
+star_stats
+```
+
+Now, let's check if samples passed the minimum quality criteria. Here, samples
+are excluded if:
+
+1. >=50% of the reads fail to map or;
+2. >=40% of the reads fail to uniquely map.
+
+The function `mapping_pass()` takes the metadata data frame and returns the
+same data frame, but only with the samples that passed the minimum criteria.
+
+```{r mapping_pass}
+# Check if samples passed the filtering criterion
+align_passed <- mapping_pass(star_stats, metadata)
+align_passed # inspect data
+
+# Compare to the original data set
+nrow(metadata)
+nrow(align_passed)
+```
+
+As you can see, the only sample we used for read mapping passed the minimum
+quality criteria. Good, huh?
+
+# Quantification
+
+Before quantification, we need to infer library strandedness with the RSeQC 
+tool. The function `infer_strandedness` runs RSeQC and returns the metadata
+data frame with an additional column named *Orientation* containing 
+library strandedness information. 
+
+This function requires the annotation in BED format, not GTF/GFF. To convert
+from GTF/GFF to BED, use the function `gff2bed()`.
+
+```{r infer_strandedness}
+# Convert GFF to BED
+bedpath <- gff2bed(gff_path)
+bedpath # check status
+
+# Infer strandedness
+with_CondaEnv(
+    "rseqc_env",
+    new_metadata <- infer_strandedness(
+        mapping_passed = align_passed,
+        bedpath = bedpath$bed_path,
+        mappingdir = ds$mappingdir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+new_metadata
+```
+
+As you can see, there is a new **Orientation** column with strandedness info
+for this sample.
+
+## Alignment-free quantification
+
+
+
+## Alignment-based quantification
+
+
+# Session information {.unnumbered}
+
+
+# References {.unnumbered}
