@@ -9,9 +9,9 @@ output:
   BiocStyle::html_document:
     self_contained: yes
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     number_sections: yes
-    code_folding: show
+bibliography: bibliography.bib
 date: "`r Sys.Date()`"
 vignette: >
   %\VignetteIndexEntry{Building expression atlases in R}
@@ -23,6 +23,7 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
+    eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
@@ -34,9 +35,10 @@ In the past decades, there has been an exponential accumulation of RNA-seq
 data in public repositories. This steep increase paved the way to the creation
 of gene expression atlases, which consist in comprehensive collections of
 expression data from public databases, analyzed with a single pipeline for
-consistency and cross-project comparison. `bears` is a package that allows
-you to create your own gene expression atlas for a given species using
-public data. The package features:
+consistency and cross-project comparison. 
+`r BiocStyle::Githubpkg("almeidasilvaf/bears")` 
+is a package that allows you to create your own gene expression atlas 
+for a given species using public data. The package features:
 
 - Data download from NCBI's Sequence Read Archive (SRA) or the European
 Nucleotide Archive (ENA).
@@ -45,12 +47,13 @@ Nucleotide Archive (ENA).
 with the rRNA depletion protocol.
 - Read mapping against a reference genome.
 - Transcript assembly.
-- Quantification of gene and transcript expression with 
-either **alignment-based** or **alignment-free** methods.
+- Quantification of gene- and transcript-level transcript abundance with 
+**alignment-based** and **alignment-free** methods.
 
 # Installation and setup
 
-To install `bears`, use the following code:
+To install `r BiocStyle::Githubpkg("almeidasilvaf/bears")`, 
+use the following code:
 
 ```{r install, eval = FALSE}
 remotes::install_github("almeidasilvaf/bears")
@@ -72,10 +75,14 @@ ds <- create_dir_structure(rootdir = tempdir())
 ds
 ```
 
-To run the full pipeline implemented in `bears`, you will need to have some 
-external software tools installed in your machine. They are:
+To run the full pipeline implemented in 
+`r BiocStyle::Githubpkg("almeidasilvaf/bears")`, you will need to have some
+external software tools installed in your machine. 
+The names of the tools are listed below. In the **Functions** column, you
+can see the names of functions in
+`r BiocStyle::Githubpkg("almeidasilvaf/bears")` that require each tool.
 
-```{r external_software, echo = FALSE, fig.align='center'}
+```{r external_software, echo = FALSE, fig.align='center', eval = TRUE}
 software_df <- data.frame(
     Software = c("FastQC", "kallisto", "MultiQC", "RSeQC",
                  "salmon", "SortMeRNA", "STAR", "StringTie",
@@ -83,6 +90,14 @@ software_df <- data.frame(
     Version = c(">=0.11.9", ">=0.11.9", ">=1.12", ">=4.0.0",
                 ">=1.8.0", ">=4.3.4", ">=2.7.10a", ">=2.2.1",
                 ">=2.0.1", ">=0.7.3", ">=0.39")
+)
+software_df$Functions <- c(
+    "run_fastqc()", "kallisto_index(), kallisto_quantify()",
+    "multiqc()", "infer_strandedness()", 
+    "salmon_index(), salmon_quantify()", "remove_rrna()",
+    "star_genome_index(), star_align()", 
+    "stringtie_assemble(), stringtie_quantify()",
+    "fcount()", "taco_merge()", "trim_reads()"
 )
 knitr::kable(software_df)
 ```
@@ -96,19 +111,25 @@ use `BiocStyle::Biocpkg("Herper")` to:
 1. **Install miniconda**. For this vignette, we will install miniconda in a 
 temporary directory, which means that miniconda will be automatically deleted
 when the R session closes. 
-    - "But I already have miniconda installed!"
-    Great! In that case, just create an object (e.g., `my_miniconda`) with the
-    path to your miniconda installation.
-    - "Can I have a permanent installation of miniconda instead of installing 
-    it in a temporary directory?"
-    For sure. You can specify a path to a different directory in your object
-    containing the miniconda installation path. For instance, you can try 
-    `my_miniconda <- "~/Documents/miniconda"`.
+
+> "But I already have miniconda installed!"
+    
+Great! In that case, just create an object (e.g., `my_miniconda`) with the
+path to your miniconda installation.
+    
+> "Can I have a permanent installation of miniconda instead of installing 
+it in a temporary directory?"
+    
+For sure. You can specify a path to a different directory in your object
+containing the miniconda installation path. For instance, you can try 
+`my_miniconda <- "~/Documents/miniconda"`.
+
 
 2. **Create a different environment for each external tool**. To avoid 
 conflicts, it is important to keep each tool in its own environment. Here,
-each tool will be installed in an environment named `<tool>_env` 
-(e.g., `star_env`).
+each tool will be installed in an environment named `<tool-name-lowercase>_env` 
+(e.g., `star_env`, `rseqc_env`, `fastqc_env`).
+
 
 3. **Run R functions that require external tools**. We will run functions that
 call external tools inside a call to `Herper::withCondaEnv()`. This 
@@ -142,7 +163,7 @@ Let's see the environments and their names.
 list_CondaEnv(pathToMiniConda = my_miniconda)
 ```
 
-# Retrieve sample metadata
+# Retrieving sample metadata
 
 First of all, you need to choose which samples you want to download and create
 a **metadata data frame** for your samples. To create this data frame, you will
@@ -152,7 +173,7 @@ by:
 
 - BioSample accession - **SAMN08903403[BSPL]**
 - BioProject accession - **PRJNA229998[GPRJ]**
-- All BioSamples for an organism - **Glycine max[ORGN] AND RNA-seq[STRA]**
+- All RNA-seq samples for an organism - **Glycine max[ORGN] AND RNA-seq[STRA]**
 - And so on...
 
 Let's create a metadata data frame for a human RNA-seq sample that is included
@@ -165,16 +186,21 @@ metadata <- create_sample_info(term)
 metadata
 ```
 
-# Download FASTQ files
+# Downloading FASTQ files
 
 To download the .fastq files with the reads, you have 2 options:
 
-- Using `download_fastq()`, which relies on the popular SRA Toolkit to 
-download reads from NCBI's SRA. You need to have SRA Toolkit installed 
-in your machine to run this function.
 - Using `download_from_ena()` (recommended), which downloads reads from ENA. 
-This function does not require any external dependency and it is much
-faster than using SRA Toolkit.
+This function does not require any external dependency and is much
+faster than using *SRAToolkit*.
+
+- Using `download_fastq()`, which relies on *SRAToolkit* to 
+download reads from NCBI's SRA. You need to have *SRAToolkit* installed 
+in your machine to run this function. This function only exists for
+historical reasons (i.e., some people use *SRAToolkit* for a long time
+and are used to it). You should try to avoid *SRAToolkit*, because it is slow
+and not so easy to set up.
+
 
 As input, you only need to give the metadata data frame and the path
 the output directory where .fastq files will be stored. For example:
@@ -190,19 +216,24 @@ download <- download_from_ena(metadata, fastqdir = ds$fastqdir)
 After downloading the .fastq files, you need to perform some quality checks
 to check if you don't have poor-quality base calling or sequence adapters. 
 These can be done with the functions `run_fastqc()` and `multiqc()`, which
-will run FastQC and summarize FastQC results with MultiQC.
+will run *FastQC* [@andrews2019] and summarize *FastQC* results 
+with MultiQC [@ewels2016multiqc].
 
-**NOTE:** Both `run_fastqc` and `multiqc` require external tools, so we will
-wrap them inside `Herper::with_CondaEnv()` calls.
+**NOTE:** Both `run_fastqc()` and `multiqc()` require external tools. Throughout
+this vignette, we will execute functions that call external tools inside 
+`Herper::with_CondaEnv()` calls.
 
-```{r echo=FALSE}
+Here, for the purpose of demonstration,
+we will use example FASTQ files stored in /extdata. 
+
+```{r run_fastqc}
 # For running time issues, copy example FASTQ files to ds$fastqdir
 f <- list.files(system.file("extdata", package = "bears"), 
                 pattern = ".fastq.gz", full.names = TRUE)
+f
 copy <- file.copy(f, ds$fastqdir)
-```
 
-```{r run_fastqc}
+# Path to MultiQC output
 multiqc_out <- file.path(tempdir(), "multiqc")
 
 # Run FastQC for all .fastq files in fastqdir
@@ -233,19 +264,22 @@ fastqc_table # check results
 Read filtering consists in 2 steps:
 
 1. `trim_reads()` - trim adapters and low-quality bases. This function
-runs Trimmomatic and saves filtered .fastq files in a 
-directory named `filtdir`.
+runs *Trimmomatic* [@bolger2014trimmomatic] and saves filtered .fastq files 
+in a directory named `filtdir`.
 2. `remove_rrna()` - remove rRNA (if any) from .fastq files. rRNA
-removal relies on the SortMeRNA program.
+removal relies on the *SortMeRNA* [@kopylova2012sortmerna] program.
 
-**NOTE:** `trim_reads()` and `remove_rrna()` require external tools. You can
-use the environments containing these tools with `Herper::with_CondaEnv()`.
-
-Here, as you can see in the *fastqc_table* above, the files passed the "Per
+Here, as you can see in `fastqc_table`, the files passed the "Per
 Base Sequence Quality" check, so we don't need to trim anything. For this
 particular case, we can skip `trim_reads()` and only run `remove_rrna()`.
 As the rRNA database, we will create a directory and store an example rRNA file
 in it.
+
+In real-world applications, your rRNA database directory should contain
+all FASTA files distributed in the 
+[SortMeRNA GitHub repo](https://github.com/biocore/sortmerna/tree/master/data/rRNA_databases).
+However, if you think some of these files (e.g., 5s and 5.8s rRNA) are not a 
+concern in your data set, you don't need to include them in the database.
 
 ```{r remove_rrna}
 # Create a directory to store the rRNA db
@@ -277,15 +311,33 @@ in the directory specified in `filtdir`. If you think this step is not
 necessary for your data set and want to skip it, the `filtdir` directory will
 remain empty, so all your .fastq files will be stored in `fastqdir`. Keep this
 in mind when specifying the path to .fastq files in the following steps of
-the pipeline.
+the pipeline. If that is your case, you can make `fastqdir` and `filtdir` the 
+same with `ds$filtdir <- ds$fastqdir`.
 
 
-# Read mapping (optional)
+# Quantification of transcript abundance
 
-Read mapping is only required if you want to quantify the expression with
-alignment-based methods (e.g., StringTie and featureCounts) or 
-if you want to assemble transcripts. In `bears`, reads are mapped to the
-reference genome with the software tool STAR.
+Quantification of transcript abundance can be done in two ways:
+
+1. **Alignment-based approaches**, which involves mapping reads to a reference
+genome using *STAR* [@dobin2013star] and quantifying the expression based on 
+uniquely mapped reads with 
+*featureCounts* [@liao2014featurecounts] (in raw counts) and 
+*StringTie* [@pertea2015stringtie] (in TPM).
+2. **Alignment-free approaches**, which involves pseudo-aligning or 
+quasi-mapping reads to a reference transcriptome with 
+*kallisto* [@bray2016near] or *salmon* [@patro2017salmon],
+respectively.
+
+Below, we will describe how to perform both approaches.
+
+## Alignment-based quantification
+
+To start with, we will need to map the reads to a reference genome. 
+In `r BiocStyle::Githubpkg("almeidasilvaf/bears")`, reads are mapped 
+to the reference genome with the software tool *STAR*.
+
+### Read mapping
 
 Here, for the purpose of demonstration, we will map reads to a subset of the
 human genome. The FASTA and GTF files corresponding to the subset of the genome
@@ -350,8 +402,8 @@ star_stats
 Now, let's check if samples passed the minimum quality criteria. Here, samples
 are excluded if:
 
-1. >=50% of the reads fail to map or;
-2. >=40% of the reads fail to uniquely map.
+1. \>=50% of the reads fail to map or;
+2. \>=40% of the reads fail to uniquely map.
 
 The function `mapping_pass()` takes the metadata data frame and returns the
 same data frame, but only with the samples that passed the minimum criteria.
@@ -366,15 +418,15 @@ nrow(metadata)
 nrow(align_passed)
 ```
 
-As you can see, the only sample we used for read mapping passed the minimum
-quality criteria. Good, huh?
+As you can see, the sample we used for read mapping passed the minimum
+quality criteria. Good, huh? We can now proceed to the next step.
 
-# Quantification
+### Inferring library strandedness
 
-Before quantification, we need to infer library strandedness with the RSeQC 
-tool. The function `infer_strandedness` runs RSeQC and returns the metadata
-data frame with an additional column named *Orientation* containing 
-library strandedness information. 
+Before quantification, we need to infer library strandedness with the 
+*RSeQC* [@wang2012rseqc] tool. The function `infer_strandedness()` runs 
+*RSeQC* and returns the metadata data frame with an additional column 
+named **Orientation** containing library strandedness information. 
 
 This function requires the annotation in BED format, not GTF/GFF. To convert
 from GTF/GFF to BED, use the function `gff2bed()`.
@@ -401,14 +453,367 @@ new_metadata
 As you can see, there is a new **Orientation** column with strandedness info
 for this sample.
 
+### Using featureCounts
+
+Now that we have the BAM files from *STAR* and information on library 
+strandedness for each sample, we quantify the expression with *featureCounts*. 
+This tool quantifies gene expression measured in raw read counts per gene. 
+
+To quantify gene expression with *featureCounts*, use the function `fcount()`.
+This function runs *featureCounts* and returns a gene expression matrix with
+genes in rows and samples in columns.
+
+```{r featureCounts}
+# Get gene expression in raw read counts
+with_CondaEnv(
+    "subread_env",
+    fcounts_quant <- fcount(
+        new_metadata, 
+        mappingdir = ds$mappingdir,
+        gff_path = gff_path,
+        fcountsdir = ds$fcountsdir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+# Explore gene expression matrix
+fcounts_quant 
+```
+
+Whenever you are working with gene expression data, we recommend storing your
+data as `SummarizedExperiment` objects, so you have the expression matrix and 
+sample metadata in a single object. If you are not familiar with 
+`SummarizedExperiment` objects, take a look at the documentation of the 
+`r BiocStyle::Biocpkg("SummarizedExperiment")` package. 
+
+To get a `SummarizedExperiment` object from *featureCounts*, use the function
+`featureCounts2se()`.
+
+```{r fcounts2se}
+# Create a SummarizedExperiment object from featureCounts output
+fcountsse <- featureCounts2se(
+    new_metadata, fc_output = fcounts_quant
+)
+
+# Take a look at the SummarizedExperiment object
+fcountsse
+
+# Exploring sample metadata
+SummarizedExperiment::colData(fcountsse)
+
+# Exploring gene expression matrix
+SummarizedExperiment::assay(fcountsse)
+```
+
+
+### Using StringTie
+
+*StringTie* quantifies transcript-level and gene-level transcript 
+abundances in normalized values (transcripts per million, TPM).
+
+To obtain gene expression levels in TPM with *StringTie*, use the function
+`stringtie_quantify()`.
+
+```{r stringtie_quantify}
+# Quantify expression in TPM with StringTie
+with_CondaEnv(
+    "stringtie_env",
+    stringtie_quant <- stringtie_quantify(
+        new_metadata,
+        fastqc_table = fastqc_table,
+        mappingdir = ds$mappingdir,
+        gff_path = gff_path,
+        stringtiedir = ds$stringtiedir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+stringtie_quant # Check status
+```
+
+Now, let's read the output from *StringTie* as a `SummarizedExperiment` object
+with the function `stringtie2se`. You can choose if you want the expression
+at the gene level, at the transcript level, or both. Here, let's get the
+gene-level expression. For that, you will need to give a 2-column data frame
+with transcript IDs and their corresponding genes.
+
+```{r stringtie2se}
+# Load transcript-to-gene correspondence
+data(tx2gene)
+head(tx2gene)
+
+# Read StringTie output as a SummarizedExperiment object
+stringtiese <- stringtie2se(
+    new_metadata,
+    stringtiedir = ds$stringtiedir,
+    level = "gene",
+    tx2gene = tx2gene
+)
+
+# Exploring the SummarizedExperiment object
+stringtiese
+
+# Looking at gene expression matrix
+SummarizedExperiment::assay(stringtiese, "gene_TPM")
+```
+
+### Bonus: Transcript assembly and merging
+
+Besides quantifying transcript abundance, *StringTie* can also be used to
+assemble transcripts for each BioSample. Assembled transcripts for each
+BioSample are represented as .gtf files.
+
+However, if you want a single .gtf file with the assembled transcripts for all
+BioSamples you are studying, you can merge the individual .gtf files from
+*StringTie* with the software tool *TACO* [@niknafs2017taco]. Below, we will 
+demonstrate how that can be achieved.
+
+```{r transcript_assembly}
+# Transcript assembly with StringTie
+with_CondaEnv(
+    "stringtie_env",
+    assembled_transcripts <- stringtie_assemble(
+        new_metadata,
+        fastqc_table = fastqc_table,
+        mappingdir = ds$mappingdir,
+        gff_path = gff_path,
+        stringtiedir = ds$stringtiedir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+assembled_transcripts # check status
+```
+
+In this vignette, we have a single BioSample. However, in real-life scenarios,
+you would have several samples. To merge the .gtf files for each sample in
+a single .gtf file, use the function `taco_merge()`.
+
+```{r taco_merge}
+# Merge assembled transcripts with TACO
+with_CondaEnv(
+    "taco_env",
+    merged_transcripts <- taco_merge(
+        new_metadata,
+        stringtiedir = ds$stringtiedir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+merged_transcripts # check status
+```
+
+The merged transcript assembly will be stored in a file named
+**final_assembly.gtf** in the subdirectory 
+*assembly/merged_assembly*, inside `stringtiedir`. To get the path
+to the .gtf file, use:
+
+```{r merged_transcript_path}
+# Get path to merged transcript assembly
+final_assembly <- file.path(
+    ds$stringtiedir, "assembly", "merged_assembly", "final_assembly.gtf"
+)
+
+final_assembly
+```
+
+
+
+> But why would I want to assemble transcripts and merge them if I already have
+a .gtf file the transcript annotations?
+
+That's a great question! This is a way to identify novel transcripts that are
+not present in your reference .gtf file. Some transcripts can be missing in
+the reference annotation (.gtf file) mainly because:
+i. genome assembly does not have a good quality, so these transcripts
+could not be predicted.
+ii. false-positives from the transcript annotation software tool that was used.
+
+
+If you want to have a more comprehensive transcript abundance quantification,
+you can assemble transcripts for each sample, merge them, and input the 
+output file **final_assembly.gtf** to the quantification functions. This way,
+instead of using the reference transcript annotation, you will use your own
+transcript annotation, which may contain novel transcripts.
+
+
 ## Alignment-free quantification
 
+To quantify the expression without mapping reads to the genome, you have two 
+options:
+
+- **Using kallisto**, which quantifies transcript abundance based on 
+pseudoalignments.
+- **Using salmon**, which quantifies transcript abundance based on
+quasi-mapping.
+
+For both kallisto and salmon, you will need to have a 
+**reference transcriptome**, not a reference genome. This is a FASTA file
+containing the sequences of all annotated transcripts in your genome. You can
+easily create this file with the function `extractTranscriptSeqs()` from the
+`r BiocStyle::Biocpkg("GenomicFeatures")` package.
+
+### Using salmon
+
+First of all, we will need to index the reference transcriptome with the
+function `salmon_index()`.
+
+```{r salmon_index}
+# Path to reference transcriptome
+transcriptome_path <- system.file(
+    "extdata", "Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz",
+    package = "bears"
+)
+
+# Index the transcriptome
+with_CondaEnv(
+    "salmon_env",
+    idx_salmon <- salmon_index(
+        salmonindex = ds$salmonindex,
+        transcriptome_path = transcriptome_path
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+idx_salmon # check status
+```
+
+Now, we can quantify transcript abundance with `salmon_quantify()`.
+
+```{r salmon_quantify}
+# Quantify transcript abundance
+with_CondaEnv(
+    "salmon_env",
+    quant_salmon <- salmon_quantify(
+        new_metadata,
+        filtdir = ds$filtdir,
+        salmonindex = ds$salmonindex,
+        salmondir = ds$salmondir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+quant_salmon # check status
+```
+
+After running `salmon_quantify()`, salmon output in .sf format will be stored 
+in the directory specified in `salmondir`. 
 
 
-## Alignment-based quantification
+To read salmon output as a `SummarizedExperiment` object, 
+use the function `salmon2se()`. You can choose if you want the expression
+at the gene level, at the transcript level, or both. Here, let's get the
+gene-level expression. For that, you will need to give a 2-column data frame
+with transcript IDs and their corresponding genes.
+
+```{r salmon2se}
+# Load transcript-to-gene data frame
+data(tx2gene)
+head(tx2gene)
+
+# Read salmon output as a SummarizedExperiment object
+salmonse <- salmon2se(
+    new_metadata, 
+    level = "gene", 
+    salmondir = ds$salmondir,
+    tx2gene
+)
+
+# Exploring the output
+salmonse
+
+# Get gene expression matrix in TPM
+SummarizedExperiment::assay(salmonse, "gene_TPM")
+
+# Get gene expression matrix as raw counts
+SummarizedExperiment::assay(salmonse, "gene_counts")
+```
+
+### Using kallisto
+
+Like we do in salmon, we will start by indexing the transcriptome.
+
+```{r kallisto_index}
+# Index the transcriptome
+with_CondaEnv(
+    "kallisto_env",
+    idx_kallisto <- kallisto_index(
+        kallistoindex = ds$kallistoindex,
+        transcriptome_path = transcriptome_path
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+idx_kallisto # check status
+```
+
+Now, we can quantify the transcript abundance.
+
+```{r kallisto_quant}
+# Quantify transcript abundance
+with_CondaEnv(
+    "kallisto_env",
+    quant_kallisto <- kallisto_quantify(
+        new_metadata,
+        fastqc_table, 
+        filtdir = ds$filtdir,
+        kallistoindex = ds$kallistoindex,
+        kallistodir = ds$kallistodir
+    ),
+    pathToMiniConda = my_miniconda
+)
+
+quant_kallisto # check status
+```
+
+To read kallisto output in a SummarizedExperiment object, use
+the function `kallisto2se()`. Again, you will have specify if you want the 
+expressiona at the gene level, transcript level, or both. Let's get the gene
+expression here.
+
+```{r}
+# Read kallisto output to SummarizedExperiment object
+kallistose <- kallisto2se(
+    new_metadata, 
+    level = "gene", 
+    kallistodir = ds$kallistodir,
+    tx2gene
+)
+
+# Exploring the output
+kallistose
+
+# Get gene expression matrix in TPM
+SummarizedExperiment::assay(kallistose, "gene_TPM")
+
+# Get gene expression matrix as raw counts
+SummarizedExperiment::assay(kallistose, "gene_counts")
+```
+
+# Closing remarks
+
+If you are using `r BiocStyle::Githubpkg("almeidasilvaf/bears")`, there are two
+things you must keep in mind. First, this package was designed to be as 
+complete as possible, which means you don't need to run the complete pipeline
+for your own project. For instance, if you just want gene expression values
+in TPM for a particular BioProject or set of BioProjects, you can simply go
+through the *salmon* path of the pipeline, skipping the read mapping section.
+Likewise, if you are using `r BiocStyle::Githubpkg("almeidasilvaf/bears")`
+for your own data set and you have already cleaned the reads, you can skip the
+sequence quality checks and read filtering sections. The second thing to
+consider is that `r BiocStyle::Githubpkg("almeidasilvaf/bears")` is a work
+in progress. Bioinformatics is a fast-evolving field, and new (and better)
+methods to address a particular question are developed continuously. Hence,
+we aim to keep `r BiocStyle::Githubpkg("almeidasilvaf/bears")` up to date
+with state-of-the-art methods.
 
 
 # Session information {.unnumbered}
 
+This document was created under the following sections:
+
+```{r session_info}
+sessioninfo::session_info()
+```
 
 # References {.unnumbered}

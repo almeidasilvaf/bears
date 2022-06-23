@@ -44,9 +44,6 @@ env:
 jobs:
   build-check:
     runs-on: ${{ matrix.config.os }}
-    defaults: 
-      run:
-        shell: bash
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     container: ${{ matrix.config.cont }}
     ## Environment variables unique to this job.
@@ -73,6 +70,10 @@ jobs:
         run: |
           mkdir /__w/_temp/Library
           echo ".libPaths('/__w/_temp/Library')" > ~/.Rprofile
+          
+          # Change default shell to bash
+          chsh -s /bin/bash
+
 
       ## Most of these steps are the same as the ones in
       ## https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml

@@ -242,7 +242,7 @@ stringtie_quantify <- function(
 }
 
 
-#' Create a SummarizedExperiment object from featureCounts output
+#' Create a SummarizedExperiment object from StringTie output
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' functions \code{create_sample_info}

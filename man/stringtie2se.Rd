@@ -2,7 +2,7 @@
 % Please edit documentation in R/05_04_assembly_quantification_stringtie.R
 \name{stringtie2se}
 \alias{stringtie2se}
-\title{Create a SummarizedExperiment object from featureCounts output}
+\title{Create a SummarizedExperiment object from StringTie output}
 \usage{
 stringtie2se(
   sample_info = NULL,
@@ -31,7 +31,7 @@ A SummarizedExperiment object with gene/transcript expression
 levels and sample metadata.
 }
 \description{
-Create a SummarizedExperiment object from featureCounts output
+Create a SummarizedExperiment object from StringTie output
 }
 \examples{
 data(sample_info)

@@ -63,7 +63,8 @@ Suggests:
     knitr,
     testthat (>= 3.0.0),
     rmarkdown,
-    Herper
+    Herper,
+    sessioninfo
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 

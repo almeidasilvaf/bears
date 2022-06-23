@@ -33,7 +33,7 @@ fcount <- function(sample_info = NULL,
                    fcountsdir = "results/05_quantification/featureCounts",
                    threads = 2) {
 
-        if(!subread_is_installed()) { stop("Unable to find subread in PATH.") }
+    if(!subread_is_installed()) { stop("Unable to find subread in PATH.") }
     if(!dir.exists(fcountsdir)) { dir.create(fcountsdir, recursive = TRUE) }
     
     bamfiles <- list.files(mappingdir, pattern = ".bam", full.names = FALSE)
