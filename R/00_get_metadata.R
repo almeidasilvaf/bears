@@ -234,6 +234,9 @@ get_read_count <- function(sample_info, run_accession) {
         }
         
         # Create data frame of run accession and read count
+        if(length(nreads) == 0) {
+            nreads <- NA
+        }
         result_df <- data.frame(
             Run = x,
             Reads = nreads
