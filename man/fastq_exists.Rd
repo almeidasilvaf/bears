@@ -4,7 +4,11 @@
 \alias{fastq_exists}
 \title{Check if FASTQ files were properly downloaded}
 \usage{
-fastq_exists(sample_info = NULL, fastqdir = "results/01_FASTQ_files")
+fastq_exists(
+  sample_info = NULL,
+  fastqdir = "results/01_FASTQ_files",
+  collapse_pe = TRUE
+)
 }
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
@@ -12,6 +16,11 @@ function \code{create_sample_info}.}
 
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
+
+\item{collapse_pe}{Logical scalar indicating whether to collapse paired-end
+files runs into a single run. If TRUE (default),
+files like SRR12345_1.fastq.gz and SRR12345_2.fastq.gz will be collapsed
+to SRR12345.}
 }
 \value{
 Data frame with run accession in the first column, and
@@ -25,4 +34,5 @@ Check if FASTQ files were properly downloaded
 data(sample_info)
 fastqdir <- system.file("extdata", package = "bears")
 fastq_exists(sample_info, fastqdir)
+fastq_exists(sample_info, fastqdir, collapse_pe = FALSE)
 }

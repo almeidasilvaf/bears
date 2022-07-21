@@ -209,7 +209,48 @@ the output directory where .fastq files will be stored. For example:
 # Download sample to temporary directory
 options(timeout = 6000)
 download <- download_from_ena(metadata, fastqdir = ds$fastqdir)
+
+# For running time issues, copy example FASTQ files to ds$fastqdir
+f <- list.files(system.file("extdata", package = "bears"), 
+                pattern = ".fastq.gz", full.names = TRUE)
+f
+copy <- file.copy(f, ds$fastqdir)
 ```
+
+It's important to check your downloaded FASTQ files for download
+issues that might happen when the internet connection is not stable.
+The function `check_downloads()` checks your downloaded FASTQ files
+to look for one of the three issues below:
+
+- **Issue 1:** File was not downloaded.
+- **Issue 2:** For paired-end reads, only forward or reverse file 
+was downloaded.
+- **Issue 3:** Less reads than the expected.
+
+To look for **issue 3**, `check_downloads()` needs to know the expected number
+of reads for each run accession. This number is available in SRA, and it 
+can be obtained with the function `get_read_count()`. For example:
+
+```{r get_read_count}
+# Get a data frame of run accessions and their read counts
+read_count <- get_read_count(metadata, run_accession = metadata$Run)
+read_count
+```
+
+As you can see, this function returns a data frame with run accessions and
+their number of reads as reported by SRA. With this information, you can
+run `check_downloads()` to look for download problems.
+
+```{r check_downloads}
+# Check downloaded files for issues
+check_downloads(metadata, fastqdir = ds$fastqdir, read_count)
+```
+
+Here, as you can see, the function reported an issue 3 
+(*less reads than the expected*). That is because we are using the example
+FASTQ files that come with this package, which have been filtered for 
+package size issues.
+
 
 # Sequence quality check
 
@@ -227,12 +268,6 @@ Here, for the purpose of demonstration,
 we will use example FASTQ files stored in /extdata. 
 
 ```{r run_fastqc}
-# For running time issues, copy example FASTQ files to ds$fastqdir
-f <- list.files(system.file("extdata", package = "bears"), 
-                pattern = ".fastq.gz", full.names = TRUE)
-f
-copy <- file.copy(f, ds$fastqdir)
-
 # Path to MultiQC output
 multiqc_out <- file.path(tempdir(), "multiqc")
 
