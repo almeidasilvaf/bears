@@ -219,7 +219,7 @@ get_read_count <- function(sample_info, run_accession) {
     count_df <- Reduce(rbind, lapply(run_accession, function(x) {
         term <- paste0(x, "[Accession]")
         search <- rentrez::entrez_search(
-            db = "sra", term = term
+            db = "sra", term = term, use_history = TRUE
         )
         run_info <- rentrez::entrez_fetch(
             db="sra", id = search$ids, rettype = "xml", parsed = TRUE
