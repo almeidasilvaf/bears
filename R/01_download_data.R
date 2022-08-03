@@ -282,9 +282,11 @@ download_from_ena <- function(sample_info = NULL,
 #' function \code{create_sample_info()}.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files. 
-#' @param read_count_df A 2-column data frame with the number of reads for
+#' @param read_count A 2-column data frame with the number of reads for
 #' each run as reported in SRA, which can be obtained with the
 #' function \code{get_read_count()}.
+#' @param verbose Logical scalar indicating whether or not to print 
+#' log messages. Default: FALSE.
 #'
 #' @return A 3-column data frame with the following variables:
 #' \describe{
@@ -320,7 +322,8 @@ download_from_ena <- function(sample_info = NULL,
 #' check_downloads(sample_info, fastqdir, read_count)
 check_downloads <- function(sample_info = NULL, 
                             fastqdir = "results/01_FASTQ_files",
-                            read_count) {
+                            read_count,
+                            verbose = FALSE) {
     
     # Get data frame of downloaded files
     downloaded <- fastq_exists(sample_info, fastqdir, collapse_pe = FALSE)
@@ -340,6 +343,10 @@ check_downloads <- function(sample_info = NULL,
     
     # Add status column
     run_status <- Reduce(rbind, lapply(run_list, function(x) {
+        if(verbose) {
+            message("Working on run ", unique(x$CRun))
+        }
+        message("W")
         x$Issue <- NA
         
         ## Single-end file
