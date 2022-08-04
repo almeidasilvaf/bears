@@ -346,7 +346,6 @@ check_downloads <- function(sample_info = NULL,
         if(verbose) {
             message("Working on run ", unique(x$CRun))
         }
-        message("W")
         x$Issue <- NA
         
         ## Single-end file
