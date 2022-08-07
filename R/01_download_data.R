@@ -383,6 +383,9 @@ check_downloads <- function(sample_info = NULL,
         }
         final_status <- x[1, c("CRun", "Status", "Issue")]
         names(final_status) <- c("Run", "Status", "Issue")
+        if(verbose & !is.na(final_status$Issue)) {
+            message("Issue ", final_status$Issue, " in run ", final_status$Run)
+        }
         return(final_status)
     }))
     return(run_status)
