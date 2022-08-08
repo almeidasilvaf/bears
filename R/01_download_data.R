@@ -337,6 +337,7 @@ check_downloads <- function(sample_info = NULL,
         file <- list.files(fastqdir, pattern = run[["CRun"]], full.names = TRUE)
         file <- file[endsWith(file, ".fastq.gz")]
         if(length(file) == 3) {
+            message("Detected 3 files for paired-end reads.")
             file <- file[grep("_[0-9].fastq.gz", file)]
         }
         run$nreads <- ShortRead::countFastq(file)$records

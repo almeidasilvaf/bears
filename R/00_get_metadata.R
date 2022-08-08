@@ -224,14 +224,11 @@ get_read_count <- function(sample_info, run_accession) {
         run_info <- rentrez::entrez_fetch(
             db="sra", id = search$ids, rettype = "xml", parsed = TRUE
         )
+
         # Get number of reads
-        nreads <- XML::xpathSApply(run_info, "//Statistics", XML::xmlAttrs)
-        if(is.matrix(nreads)) {
-            nreads <- as.numeric(nreads[rownames(nreads) == "nspots", 1]) 
-        } else {
-            nreads <- nreads[[1]]
-            nreads <- as.numeric(nreads[names(nreads) == "nspots"])
-        }
+        runs <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
+        runs <- as.data.frame(t(runs))
+        nreads <- runs[runs$accession == x, "total_spots"]
         
         # Create data frame of run accession and read count
         if(length(nreads) == 0) {
