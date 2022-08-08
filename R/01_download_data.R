@@ -342,7 +342,7 @@ check_downloads <- function(sample_info = NULL,
         }
         run$nreads <- ShortRead::countFastq(file)$records
         run$nref <- read_count$Reads[read_count$Run %in% run$CRun]
-        c <- identical(run$nreads, run$nref)
+        c <- identical(as.numeric(run$nreads), as.numeric(run$nref))
         if(!c & verbose) {
             message("Reference: ", paste0(run$nref, collapse = ", "), "\n",
                     "File: ", paste0(run$nreads, collapse = ", "))
