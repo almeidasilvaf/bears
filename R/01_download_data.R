@@ -336,9 +336,17 @@ check_downloads <- function(sample_info = NULL,
     check_nreads <- function(fastqdir, run, read_count) {
         file <- list.files(fastqdir, pattern = run[["CRun"]], full.names = TRUE)
         file <- file[endsWith(file, ".fastq.gz")]
+        if(length(file) == 3) {
+            file <- file[grep("_[0-9].fastq.gz", file)]
+        }
         run$nreads <- ShortRead::countFastq(file)$records
         run$nref <- read_count$Reads[read_count$Run %in% run$CRun]
-        return(identical(run$nreads, run$nref))
+        c <- identical(run$nreads, run$nref)
+        if(!c & verbose) {
+            message("Reference: ", paste0(run$nref, collapse = ", "), "\n",
+                    "File: ", paste0(run$nreads, collapse = ", "))
+        }
+        return(c)
     }
     
     # Add status column
