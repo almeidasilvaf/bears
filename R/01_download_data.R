@@ -325,12 +325,16 @@ check_downloads <- function(sample_info = NULL,
                             read_count,
                             verbose = FALSE) {
     
+    sample_info <- sample_info[sample_info$Run %in% read_count$Run, ]
+    
     # Get data frame of downloaded files
     downloaded <- fastq_exists(sample_info, fastqdir, collapse_pe = FALSE)
     downloaded$CRun <- gsub("_[0-9]", "", downloaded$Run)
-    
+
     # Create list of runs
     run_list <- split(downloaded, downloaded$CRun)
+    run_order <- unique(downloaded$CRun)
+    run_list <- run_list[run_order]
     
     # Define wrapper function to check if number of reads match the expected
     check_nreads <- function(fastqdir, run, read_count) {
