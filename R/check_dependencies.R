@@ -26,7 +26,7 @@ is_valid <- function(cmd = NULL, args = NULL) {
 #' @export
 #' @rdname fastqc_is_installed
 #' @examples 
-#' sratoolkit_is_installed()
+#' fastqc_is_installed()
 fastqc_is_installed <- function() {
     valid <- is_valid(cmd = "fastqc", args = "-h")
     return(valid)

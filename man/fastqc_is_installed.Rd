@@ -13,5 +13,5 @@ Logical indicating whether FastQC is installed or not.
 Check if FastQC is installed
 }
 \examples{
-sratoolkit_is_installed()
+fastqc_is_installed()
 }
