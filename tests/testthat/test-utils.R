@@ -23,5 +23,3 @@ test_that("gff2bed() converts a GFF file to BED", {
     
     expect_equal(class(g1), "character")
 })
-
-test_that("")
