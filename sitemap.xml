@@ -28,13 +28,13 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/check_md5.html</loc>
+  </url>
+  <url>
     <loc>/reference/create_dir_structure.html</loc>
   </url>
   <url>
     <loc>/reference/create_sample_info.html</loc>
-  </url>
-  <url>
-    <loc>/reference/download_fastq.html</loc>
   </url>
   <url>
     <loc>/reference/download_from_ena.html</loc>
