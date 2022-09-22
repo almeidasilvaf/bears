@@ -73,12 +73,13 @@ jobs:
           
           git config --global --add safe.directory /__w/bears/bears
 
-          # Install Herper from GitHub
-          R -e 'install.packages("remotes")'
-          R -e 'remotes::install_github("RockefellerUniversity/Herper@v1.6.1", force = TRUE)'
-          
           # Change default shell to bash
           chsh -s /bin/bash
+          
+          # Install Herper from GitHub
+          R -e 'install.packages("remotes")'
+          R -e 'remotes::install_github("RockefellerUniversity/Herper@2f5c893", force = TRUE)'
+
           
           # Install external dependencies
           sudo apt-get update && apt-get install -y \
@@ -178,6 +179,7 @@ jobs:
         run: |
           install.packages('remotes')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          
         shell: Rscript {0}
 
       - name: Cache R packages
