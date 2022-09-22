@@ -166,7 +166,7 @@ list_CondaEnv(pathToMiniConda = my_miniconda)
 library(bears)
 
 # Sys.setenv(
-#     paste0(
+#     PATH = paste0(
 #         Sys.getenv("PATH"), 
 #         "/opt/FastQC/fastqc",
 #         "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
