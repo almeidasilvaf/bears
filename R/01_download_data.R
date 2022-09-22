@@ -1,55 +1,5 @@
 
 
-#' Download FASTQ files
-#' 
-#' @param sample_info Data frame of sample metadata created with the
-#' function \code{create_sample_info}.
-#' @param fastqdir Path to the directory where .fastq files will be stored.
-#' Default: results/01_FASTQ_files.
-#' @param threads Number of threads to use. Default: 1.
-#' 
-#' @return A 2-column data frame with run accession in the first column
-#' and status in the second column. If file is present, the status "OK"
-#' is returned, otherwise NA is returned.
-#' @export
-#' @rdname download_fastq
-#' @importFrom fs dir_delete
-#' @examples
-#' \donttest{
-#' data(sample_info)
-#' fastqdir <- tempdir()
-#' if(sratoolkit_is_installed()) {
-#'     download_fastq(sample_info, fastqdir)
-#' }
-#' }
-download_fastq <- function(sample_info, 
-                           fastqdir = "results/01_FASTQ_files",
-                           threads = 1) {
-    if(!sratoolkit_is_installed()) { stop("Unable to find SRAToolkit in PATH.") }
-
-    if(!dir.exists(fastqdir)) { dir.create(fastqdir, recursive = TRUE) }
-    d <- lapply(seq_len(nrow(sample_info)), function(x) {
-        var <- var2list(sample_info, index = x)
-        if(skip(var$platform)) {
-            message("Skipping files...")
-        } else {
-            args <- c(var$run, "-e", threads, "-p --outdir", fastqdir)
-            if(var$layout == "PAIRED") {
-                args <- c(args, "--split-files")
-            }
-            system2("fasterq-dump", args = args)
-        }
-    })
-    message("Compressing .fastq files...")
-    system2("gzip", args = paste0(fastqdir, "/*.fastq"))
-    flist <- list.files(path = fastqdir, pattern=".fastq.gz")
-    flist <- unique(gsub("_[0-9].fastq.gz|.fastq.gz", "", flist))
-    df_status <- data.frame(run = sample_info$Run)
-    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
-    return(df_status)
-}
-
-
 #' Check if FASTQ files were properly downloaded
 #'
 #' @param sample_info Data frame of sample metadata created with the
@@ -206,6 +156,18 @@ get_url_ena <- function(sample_info = NULL, link_from = "api") {
     } else {
         stop("Invalid 'link_from'. Choose one of 'api' or 'iterative'.")
     }
+    
+    # Handle paired-end reads with 3 urls - keep only _1 and _2.fastq.gz
+    todelete <- unlist(lapply(sample_info$Run, function(x) {
+        count <- sum(grepl(x, urls))
+        delete <- "nothing"
+        if(count > 2) {
+            delete <- x
+        }
+        return(delete)
+    }))
+    urls <- urls[!grepl(paste0(todelete, ".fastq.gz"), urls)]
+
     return(urls)
 }
 
@@ -271,135 +233,81 @@ download_from_ena <- function(sample_info = NULL,
      
 }
 
-
-#' Check integrity of downloaded FASTQ files
-#' 
-#' This file detects FASTQ files that have not been properly downloaded
-#' and flags them, indicating the problem in a "Issue" column. It is an
-#' alternative to md5sum to check file integrity.
-#' 
-#' @param sample_info Data frame of sample metadata created with the
-#' function \code{create_sample_info()}.
+#' Check file integrity with md5sum
+#'
+#' @param run_accessions Character vector of run accessions.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files. 
-#' @param read_count A 2-column data frame with the number of reads for
-#' each run as reported in SRA, which can be obtained with the
-#' function \code{get_read_count()}.
-#' @param verbose Logical scalar indicating whether or not to print 
-#' log messages. Default: FALSE.
-#'
-#' @return A 3-column data frame with the following variables:
-#' \describe{
-#'   \item{Run}{Character vector of run acessions.}
-#'   \item{Status}{Character vector of file integrity status. 
-#'   If there is nothing wrong with the file, it will be "OK", 
-#'   and NA otherwise.}
-#'   \item{Issue}{Numeric vector with code to issue in each file, if there is
-#'   any. See issue legend below.}
-#' }
-#' @details
-#' This function looks for and flags problematic downloads.
-#' Run accessions that have been properly downloaded will have "OK" in 
-#' the \strong{Status} variable. If there is any issue with the run, 
-#' the \strong{Status} variable will be NA, with details on the problem
-#' in the \strong{Issue} column. Issues are labeled numbers from 1 to 3,
-#' which mean:
-#' * 1: File was not downloaded.
-#' * 2: For paired-end reads, only forward or reverse file was downloaded.
-#' * 3: Less reads than the expected. The expected number of reads for each
-#' file is available in SRA, and it can be obtained 
-#' with \code{get_read_count()}.
+#' 
+#' @return A data frame with variables \strong{Run} and \strong{Status} with
+#' run accession and integrity status, respectively. 
 #' 
 #' @export
-#' @importFrom ShortRead countFastq
-#' @rdname check_downloads
+#' @rdname check_md5
 #' @examples
-#' data(sample_info)
-#' fastqdir <- system.file("extdata", package = "bears") 
-#' # Create a fake data frame of read count
-#' read_count <- data.frame(Run = "SRR1039508", Reads = 7097)
-#' # Check download
-#' check_downloads(sample_info, fastqdir, read_count)
-check_downloads <- function(sample_info = NULL, 
-                            fastqdir = "results/01_FASTQ_files",
-                            read_count,
-                            verbose = FALSE) {
+#' urls <- c(
+#'     "ftp.sra.ebi.ac.uk/vol1/fastq/SRR926/SRR926397/SRR926397_1.fastq.gz",
+#'     "ftp.sra.ebi.ac.uk/vol1/fastq/SRR926/SRR926397/SRR926397_2.fastq.gz"
+#' )
+#' sample_info <- data.frame(
+#'     BioSample = "SAMN01924555",
+#'     Experiment = "SRX245306",
+#'     Run = "SRR926397",
+#'     BioProject = "PRJNA190191", Instrument = "Illumina HiSeq 2000", 
+#'     Layout = "PAIRED"
+#' )
+#' fastqdir <- tempdir()
+#' d <- download_from_ena(
+#'     sample_info, urls = urls, fastqdir = fastqdir, method = "libcurl"
+#' )
+#' 
+#' # Check MD5
+#' run_accessions <- sample_info$Run
+#' check_md5(run_accessions, fastqdir)
+check_md5 <- function(run_accessions = NULL, 
+                      fastqdir = "results/01_FASTQ_files") {
     
-    sample_info <- sample_info[sample_info$Run %in% read_count$Run, ]
-    
-    # Get data frame of downloaded files
-    downloaded <- fastq_exists(sample_info, fastqdir, collapse_pe = FALSE)
-    downloaded$CRun <- gsub("_[0-9]", "", downloaded$Run)
-
-    # Create list of runs
-    run_list <- split(downloaded, downloaded$CRun)
-    run_order <- unique(downloaded$CRun)
-    run_list <- run_list[run_order]
-    
-    # Define wrapper function to check if number of reads match the expected
-    check_nreads <- function(fastqdir, run, read_count) {
-        file <- list.files(fastqdir, pattern = run[["CRun"]], full.names = TRUE)
-        file <- file[endsWith(file, ".fastq.gz")]
-        if(length(file) == 3) {
-            message("Detected 3 files for paired-end reads.")
-            file <- file[grep("_[0-9].fastq.gz", file)]
-        }
-        run$nreads <- ShortRead::countFastq(file)$records
-        run$nref <- read_count$Reads[read_count$Run %in% run$CRun]
-        c <- identical(as.numeric(run$nreads), as.numeric(run$nref))
-        if(!c & verbose) {
-            message("Reference: ", paste0(run$nref, collapse = ", "), "\n",
-                    "File: ", paste0(run$nreads, collapse = ", "))
-        }
-        return(c)
-    }
-    
-    # Add status column
-    run_status <- Reduce(rbind, lapply(run_list, function(x) {
-        if(verbose) {
-            message("Working on run ", unique(x$CRun))
-        }
-        x$Issue <- NA
+    base_url <- "https://www.ebi.ac.uk/ena/portal/api/filereport?accession="
+    check <- Reduce(rbind, lapply(run_accessions, function(x) {
         
-        ## Single-end file
-        if(nrow(x) == 1) { 
-            if(is.na(x$Status)) {
-                x$Issue <- 1 
-            } else {
-                ### Check if number of reads match the reported in SRA
-                check_readcount <- check_nreads(fastqdir, x, read_count) 
-                if(!check_readcount) {
-                    x$Status <- NA
-                    x$Issue <- 3
-                }
+        l <- paste0(base_url, x, "&result=read_run&format=tsv&limit=0")
+        
+        md5_status <- data.frame(Run = x, Status = NA)
+        try <- tryCatch({
+            info <- utils::read.table(l, sep = "\t", header = TRUE)
+            md5 <- data.frame(
+                Run = unlist(strsplit(info$fastq_ftp, ";")),
+                md5 = unlist(strsplit(info$fastq_md5, ";"))
+            )
+            # Remove cases with 3 FASTQ files for paired-end reads
+            paired_3 <- sum(
+                grepl(paste0(x, ".fastq.gz"), md5$Run),
+                grepl(paste0(x, "_1.fastq.gz"), md5$Run)
+            )
+            if(paired_3 != 1) {
+                md5 <- md5[!grepl(paste0(x, ".fastq.gz"), md5$Run), ]
             }
             
-            ## Paired-end file
-        } else {
-            ### Check if any file is missing. None should be.
-            na_count <- sum(is.na(x$Status))
+            md5$md5_downloaded <- tools::md5sum(
+                file.path(fastqdir, basename(md5$Run))
+            )
+            md5$Status <- identical(md5$md5, md5$md5_downloaded)
             
-            if(na_count == 2) { # both forward and reverse not present
-                x$Status <- NA
-                x$Issue <- 1
-            } else if(na_count == 1) { # either forward or reverse not present
-                x$Status <- NA
-                x$Issue <- 2
-            } else { # Both files were downloaded
-                ### Check if number of reads match the reported in SRA
-                check_readcount <- check_nreads(fastqdir, x, read_count) 
-                if(!check_readcount) {
-                    x$Status <- NA
-                    x$Issue <- 3
-                }
-            }
-        }
-        final_status <- x[1, c("CRun", "Status", "Issue")]
-        names(final_status) <- c("Run", "Status", "Issue")
-        if(verbose & !is.na(final_status$Issue)) {
-            message("Issue ", final_status$Issue, " in run ", final_status$Run)
-        }
-        return(final_status)
+            # Get status
+            md5_status$Status <- ifelse(all(md5$Status == TRUE), TRUE, FALSE)
+        },
+        error = function(e) {
+            message("Could not find URL for run ", x)
+            return(NULL)
+        },
+        warning = function(w) {
+            message("Could not find URL for run ", x)
+            return(NULL)
+        })
+        
+        return(md5_status)
     }))
-    return(run_status)
+    
+    return(check)
 }
+

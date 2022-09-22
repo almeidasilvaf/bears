@@ -132,13 +132,10 @@ sra_xml2df <- function(id) {
     title <- XML::xpathSApply(run_info, "//STUDY_TITLE", XML::xmlValue)
     abstract <- XML::xpathSApply(run_info, "//STUDY_ABSTRACT", XML::xmlValue)
     treatment <- gsub("treatment", "", samp_at[grep("treatment", samp_at)])
-    date <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
-    if(methods::is(date, "matrix")) {
-        date <- date["published", ]
-    } else if(length(date) == 0) {
-        date <- NA
-    } else {
-        date <- date[[1]]["published"]
+    rawdate <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
+    date <- NA
+    if(methods::is(rawdate, "matrix")) {
+        date <- rawdate["published", ]
     }
     
     res_list <- list(
@@ -193,54 +190,4 @@ create_sample_info <- function(term, retmax=5000) {
     final_df <- Reduce(rbind, final_list)
     return(final_df)
 }
-
-
-#' Get read count information from SRA for each run accession
-#' 
-#' This function is used in quality checks, so users can check if the files
-#' they have downloaded have the same number of reads as reported in SRA.
-#' If local files have less reads than what is reported in SRA metadata,
-#' probably there was an error during download.
-#' 
-#' @param sample_info Data frame of sample metadata created with the
-#' function \code{create_sample_info}.
-#' @param run_accession Character scalar or vector with run accessions
-#' for which read count will be obtained.
-#'
-#' @return A 2-column data frame with variables \strong{Run} and \strong{Reads}
-#' indicating run accession and number of reads for each sample, respectively.
-#' @export
-#' @rdname get_read_count 
-#' @examples 
-#' data(sample_info)
-#' readcount <- get_read_count(sample_info, sample_info$Run)
-get_read_count <- function(sample_info, run_accession) {
-    
-    count_df <- Reduce(rbind, lapply(run_accession, function(x) {
-        term <- paste0(x, "[Accession]")
-        search <- rentrez::entrez_search(
-            db = "sra", term = term, use_history = TRUE
-        )
-        run_info <- rentrez::entrez_fetch(
-            db="sra", id = search$ids, rettype = "xml", parsed = TRUE
-        )
-
-        # Get number of reads
-        runs <- XML::xpathSApply(run_info, "//RUN", XML::xmlAttrs)
-        runs <- as.data.frame(t(runs))
-        nreads <- runs[runs$accession == x, "total_spots"]
-        
-        # Create data frame of run accession and read count
-        if(length(nreads) == 0) {
-            nreads <- NA
-        }
-        result_df <- data.frame(
-            Run = x,
-            Reads = nreads
-        )
-        return(result_df)
-    }))
-    return(count_df)
-}
-
 

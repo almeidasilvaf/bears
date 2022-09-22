@@ -23,11 +23,10 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    eval = TRUE,
+    eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
 ```
-
 
 # Introduction
 
@@ -162,6 +161,24 @@ Let's see the environments and their names.
 ```{r check_envs}
 list_CondaEnv(pathToMiniConda = my_miniconda)
 ```
+
+```{r test_installation, eval = TRUE}
+library(bears)
+
+# Test software installation
+fastqc_is_installed()
+multiqc_is_installed()
+star_is_installed()
+trimmomatic_is_installed()
+sortmerna_is_installed()
+rseqc_is_installed()
+salmon_is_installed()
+kallisto_is_installed()
+subread_is_installed()
+stringtie_is_installed()
+taco_is_installed()
+```
+
 
 # Retrieving sample metadata
 

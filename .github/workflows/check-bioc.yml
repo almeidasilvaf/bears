@@ -73,6 +73,81 @@ jobs:
           
           # Change default shell to bash
           chsh -s /bin/bash
+          
+          # Install external dependencies
+          sudo apt-get update && apt-get install -y \
+            python3-pip \
+             git-core \
+             libcurl4-openssl-dev \
+             libgit2-dev \
+             libglpk-dev \
+             libgmp-dev \
+             libicu-dev \
+             libssl-dev \
+             libxml2-dev \
+             libpng-dev \
+             libbz2-dev \
+             liblzma-dev \
+             make \
+             pandoc \
+             pandoc-citeproc \
+             wget \
+             libxml-libxml-perl \
+             libidn11 \
+             default-jre
+             
+          ## MultiQC
+          pip3 install multiqc==1.11
+          
+          ## STAR
+          wget https://github.com/alexdobin/STAR/archive/2.7.9a.tar.gz -O /tmp/star-2.7.9a.tar.gz && \
+            tar -xzf /tmp/star-2.7.9a.tar.gz -C /opt/
+            
+          ## Trimmomatic
+          wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip -O /tmp/Trimmomatic-0.39.zip && \
+            unzip /tmp/Trimmomatic-0.39.zip -d /opt && \
+            rm /tmp/Trimmomatic-0.39.zip && \
+            echo 'alias trimmomatic="java -jar opt/Trimmomatic-0.39/trimmomatic-0.39.jar"' >> ~/.bashrc
+          
+          ## SortMeRNA  
+          wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/sortmerna-4.3.4-Linux.sh -O /tmp/sortmerna-4.3.4-Linux.sh && \
+            bash /tmp/sortmerna-4.3.4-Linux.sh --skip-license --prefix=/opt/
+          
+          ## salmon
+          wget https://github.com/COMBINE-lab/salmon/releases/download/v1.5.2/salmon-1.5.2_linux_x86_64.tar.gz -O /tmp/salmon-1.5.2.tar.gz && \
+            tar -xzf /tmp/salmon-1.5.2.tar.gz -C /opt/ && \
+            rm /tmp/salmon-1.5.2.tar.gz
+            
+          ## kallisto
+          wget https://github.com/pachterlab/kallisto/releases/download/v0.46.2/kallisto_linux-v0.46.2.tar.gz -O /tmp/kallisto-0.46.2.tar.gz && \
+            tar -xzf /tmp/kallisto-0.46.2.tar.gz -C /opt/ && \
+            rm /tmp/kallisto-0.46.2.tar.gz
+            
+          ## Subread
+          wget https://sourceforge.net/projects/subread/files/subread-2.0.3/subread-2.0.3-Linux-x86_64.tar.gz -O /tmp/subread-2.0.3.tar.gz && \
+            tar -xzf /tmp/subread-2.0.3.tar.gz -C /opt/ && \
+            rm /tmp/subread-2.0.3.tar.gz
+            
+          ## StringTie
+          wget https://github.com/gpertea/stringtie/releases/download/v2.1.7/stringtie-2.1.7.Linux_x86_64.tar.gz -O /tmp/stringtie-2.1.7.tar.gz && \
+            tar -zxf /tmp/stringtie-2.1.7.tar.gz -C /opt/ && \
+            rm /tmp/stringtie-2.1.7.tar.gz
+        
+          ## TACO
+          wget https://github.com/tacorna/taco/releases/download/v0.7.3/taco-v0.7.3.Linux_x86_64.tar.gz -O /tmp/taco-v0.7.3.tar.gz && \
+            tar -xzvf /tmp/taco-v0.7.3.tar.gz -C /opt/ && \
+            rm /tmp/taco-v0.7.3.tar.gz
+            
+          # Update PATH
+          export LD_LIBRARY_PATH="/usr/local/lib/:${LD_LIBRARY_PATH}"
+          export PATH="opt/STAR-2.7.9a/bin/Linux_x86_64_static/:${PATH}"
+          export PATH="/opt/bin/:${PATH}"
+          export PATH="/opt/bin/:${PATH}"
+          export PATH="/opt/salmon-1.5.2_linux_x86_64/bin/:${PATH}"
+          export PATH="/opt/kallisto/:${PATH}"
+          export PATH="/opt/subread-2.0.3-Linux-x86_64/bin/:${PATH}"
+          export PATH="/opt/stringtie-2.1.7.Linux_x86_64/:${PATH}"
+          export PATH="/opt/taco-v0.7.3.Linux_x86_64/:${PATH}"
 
 
       ## Most of these steps are the same as the ones in

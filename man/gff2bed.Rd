@@ -10,9 +10,7 @@ gff2bed(gffpath = NULL)
 \item{gffpath}{Path to .gff file with genome annotation.}
 }
 \value{
-A 2-column data frame with path to BED file in the first column
-and status in the second column, with "OK" if the BED file was successfully
-created from the GFF/GTF file, and NA otherwise.
+Path to output .bed file
 }
 \description{
 Convert GFF file to BED
