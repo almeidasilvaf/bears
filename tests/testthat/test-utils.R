@@ -1,6 +1,11 @@
 
 #----Load data------------------------------------------------------------------
-
+data(sample_info)
+mapping_passed <- sample_info
+bedpath <- system.file(
+    "extdata", "Homo_sapiens.GRCh37.75_subset.bed", package = "bears"
+)
+mappingdir <- system.file("extdata", package = "bears")
 
 #----Start tests----------------------------------------------------------------
 test_that("skip() works", {
@@ -22,4 +27,15 @@ test_that("gff2bed() converts a GFF file to BED", {
     g1 <- gff2bed(gff_file)
     
     expect_equal(class(g1), "character")
+})
+
+
+test_that("infer_strandedness() infers strandedness", {
+    
+    s1 <- data.frame()
+    if(rseqc_is_installed()) {
+        s1 <- infer_strandedness(mapping_passed, bedpath, mappingdir)
+    }
+    
+    expect_equal(class(s1), "data.frame")
 })
