@@ -75,7 +75,7 @@ jobs:
 
           # Install Herper from GitHub
           R -e 'install.packages("remotes")'
-          R -e 'remotes::install_github("RockefellerUniversity/Herper@1.1.2", force = TRUE)'
+          R -e 'remotes::install_github("RockefellerUniversity/Herper@1.6.1", force = TRUE)'
           
           # Change default shell to bash
           chsh -s /bin/bash
