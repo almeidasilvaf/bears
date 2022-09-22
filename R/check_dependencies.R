@@ -19,18 +19,6 @@ is_valid <- function(cmd = NULL, args = NULL) {
     return(found)
 }
 
-#' Check if SRAToolkit is installed
-#' 
-#' @return Logical indicating whether SRAToolkit is installed or not.
-#' @export
-#' @rdname sratoolkit_is_installed
-#' @examples 
-#' sratoolkit_is_installed()
-sratoolkit_is_installed <- function() {
-    valid <- is_valid(cmd = "fastq-dump")
-    return(valid)
-}
-
 
 #' Check if FastQC is installed
 #' 

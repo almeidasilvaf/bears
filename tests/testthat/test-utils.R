@@ -73,6 +73,7 @@ test_that("create_dir_structure() returns a list of paths", {
     
     expect_equal(class(ds), "list")
     expect_equal(class(ds$fastqdir), "character")
+    expect_error(create_dir_structure())
 })
 
 

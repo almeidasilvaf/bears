@@ -237,7 +237,7 @@ c_createdir <- function(dir) {
 #' dirs <- create_dir_structure(rootdir)
 create_dir_structure <- function(rootdir = NULL) {
     
-    if(is.null(rootdir)) { rootdir <- paste0("results_", Sys.Date()) }
+    if(is.null(rootdir)) { stop("Please, specify a root directory.") }
     root <- c_createdir(rootdir)
     fastqdir <- paste0(rootdir, "/01_FASTQ_files")
     fastqcdir <- paste0(rootdir, "/02_FastQC_dir")
