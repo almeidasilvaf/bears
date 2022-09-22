@@ -79,8 +79,10 @@ jobs:
           # Install Herper from GitHub
           R -e 'install.packages("remotes")'
           R -e 'remotes::install_github("RockefellerUniversity/Herper@2f5c893", force = TRUE)'
-
           
+      - name: Install external dependencies
+        if: runner.os == 'Linux'
+        run: |
           # Install external dependencies
           sudo apt-get update && apt-get install -y \
             python3-pip \
@@ -102,13 +104,21 @@ jobs:
              libxml-libxml-perl \
              libidn11 \
              default-jre
+          
+          ## FastQC
+          wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip -O /tmp/fastqc_v0.11.19.zip && \
+            unzip /tmp/fastqc_v0.11.19.zip -d /opt && \
+            rm /tmp/fastqc_v0.11.19.zip && \
+            chmod 755 /opt/FastQC/fastqc
              
           ## MultiQC
           pip3 install multiqc==1.11
           
           ## STAR
-          wget https://github.com/alexdobin/STAR/archive/2.7.9a.tar.gz -O /tmp/star-2.7.9a.tar.gz && \
-            tar -xzf /tmp/star-2.7.9a.tar.gz -C /opt/
+          wget https://github.com/alexdobin/STAR/archive/2.7.10a.tar.gz -O /tmp/star-2.7.10a.tar.gz && \
+            tar -xzf /tmp/star-2.7.10a.tar.gz -C /opt/ && \
+            make -C /opt/STAR-2.7.10a/source/STAR && \
+            rm /tmp/star-2.7.10a.tar.gz
             
           ## Trimmomatic
           wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip -O /tmp/Trimmomatic-0.39.zip && \
@@ -116,7 +126,7 @@ jobs:
             rm /tmp/Trimmomatic-0.39.zip && \
             echo 'alias trimmomatic="java -jar opt/Trimmomatic-0.39/trimmomatic-0.39.jar"' >> ~/.bashrc
           
-          ## SortMeRNA  
+          ## SortMeRNA
           wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/sortmerna-4.3.4-Linux.sh -O /tmp/sortmerna-4.3.4-Linux.sh && \
             bash /tmp/sortmerna-4.3.4-Linux.sh --skip-license --prefix=/opt/
           
@@ -144,18 +154,8 @@ jobs:
           wget https://github.com/tacorna/taco/releases/download/v0.7.3/taco-v0.7.3.Linux_x86_64.tar.gz -O /tmp/taco-v0.7.3.tar.gz && \
             tar -xzvf /tmp/taco-v0.7.3.tar.gz -C /opt/ && \
             rm /tmp/taco-v0.7.3.tar.gz
-            
-          # Update PATH
-          export LD_LIBRARY_PATH="/usr/local/lib/:${LD_LIBRARY_PATH}"
-          export PATH="opt/STAR-2.7.9a/bin/Linux_x86_64_static/:${PATH}"
-          export PATH="/opt/bin/:${PATH}"
-          export PATH="/opt/bin/:${PATH}"
-          export PATH="/opt/salmon-1.5.2_linux_x86_64/bin/:${PATH}"
-          export PATH="/opt/kallisto/:${PATH}"
-          export PATH="/opt/subread-2.0.3-Linux-x86_64/bin/:${PATH}"
-          export PATH="/opt/stringtie-2.1.7.Linux_x86_64/:${PATH}"
-          export PATH="/opt/taco-v0.7.3.Linux_x86_64/:${PATH}"
-
+        
+          echo 'Sys.setenv(paste0(Sys.getenv("PATH"), "/opt/FastQC/fastqc", "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/", "/opt/bin/", "/opt/salmon-1.5.2_linux_x86_64/bin/", "/opt/kallisto/", "/opt/subread-2.0.3-Linux-x86_64/bin/", "/opt/stringtie-2.1.7.Linux_x86_64/", "/opt/taco-v0.7.3.Linux_x86_64/", sep = ":"))' > ~/.Rprofile
 
       ## Most of these steps are the same as the ones in
       ## https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml

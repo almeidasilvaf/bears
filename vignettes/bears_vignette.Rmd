@@ -165,39 +165,20 @@ list_CondaEnv(pathToMiniConda = my_miniconda)
 ```{r test_installation, eval = TRUE}
 library(bears)
 
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "opt/STAR-2.7.9a/bin/Linux_x86_64_static/", 
-                 sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/bin/", sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/salmon-1.5.2_linux_x86_64/bin/", 
-                 sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/kallisto/", 
-                 sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/subread-2.0.3-Linux-x86_64/bin/", 
-                 sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/stringtie-2.1.7.Linux_x86_64/", 
-                 sep = ":")
-)
-
-Sys.setenv(
-    PATH = paste(Sys.getenv("PATH"), "/opt/taco-v0.7.3.Linux_x86_64/", 
-                 sep = ":")
-)
+# Sys.setenv(
+#     paste0(
+#         Sys.getenv("PATH"), 
+#         "/opt/FastQC/fastqc",
+#         "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
+#         "/opt/bin/",
+#         "/opt/salmon-1.5.2_linux_x86_64/bin/",
+#         "/opt/kallisto/",
+#         "/opt/subread-2.0.3-Linux-x86_64/bin/",
+#         "/opt/stringtie-2.1.7.Linux_x86_64/",
+#         "/opt/taco-v0.7.3.Linux_x86_64/",
+#         sep = ":"
+#     )
+# )
 
 # Test software installation
 fastqc_is_installed()
