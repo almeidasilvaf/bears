@@ -10,6 +10,7 @@
 #' @return Character with the path to .fastq file.
 #' @noRd
 get_fastq_paths <- function(fastqdir, run, cmd = "S") {
+    
     fastqfile <- NULL
     if(cmd == "S") {
         if(file.exists(paste0(fastqdir, "/", run, ".fastq.gz"))) {
@@ -18,14 +19,10 @@ get_fastq_paths <- function(fastqdir, run, cmd = "S") {
     } else if(cmd == "P1") {
         if(file.exists(paste0(fastqdir, "/", run, "_1.fastq.gz"))) {
             fastqfile <- paste0(fastqdir, "/", run, "_1.fastq.gz")
-        } else if(file.exists(paste0(fastqdir, "/", run, ".1.fastq.gz"))) {
-            fastqfile <- paste0(fastqdir, "/", run, ".1.fastq.gz")
         } else { message("File not found.") }
     } else {
         if(file.exists(paste0(fastqdir, "/", run, "_2.fastq.gz"))) {
             fastqfile <- paste0(fastqdir, "/", run, "_2.fastq.gz")
-        } else if(file.exists(paste0(fastqdir, "/", run, ".2.fastq.gz"))) {
-            fastqfile <- paste0(fastqdir, "/", run, ".2.fastq.gz")
         } else { message("File not found.") }
     }
     return(fastqfile)
@@ -48,6 +45,11 @@ get_fastq_paths <- function(fastqdir, run, cmd = "S") {
 get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
                              run = NULL, cmd = "S") {
     fastqfile <- get_fastq_paths(fastqdir, run, cmd)
+    old_htmlpath <- NULL
+    new_htmlpath <- NULL
+    old_zippath <- NULL
+    new_zippath <- NULL
+    
     if(cmd == "S") {
         if(file.exists(paste0(fastqdir, "/", run, ".fastq.gz"))) {
             old_htmlpath <- paste0(fastqdir, "/", run, "_fastqc.html")
@@ -61,11 +63,6 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
             new_htmlpath <- paste0(fastqcdir, "/", run, "_1_fastqc.html")
             old_zippath <- paste0(fastqdir, "/", run, "_1_fastqc.zip")
             new_zippath <- paste0(fastqcdir, "/", run, "_1_fastqc.zip")
-        } else if(file.exists(paste0(fastqdir, "/", run, ".1.fastq.gz"))) {
-            old_htmlpath <- paste0(fastqdir, "/", run, ".1_fastqc.html")
-            new_htmlpath <- paste0(fastqcdir, "/", run, ".1_fastqc.html")
-            old_zippath <- paste0(fastqdir, "/", run, ".1_fastqc.zip")
-            new_zippath <- paste0(fastqcdir, "/", run, ".1_fastqc.zip")
         } else { message("File not found.") }
     } else {
         if(file.exists(paste0(fastqdir, "/", run, "_2.fastq.gz"))) {
@@ -73,16 +70,12 @@ get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
             new_htmlpath <- paste0(fastqcdir, "/", run, "_2_fastqc.html")
             old_zippath <- paste0(fastqdir, "/", run, "_2_fastqc.zip")
             new_zippath <- paste0(fastqcdir, "/", run, "_2_fastqc.zip")
-        } else if(file.exists(paste0(fastqdir, "/", run, ".2.fastq.gz"))) {
-            old_htmlpath <- paste0(fastqdir, "/", run, ".2_fastqc.html")
-            new_htmlpath <- paste0(fastqcdir, "/", run, ".2_fastqc.html")
-            old_zippath <- paste0(fastqdir, "/", run, ".2_fastqc.zip")
-            new_zippath <- paste0(fastqcdir, "/", run, ".2_fastqc.zip")
         } else { message("File not found.") }
     }
-    path <- list(fastq = fastqfile, 
-                 oldhtml = old_htmlpath, newhtml = new_htmlpath,
-                 oldzip = old_zippath, newzip = new_zippath)
+    path <- list(
+        fastq = fastqfile, oldhtml = old_htmlpath, newhtml = new_htmlpath,
+        oldzip = old_zippath, newzip = new_zippath
+    )
     return(path)
 }
 
