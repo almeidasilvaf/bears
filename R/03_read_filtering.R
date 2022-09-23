@@ -95,7 +95,7 @@ trim_reads <- function(sample_info = NULL,
 #' @noRd
 rrna_ref_args <- function(rrna_db_dir = NULL) {
     fasta_files <- list.files(rrna_db_dir, full.names = TRUE,
-                              pattern = ".fasta|.fa")
+                              pattern = ".fasta$|.fa$")
     
     refs <- unlist(lapply(fasta_files, function(x) {
         arg <- c("--ref", x)
