@@ -1,4 +1,6 @@
 
+options(timeout = 60000)
+
 #----Create example data--------------------------------------------------------
 sample_metadata <- data.frame(
     BioSample = c(
