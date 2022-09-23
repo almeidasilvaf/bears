@@ -26,6 +26,21 @@ knitr::opts_chunk$set(
     eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
+
+Sys.setenv(
+    PATH = paste0(
+        Sys.getenv("PATH"),
+        "/opt/FastQC/fastqc",
+        "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
+        "/opt/bin/",
+        "/opt/salmon-1.5.2_linux_x86_64/bin/",
+        "/opt/kallisto/",
+        "/opt/subread-2.0.3-Linux-x86_64/bin/",
+        "/opt/stringtie-2.1.7.Linux_x86_64/",
+        "/opt/taco-v0.7.3.Linux_x86_64/",
+        sep = ":"
+    )
+)
 ```
 
 # Introduction
@@ -164,21 +179,6 @@ list_CondaEnv(pathToMiniConda = my_miniconda)
 
 ```{r test_installation, eval = TRUE}
 library(bears)
-
-# Sys.setenv(
-#     PATH = paste0(
-#         Sys.getenv("PATH"), 
-#         "/opt/FastQC/fastqc",
-#         "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
-#         "/opt/bin/",
-#         "/opt/salmon-1.5.2_linux_x86_64/bin/",
-#         "/opt/kallisto/",
-#         "/opt/subread-2.0.3-Linux-x86_64/bin/",
-#         "/opt/stringtie-2.1.7.Linux_x86_64/",
-#         "/opt/taco-v0.7.3.Linux_x86_64/",
-#         sep = ":"
-#     )
-# )
 
 # Test software installation
 fastqc_is_installed()
