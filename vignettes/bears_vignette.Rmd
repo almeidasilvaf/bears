@@ -26,21 +26,6 @@ knitr::opts_chunk$set(
     eval = FALSE,
     crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
 )
-
-Sys.setenv(
-    PATH = paste0(
-        Sys.getenv("PATH"),
-        "/opt/FastQC/fastqc",
-        "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
-        "/opt/bin/",
-        "/opt/salmon-1.5.2_linux_x86_64/bin/",
-        "/opt/kallisto/",
-        "/opt/subread-2.0.3-Linux-x86_64/bin/",
-        "/opt/stringtie-2.1.7.Linux_x86_64/",
-        "/opt/taco-v0.7.3.Linux_x86_64/",
-        sep = ":"
-    )
-)
 ```
 
 # Introduction
@@ -105,6 +90,7 @@ software_df <- data.frame(
                 ">=1.8.0", ">=4.3.4", ">=2.7.10a", ">=2.2.1",
                 ">=2.0.1", ">=0.7.3", ">=0.39")
 )
+
 software_df$Functions <- c(
     "run_fastqc()", "kallisto_index(), kallisto_quantify()",
     "multiqc()", "infer_strandedness()", 
@@ -153,12 +139,11 @@ a particular Conda environment, which we need to specify.
 Below is the code to install miniconda and create tool-specific 
 environments from the .yml files.
 
-```{r install_conda_envs, eval = TRUE}
+```{r install_conda_envs}
 library(Herper)
 
 # Path to directory where miniconda will be installed
-#my_miniconda <- file.path(tempdir(), "miniconda")
-my_miniconda <- file.path("~/miniconda3")
+my_miniconda <- file.path(tempdir(), "miniconda")
 
 # Path to .yml files to create environments
 envs <- list.files(
@@ -174,8 +159,25 @@ create_envs <- sapply(envs, function(x) {
 
 Let's see the environments and their names.
 
-```{r check_envs, eval = TRUE}
+```{r check_envs}
 list_CondaEnv(pathToMiniConda = my_miniconda)
+```
+
+```{r change_path, eval = TRUE}
+Sys.setenv(
+    PATH = paste0(
+        Sys.getenv("PATH"),
+        "/opt/FastQC/fastqc",
+        "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
+        "/opt/bin/",
+        "/opt/salmon-1.5.2_linux_x86_64/bin/",
+        "/opt/kallisto/",
+        "/opt/subread-2.0.3-Linux-x86_64/bin/",
+        "/opt/stringtie-2.1.7.Linux_x86_64/",
+        "/opt/taco-v0.7.3.Linux_x86_64/",
+        sep = ":"
+    )
+)
 ```
 
 ```{r test_installation, eval = TRUE}
@@ -221,7 +223,7 @@ metadata
 
 # Downloading FASTQ files
 
-To download the .fastq files with the reads, you have 2 options:
+To download the .fastq files with reads, you have 2 options:
 
 - Using `download_from_ena()` (recommended), which downloads reads from ENA. 
 This function does not require any external dependency and is much

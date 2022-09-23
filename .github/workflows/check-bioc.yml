@@ -80,15 +80,6 @@ jobs:
           R -e 'install.packages("remotes")'
           R -e 'remotes::install_github("RockefellerUniversity/Herper@2f5c893", force = TRUE)'
           
-      - name: Install miniconda
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          MINICONDA_FILENAME=Miniconda3-latest-Linux-x86_64.sh
-          curl -o $MINICONDA_FILENAME "https://repo.continuum.io/miniconda/$MINICONDA_FILENAME"
-          bash ${MINICONDA_FILENAME} -b -f -p $HOME/miniconda3
-          
-          
       - name: Install external dependencies
         if: runner.os == 'Linux'
         run: |
