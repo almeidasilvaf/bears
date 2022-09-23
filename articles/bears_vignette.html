@@ -272,7 +272,7 @@ environments from the .yml files.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/ListCondaEnvironments.html" class="external-link">list_CondaEnv</a></span><span class="op">(</span>pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
-<span>    PATH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
+<span>    PATH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span>,</span>
 <span>        <span class="st">"/opt/FastQC/fastqc"</span>,</span>
 <span>        <span class="st">"/opt/STAR-2.7.9a/bin/Linux_x86_64_static/"</span>,</span>
@@ -284,7 +284,10 @@ environments from the .yml files.</p>
 <span>        <span class="st">"/opt/taco-v0.7.3.Linux_x86_64/"</span>,</span>
 <span>        sep <span class="op">=</span> <span class="st">":"</span></span>
 <span>    <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "/usr/lib/rstudio-server/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/FastQC/fastqc:/opt/STAR-2.7.9a/bin/Linux_x86_64_static/:/opt/bin/:/opt/salmon-1.5.2_linux_x86_64/bin/:/opt/kallisto/:/opt/subread-2.0.3-Linux-x86_64/bin/:/opt/stringtie-2.1.7.Linux_x86_64/:/opt/taco-v0.7.3.Linux_x86_64/"</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/almeidasilvaf/bears" class="external-link">bears</a></span><span class="op">)</span></span>
 <span></span>
@@ -298,19 +301,19 @@ environments from the .yml files.</p>
 <span><span class="fu"><a href="../reference/trimmomatic_is_installed.html">trimmomatic_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/sortmerna_is_installed.html">sortmerna_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/rseqc_is_installed.html">rseqc_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/salmon_is_installed.html">salmon_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/kallisto_is_installed.html">kallisto_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/subread_is_installed.html">subread_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/stringtie_is_installed.html">stringtie_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/taco_is_installed.html">taco_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="retrieving-sample-metadata">Retrieving sample metadata<a class="anchor" aria-label="anchor" href="#retrieving-sample-metadata"></a>
