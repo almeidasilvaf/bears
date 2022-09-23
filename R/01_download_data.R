@@ -243,6 +243,7 @@ download_from_ena <- function(sample_info = NULL,
 #' run accession and integrity status, respectively. 
 #' 
 #' @export
+#' @importFrom tools md5sum
 #' @rdname check_md5
 #' @examples
 #' urls <- c(
