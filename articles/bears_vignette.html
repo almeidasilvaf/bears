@@ -271,6 +271,21 @@ environments from the .yml files.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/ListCondaEnvironments.html" class="external-link">list_CondaEnv</a></span><span class="op">(</span>pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
+<span>    PATH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span>,</span>
+<span>        <span class="st">"/opt/FastQC/fastqc"</span>,</span>
+<span>        <span class="st">"/opt/STAR-2.7.9a/bin/Linux_x86_64_static/"</span>,</span>
+<span>        <span class="st">"/opt/bin/"</span>,</span>
+<span>        <span class="st">"/opt/salmon-1.5.2_linux_x86_64/bin/"</span>,</span>
+<span>        <span class="st">"/opt/kallisto/"</span>,</span>
+<span>        <span class="st">"/opt/subread-2.0.3-Linux-x86_64/bin/"</span>,</span>
+<span>        <span class="st">"/opt/stringtie-2.1.7.Linux_x86_64/"</span>,</span>
+<span>        <span class="st">"/opt/taco-v0.7.3.Linux_x86_64/"</span>,</span>
+<span>        sep <span class="op">=</span> <span class="st">":"</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/almeidasilvaf/bears" class="external-link">bears</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Test software installation</span></span>
@@ -318,7 +333,7 @@ RNA-seq[STRA]</strong>
 <p>Let’s create a metadata data frame for a human RNA-seq sample that is
 included in the <em><a href="https://bioconductor.org/packages/3.15/airway" class="external-link">airway</a></em>
 Bioconductor package.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create metadata data frame</span></span>
 <span><span class="va">term</span> <span class="op">&lt;-</span> <span class="st">"SAMN02422669[BSPL]"</span></span>
 <span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_sample_info.html">create_sample_info</a></span><span class="op">(</span><span class="va">term</span><span class="op">)</span></span>
@@ -327,7 +342,7 @@ Bioconductor package.</p>
 <div class="section level2">
 <h2 id="downloading-fastq-files">Downloading FASTQ files<a class="anchor" aria-label="anchor" href="#downloading-fastq-files"></a>
 </h2>
-<p>To download the .fastq files with the reads, you have 2 options:</p>
+<p>To download the .fastq files with reads, you have 2 options:</p>
 <ul>
 <li><p>Using <code><a href="../reference/download_from_ena.html">download_from_ena()</a></code> (recommended), which
 downloads reads from ENA. This function does not require any external
@@ -342,7 +357,7 @@ up.</p></li>
 </ul>
 <p>As input, you only need to give the metadata data frame and the path
 the output directory where .fastq files will be stored. For example:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download sample to temporary directory</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>timeout <span class="op">=</span> <span class="fl">6000</span><span class="op">)</span></span>
 <span><span class="va">download</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download_from_ena.html">download_from_ena</a></span><span class="op">(</span><span class="va">metadata</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span><span class="op">)</span></span>
@@ -369,7 +384,7 @@ reverse file was downloaded.</li>
 needs to know the expected number of reads for each run accession. This
 number is available in SRA, and it can be obtained with the function
 <code>get_read_count()</code>. For example:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get a data frame of run accessions and their read counts</span></span>
 <span><span class="va">read_count</span> <span class="op">&lt;-</span> <span class="fu">get_read_count</span><span class="op">(</span><span class="va">metadata</span>, run_accession <span class="op">=</span> <span class="va">metadata</span><span class="op">$</span><span class="va">Run</span><span class="op">)</span></span>
 <span><span class="va">read_count</span></span></code></pre></div>
@@ -377,7 +392,7 @@ number is available in SRA, and it can be obtained with the function
 accessions and their number of reads as reported by SRA. With this
 information, you can run <code>check_downloads()</code> to look for
 download problems.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check downloaded files for issues</span></span>
 <span><span class="fu">check_downloads</span><span class="op">(</span><span class="va">metadata</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span>, <span class="va">read_count</span><span class="op">)</span></span></code></pre></div>
 <p>Here, as you can see, the function reported an issue 3 (<em>less
@@ -400,7 +415,7 @@ we will execute functions that call external tools inside
 <code><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">Herper::with_CondaEnv()</a></code> calls.</p>
 <p>Here, for the purpose of demonstration, we will use example FASTQ
 files stored in /extdata.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Path to MultiQC output</span></span>
 <span><span class="va">multiqc_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"multiqc"</span><span class="op">)</span></span>
 <span></span>
@@ -451,7 +466,7 @@ contain all FASTA files distributed in the <a href="https://github.com/biocore/s
 GitHub repo</a>. However, if you think some of these files (e.g., 5s and
 5.8s rRNA) are not a concern in your data set, you don’t need to include
 them in the database.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a directory to store the rRNA db</span></span>
 <span><span class="va">rrna_db_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"rrna"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">rrna_db_dir</span><span class="op">)</span></span>
@@ -518,7 +533,7 @@ of the human genome. The FASTA and GTF files corresponding to the subset
 of the genome are available in /extdata.</p>
 <p>Before mapping reads, we need to create a genome index. This can be
 done with <code><a href="../reference/star_genome_index.html">star_genome_index()</a></code>.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get paths to genome subset</span></span>
 <span><span class="va">genome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.fa"</span>, </span>
 <span>                            package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span>
@@ -537,7 +552,7 @@ done with <code><a href="../reference/star_genome_index.html">star_genome_index(
 <span><span class="op">)</span></span>
 <span><span class="va">genome_idx</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now that we have the genome index, we can map reads to it.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Map reads to the genome</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"star_env"</span>,</span>
@@ -551,7 +566,7 @@ done with <code><a href="../reference/star_genome_index.html">star_genome_index(
 <span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, let’s get read mapping statistics.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtaining read mapping statistics</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"multiqc_env"</span>,</span>
@@ -572,7 +587,7 @@ Here, samples are excluded if:</p>
 <p>The function <code><a href="../reference/mapping_pass.html">mapping_pass()</a></code> takes the metadata data
 frame and returns the same data frame, but only with the samples that
 passed the minimum criteria.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check if samples passed the filtering criterion</span></span>
 <span><span class="va">align_passed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mapping_pass.html">mapping_pass</a></span><span class="op">(</span><span class="va">star_stats</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span><span class="va">align_passed</span> <span class="co"># inspect data</span></span>
@@ -596,7 +611,7 @@ information.</p>
 <p>This function requires the annotation in BED format, not GTF/GFF. To
 convert from GTF/GFF to BED, use the function
 <code><a href="../reference/gff2bed.html">gff2bed()</a></code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert GFF to BED</span></span>
 <span><span class="va">bedpath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gff2bed.html">gff2bed</a></span><span class="op">(</span><span class="va">gff_path</span><span class="op">)</span></span>
 <span><span class="va">bedpath</span> <span class="co"># check status</span></span>
@@ -627,7 +642,7 @@ raw read counts per gene.</p>
 function <code><a href="../reference/fcount.html">fcount()</a></code>. This function runs
 <em>featureCounts</em> and returns a gene expression matrix with genes
 in rows and samples in columns.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get gene expression in raw read counts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"subread_env"</span>,</span>
@@ -651,7 +666,7 @@ package.</p>
 <p>To get a <code>SummarizedExperiment</code> object from
 <em>featureCounts</em>, use the function
 <code><a href="../reference/featureCounts2se.html">featureCounts2se()</a></code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a SummarizedExperiment object from featureCounts output</span></span>
 <span><span class="va">fcountsse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/featureCounts2se.html">featureCounts2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, fc_output <span class="op">=</span> <span class="va">fcounts_quant</span></span>
@@ -674,7 +689,7 @@ transcript abundances in normalized values (transcripts per million,
 TPM).</p>
 <p>To obtain gene expression levels in TPM with <em>StringTie</em>, use
 the function <code><a href="../reference/stringtie_quantify.html">stringtie_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify expression in TPM with StringTie</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"stringtie_env"</span>,</span>
@@ -695,7 +710,7 @@ the function <code><a href="../reference/stringtie_quantify.html">stringtie_quan
 the gene level, at the transcript level, or both. Here, let’s get the
 gene-level expression. For that, you will need to give a 2-column data
 frame with transcript IDs and their corresponding genes.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene correspondence</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
@@ -725,7 +740,7 @@ transcripts for all BioSamples you are studying, you can merge the
 individual .gtf files from <em>StringTie</em> with the software tool
 <em>TACO</em> <span class="citation">(Niknafs et al. 2017)</span>.
 Below, we will demonstrate how that can be achieved.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Transcript assembly with StringTie</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"stringtie_env"</span>,</span>
@@ -744,7 +759,7 @@ Below, we will demonstrate how that can be achieved.</p>
 scenarios, you would have several samples. To merge the .gtf files for
 each sample in a single .gtf file, use the function
 <code><a href="../reference/taco_merge.html">taco_merge()</a></code>.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Merge assembled transcripts with TACO</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"taco_env"</span>,</span>
@@ -760,7 +775,7 @@ each sample in a single .gtf file, use the function
 <strong>final_assembly.gtf</strong> in the subdirectory
 <em>assembly/merged_assembly</em>, inside <code>stringtiedir</code>. To
 get the path to the .gtf file, use:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get path to merged transcript assembly</span></span>
 <span><span class="va">final_assembly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span>
 <span>    <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span>, <span class="st">"assembly"</span>, <span class="st">"merged_assembly"</span>, <span class="st">"final_assembly.gtf"</span></span>
@@ -809,7 +824,7 @@ package.</p>
 </h4>
 <p>First of all, we will need to index the reference transcriptome with
 the function <code><a href="../reference/salmon_index.html">salmon_index()</a></code>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Path to reference transcriptome</span></span>
 <span><span class="va">transcriptome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
 <span>    <span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz"</span>,</span>
@@ -829,7 +844,7 @@ the function <code><a href="../reference/salmon_index.html">salmon_index()</a></
 <span><span class="va">idx_salmon</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now, we can quantify transcript abundance with
 <code><a href="../reference/salmon_quantify.html">salmon_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"salmon_env"</span>,</span>
@@ -852,7 +867,7 @@ the expression at the gene level, at the transcript level, or both.
 Here, let’s get the gene-level expression. For that, you will need to
 give a 2-column data frame with transcript IDs and their corresponding
 genes.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene data frame</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
@@ -879,7 +894,7 @@ genes.</p>
 </h4>
 <p>Like we do in salmon, we will start by indexing the
 transcriptome.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Index the transcriptome</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"kallisto_env"</span>,</span>
@@ -892,7 +907,7 @@ transcriptome.</p>
 <span></span>
 <span><span class="va">idx_kallisto</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now, we can quantify the transcript abundance.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"kallisto_env"</span>,</span>
@@ -911,7 +926,7 @@ transcriptome.</p>
 function <code><a href="../reference/kallisto2se.html">kallisto2se()</a></code>. Again, you will have specify if you
 want the expressiona at the gene level, transcript level, or both. Let’s
 get the gene expression here.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read kallisto output to SummarizedExperiment object</span></span>
 <span><span class="va">kallistose</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto2se.html">kallisto2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, </span>
@@ -954,7 +969,7 @@ with state-of-the-art methods.</p>
 <h2 class="unnumbered" id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
 <p>This document was created under the following sections:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
