@@ -37,13 +37,15 @@ LazyData: false
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.0
 SystemRequirements:
-    sratoolkit,
-    fastqc,
-    multiqc,
+    fastp,
+    RSeQC,
     STAR,
-    samtools,
     kallisto,
-    salmon
+    salmon,
+    StringTie,
+    Subread,
+    SortMeRNA,
+    TACO
 Imports:
     XML,
     jsonlite,

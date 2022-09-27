@@ -25,15 +25,10 @@ RUN apt-get update && apt-get install -y \
 
 ENV LD_LIBRARY_PATH="/usr/local/lib/:$LD_LIBRARY_PATH"
 
-#-----Install SRAToolkit--------------------------------------------------------
-RUN wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.11.1/sratoolkit.2.11.1-ubuntu64.tar.gz -O /tmp/sratoolkit.tar.gz && \
-      tar zxvf /tmp/sratoolkit.tar.gz -C /opt/ && \
-      rm /tmp/sratoolkit.tar.gz
-      
-# Configure sratoolkit
-RUN vdb-config --restore-defaults && \
-      echo '/LIBS/GUID = "a924eb97-2c35-47ed-89da-5b82f13e6804"' >> /root/.ncbi/user-settings.mkfg
-
+#----Install fastp--------------------------------------------------------------
+RUN wget http://opengene.org/fastp/fastp && \
+      mv fastp /usr/bin && \
+      chmod a+x /usr/bin/fastp
 
 #----Install FastQC-------------------------------------------------------------
 RUN wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip -O /tmp/fastqc_v0.11.19.zip && \
@@ -42,18 +37,9 @@ RUN wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.
       chmod 755 /opt/FastQC/fastqc && \
       ln -s /opt/FastQC/fastqc /usr/local/bin/fastqc
 
-#----Install MultiQC------------------------------------------------------------
-RUN pip3 install multiqc==1.11
-
 #----Install STAR---------------------------------------------------------------
 RUN wget https://github.com/alexdobin/STAR/archive/2.7.9a.tar.gz -O /tmp/star-2.7.9a.tar.gz && \
       tar -xzf /tmp/star-2.7.9a.tar.gz -C /opt/
-
-#----Install Trimmomatic--------------------------------------------------------
-RUN wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip -O /tmp/Trimmomatic-0.39.zip && \
-      unzip /tmp/Trimmomatic-0.39.zip -d /opt && \
-      rm /tmp/Trimmomatic-0.39.zip && \
-      echo 'alias trimmomatic="java -jar opt/Trimmomatic-0.39/trimmomatic-0.39.jar"' >> ~/.bashrc
 
 #----Install SortMeRNA----------------------------------------------------------
 RUN wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/sortmerna-4.3.4-Linux.sh -O /tmp/sortmerna-4.3.4-Linux.sh && \
@@ -95,7 +81,6 @@ RUN R -e 'install.packages("BiocManager")'
 RUN Rscript -e 'remotes::install_github("almeidasilvaf/bears")'
 
 #----Set environment variables--------------------------------------------------
-ENV PATH="/opt/sratoolkit.2.11.1-ubuntu64/bin/:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/lib/:${LD_LIBRARY_PATH}"
 ENV PATH="opt/STAR-2.7.9a/bin/Linux_x86_64_static/:${PATH}"
 ENV PATH="/opt/bin/:${PATH}"

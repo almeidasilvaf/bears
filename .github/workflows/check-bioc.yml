@@ -118,16 +118,16 @@ jobs:
             cd /opt/STAR-2.7.10a/source && \
             make STAR && \
             cp STAR /usr/local/bin && \
-            rm /tmp/star-2.7.10a.tar.gz
+            rm /tmp/star-2.7.10a.tar.gz 
             
           ## SortMeRNA
           wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/sortmerna-4.3.4-Linux.sh -O /tmp/sortmerna-4.3.4-Linux.sh && \
             bash /tmp/sortmerna-4.3.4-Linux.sh --skip-license --prefix=/opt/
           
           ## salmon
-          wget https://github.com/COMBINE-lab/salmon/releases/download/v1.5.2/salmon-1.5.2_linux_x86_64.tar.gz -O /tmp/salmon-1.5.2.tar.gz && \
-            tar -xzf /tmp/salmon-1.5.2.tar.gz -C /opt/ && \
-            rm /tmp/salmon-1.5.2.tar.gz
+          wget https://github.com/COMBINE-lab/salmon/releases/download/v1.9.0/salmon-1.9.0_linux_x86_64.tar.gz -O /tmp/salmon-1.9.0.tar.gz && \
+            tar -xzf /tmp/salmon-1.9.0.tar.gz -C /opt/ && \
+            rm /tmp/salmon-1.9.0.tar.gz
             
           ## kallisto
           wget https://github.com/pachterlab/kallisto/releases/download/v0.46.2/kallisto_linux-v0.46.2.tar.gz -O /tmp/kallisto-0.46.2.tar.gz && \

@@ -14,7 +14,8 @@
 #' @examples
 #' salmonindex <- tempdir()
 #' transcriptome_path <- system.file(
-#'      "extdata", "Hsapiens_GRCh37.75_subset_transcripts.fa", package="bears"
+#'     "extdata", "Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz", 
+#'     package = "bears"
 #' )
 #' if(salmon_is_installed()) {
 #'     salmon_index(salmonindex, transcriptome_path)
