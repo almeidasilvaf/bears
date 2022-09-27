@@ -31,7 +31,7 @@ Index genome for STAR alignment
 }
 \examples{
 \donttest{
-genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
+genome_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.fa", 
                             package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
                          package="bears")

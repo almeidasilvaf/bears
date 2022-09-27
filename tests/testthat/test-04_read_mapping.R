@@ -1,6 +1,6 @@
 
+
 #----Load data------------------------------------------------------------------
-data(tx2gene)
 data(sample_info)
 sample_info <- rbind(
     sample_info, sample_info
@@ -50,26 +50,6 @@ fqfiles <- list.files(
 c1 <- file.copy(from = fqfiles[1], to = fastqdir)
 c2 <- file.copy(from = fqfiles[2], to = fastqdir)
 
-# Path to files and directories used in this set of tests
-salmonindex <- file.path(tempdir(), "salmonidx")
-transcriptome_path <- system.file(
-    "extdata", "Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz", 
-    package = "bears"
-)
-salmondir <- file.path(tempdir(), "salmon_quant")
-
-## Create a random SummarizedExperiment object
-nrows <- 200
-ncols <- 6
-counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
-colData <- data.frame(
-    Treatment=rep(c("ChIP", "Input"), 3),
-    row.names=LETTERS[1:6]
-)
-se_random <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(counts = counts), colData = colData
-)
-
 ## Change PATH
 Sys.setenv(
     PATH = paste(
@@ -89,47 +69,49 @@ Sys.setenv(
     )
 )
 
+## Path to files and directories used in this set of tests
+
+genome_path <- system.file(
+    "extdata", "Homo_sapiens.GRCh37.75_subset.fa", package = "bears"
+)
+gff_path <- system.file(
+    "extdata", "Homo_sapiens.GRCh37.75_subset.gtf", package = "bears"
+)
+mappingdir <- file.path(tempdir(), "mappingdir")
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
+
 
 #----Start tests----------------------------------------------------------------
-test_that("salmon_index(), salmon_quantify(), and salmon2se() work", {
+test_that("star_genome_index() and star_align() work", {
     
-    si <- data.frame()
-    sq <- data.frame()
-    se_gene <- se_random
-    se_tx <- se_random
-    se_both <- list()
+    g <- data.frame()
+    a <- data.frame()
     
-    if(salmon_is_installed()) {
-        si <- salmon_index(salmonindex, transcriptome_path)
-        sq <- salmon_quantify(
-            sample_info, fastqdir, salmonindex, salmondir
-        )
-        d <- fs::dir_delete(file.path(salmondir, "SAMN02422670"))
-        se_gene <- salmon2se(sample_info[1, ], "gene", salmondir, tx2gene)
-        se_tx <- salmon2se(sample_info[1, ], "transcript", salmondir, tx2gene)
-        se_both <- salmon2se(sample_info[1, ], "both", salmondir, tx2gene)
-        
-        expect_error(
-            salmon2se(sample_info[1, ], "error", salmondir, tx2gene)
+    if(star_is_installed()) {
+        g <- star_genome_index(genome_path, gff_path, mappingdir)
+        a <- star_align(
+            sample_info[1,], fastqdir, qc_table, mappingdir, gff_path
         )
     }
     
-    expect_equal(class(si), "data.frame")
-    expect_equal(class(sq), "data.frame")
-    
-    expect_true("SummarizedExperiment" %in% class(se_gene))
-    expect_true("SummarizedExperiment" %in% class(se_tx))
-    expect_equal(class(se_both), "list")
+    expect_equal(class(g), "data.frame")
+    expect_equal(class(a), "data.frame")
 })
 
-
-test_that("run2biosample_salmon() handles technical replicates", {
+test_that("star_reads() creates a list of paths for STAR", {
     
-    r1 <- run2biosample_salmon(sample_info, fastqdir)
+    s <- star_reads(sample_info, fastqdir)
     
-    expect_equal(class(r1), "list")
-    expect_equal(length(r1), 2)
-    expect_equal(names(r1), c("paired", "single"))
+    expect_equal(class(s), "list")
+    expect_equal(length(s), 2)
 })
 
+test_that("mapping_pass() filters only samples that pass minimum criteria", {
+    
+    mapping_qc <- summary_stats_star(system.file("extdata", package = "bears"))
+    m <- mapping_pass(mapping_qc, sample_info[1, ])
+    
+    expect_equal(class(m), "data.frame")
+    expect_equal(nrow(m), 1)
+})
 
