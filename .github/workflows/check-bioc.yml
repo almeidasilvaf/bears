@@ -106,8 +106,8 @@ jobs:
              default-jre
 
           ## fastp
-          wget http://opengene.org/fastp/fastp -O /opt/ && \
-            chmod a+x /opt/fastp
+          wget http://opengene.org/fastp/fastp -O /usr/local/bin/fastp && \
+            chmod a+x /usr/local/bin/fastp
           
           ## RSeQC
           pip3 install RSeQC==4.0.0
@@ -115,7 +115,9 @@ jobs:
           ## STAR
           wget https://github.com/alexdobin/STAR/archive/2.7.10a.tar.gz -O /tmp/star-2.7.10a.tar.gz && \
             tar -xzf /tmp/star-2.7.10a.tar.gz -C /opt/ && \
-            make -C /opt/STAR-2.7.10a/source/STAR && \
+            cd /opt/STAR-2.7.10a/source && \
+            make STAR && \
+            cp STAR /usr/local/bin && \
             rm /tmp/star-2.7.10a.tar.gz
             
           ## SortMeRNA
