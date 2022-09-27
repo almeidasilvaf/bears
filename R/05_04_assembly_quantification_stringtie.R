@@ -6,8 +6,8 @@
 #' functions \code{create_sample_info} and \code{infer_strandedness}.
 #' The function \code{infer_strandedness} adds a column named "Orientation" 
 #' with library strandedness information, which is mandatory.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
+#' @param qc_table Data frame of fastp summary statistics as returned
+#' by \code{summary_stats_fastp()}.
 #' @param mappingdir Directory where .bam files are stored.
 #' @param gff_path Path to GFF/GTF file with annotations.
 #' @param stringtiedir Directory where StringTie output files will be stored.
@@ -20,17 +20,17 @@
 #' @rdname stringtie_assemble
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
 #' stringtiedir <- tempdir()
 #' if(stringtie_is_installed()) {
-#'     a <- stringtie_assemble(sample_info, fastqc_table, mappingdir, 
+#'     a <- stringtie_assemble(sample_info, qc_table, mappingdir, 
 #'                             gff_path, stringtiedir)
 #' }
 stringtie_assemble <- function(
-    sample_info = NULL, fastqc_table = NULL,
+    sample_info = NULL, qc_table = NULL,
     mappingdir = "results/04_read_mapping",
     gff_path = NULL,
     stringtiedir = "results/05_quantification/stringtie",
@@ -43,8 +43,6 @@ stringtie_assemble <- function(
     bamfiles <- gsub("Aligned.*", "", bamfiles)
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     sample_meta <- sample_meta[sample_meta$BioSample %in% bamfiles, ]
-    fastqc_table$Sample <- gsub("_1", "", fastqc_table$Sample)
-    fastqc_table <- fastqc_table[!grepl("_2", fastqc_table$Sample), ]
     
     t <- lapply(seq_len(nrow(sample_meta)), function(x) {
         var <- var2list(sample_meta, index = x)
@@ -53,8 +51,8 @@ stringtie_assemble <- function(
         outfile <- paste0(stringtiedir, "/assembly/", var$biosample, ".gff")
         orientation <- sample_meta[x, "Orientation"]
         lib <- translate_strandedness(orientation, var$layout)$stringtie
-        read_len <- fastqc_table[fastqc_table$Sample == var$biosample, 
-                                 "Sequence.length"]
+        read_len <- qc_table[qc_table$Sample == var$biosample, 
+                                 "after_meanlength"]
         anchor_len <- read_len / 4
         args <- c(infile, "-G", gff_path, "-o", outfile, 
                   "-p", threads, "-j 5 -c 10 -a", anchor_len, lib)
@@ -108,13 +106,13 @@ taco_clean <- function(out2dir = NULL, final_dir = NULL) {
 #' @rdname taco_merge
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
 #' stringtiedir <- tempdir()
 #' if(stringtie_is_installed()) {
-#'     a <- stringtie_assemble(sample_info, fastqc_table, mappingdir, 
+#'     a <- stringtie_assemble(sample_info, qc_table, mappingdir, 
 #'                             gff_path, stringtiedir)
 #' }
 #' if(taco_is_installed()) {
@@ -173,8 +171,8 @@ taco_merge <- function(
 #' functions \code{create_sample_info} and \code{infer_strandedness}.
 #' The function \code{infer_strandedness} adds a column named "Orientation" 
 #' with library strandedness information, which is mandatory.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
+#' @param qc_table Data frame of fastp summary statistics as returned
+#' by \code{summary_stats_fastp()}.
 #' @param mappingdir Directory where .bam files are stored.
 #' @param gff_path Path to GFF/GTF file with annotations.
 #' @param stringtiedir Directory where StringTie output files will be stored.
@@ -187,17 +185,17 @@ taco_merge <- function(
 #' @rdname stringtie_quantify
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
 #' stringtiedir <- tempdir()
 #' if(stringtie_is_installed()) {
-#'     a <- stringtie_quantify(sample_info, fastqc_table, mappingdir, 
+#'     a <- stringtie_quantify(sample_info, qc_table, mappingdir, 
 #'                             gff_path, stringtiedir)
 #' }
 stringtie_quantify <- function(
-    sample_info = NULL, fastqc_table = NULL,
+    sample_info = NULL, qc_table = NULL,
     mappingdir = "results/04_read_mapping",
     gff_path = NULL,
     stringtiedir = "results/05_quantification/stringtie",
@@ -212,8 +210,6 @@ stringtie_quantify <- function(
     bamfiles <- gsub("Aligned.*", "", bamfiles)
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     sample_meta <- sample_meta[sample_meta$BioSample %in% bamfiles, ]
-    fastqc_table$Sample <- gsub("_1", "", fastqc_table$Sample)
-    fastqc_table <- fastqc_table[!grepl("_2", fastqc_table$Sample), ]
     
     t <- lapply(seq_len(nrow(sample_meta)), function(x) {
         var <- var2list(sample_meta, index = x)
@@ -225,8 +221,8 @@ stringtie_quantify <- function(
         outcov <- paste0(quantdir, var$biosample, ".cov")
         orientation <- sample_meta[x, "Orientation"]
         lib <- translate_strandedness(orientation, var$layout)$stringtie
-        read_len <- fastqc_table[fastqc_table$Sample == var$biosample, 
-                                 "Sequence.length"]
+        read_len <- qc_table[qc_table$Sample == var$biosample, 
+                                 "after_meanlength"]
         anchor_len <- read_len / 4
         args <- c(infile, "-G", gff_path, "-o", outgtf, "-p", threads, 
                   "-e -b", outbg, "-A", outabund, "-C", outcov, 
@@ -263,14 +259,14 @@ stringtie_quantify <- function(
 #' @rdname stringtie2se
 #' @examples 
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 #' data(tx2gene)
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
 #' stringtiedir <- tempdir()
 #' if(stringtie_is_installed()) {
-#'     a <- stringtie_quantify(sample_info, fastqc_table, mappingdir, 
+#'     a <- stringtie_quantify(sample_info, qc_table, mappingdir, 
 #'                             gff_path, stringtiedir)
 #'     se_gene <- stringtie2se(sample_info, stringtiedir, tx2gene = tx2gene)
 #' }

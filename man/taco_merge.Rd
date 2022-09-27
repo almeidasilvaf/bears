@@ -32,13 +32,13 @@ merged into a single file that represents the whole set.
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 mappingdir <- system.file("extdata", package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                         package="bears")
 stringtiedir <- tempdir()
 if(stringtie_is_installed()) {
-    a <- stringtie_assemble(sample_info, fastqc_table, mappingdir, 
+    a <- stringtie_assemble(sample_info, qc_table, mappingdir, 
                             gff_path, stringtiedir)
 }
 if(taco_is_installed()) {

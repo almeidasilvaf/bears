@@ -83,21 +83,21 @@ can see the names of functions in
 
 ```{r external_software, echo = FALSE, fig.align='center', eval = TRUE}
 software_df <- data.frame(
-    Software = c("FastQC", "kallisto", "MultiQC", "RSeQC",
+    Software = c("fastp", "kallisto", "RSeQC",
                  "salmon", "SortMeRNA", "STAR", "StringTie",
-                 "Subread", "TACO", "Trimmomatic"),
-    Version = c(">=0.11.9", ">=0.11.9", ">=1.12", ">=4.0.0",
+                 "Subread", "TACO"),
+    Version = c(">=0.22.0", ">=0.11.9", ">=4.0.0",
                 ">=1.8.0", ">=4.3.4", ">=2.7.10a", ">=2.2.1",
-                ">=2.0.1", ">=0.7.3", ">=0.39")
+                ">=2.0.1", ">=0.7.3")
 )
 
 software_df$Functions <- c(
-    "run_fastqc()", "kallisto_index(), kallisto_quantify()",
-    "multiqc()", "infer_strandedness()", 
+    "trim_reads()", "kallisto_index(), kallisto_quantify()",
+    "infer_strandedness()", 
     "salmon_index(), salmon_quantify()", "remove_rrna()",
     "star_genome_index(), star_align()", 
     "stringtie_assemble(), stringtie_quantify()",
-    "fcount()", "taco_merge()", "trim_reads()"
+    "fcount()", "taco_merge()"
 )
 knitr::kable(software_df)
 ```
@@ -128,7 +128,7 @@ containing the miniconda installation path. For instance, you can try
 2. **Create a different environment for each external tool**. To avoid 
 conflicts, it is important to keep each tool in its own environment. Here,
 each tool will be installed in an environment named `<tool-name-lowercase>_env` 
-(e.g., `star_env`, `rseqc_env`, `fastqc_env`).
+(e.g., `star_env`, `rseqc_env`, `salmon_env`).
 
 
 3. **Run R functions that require external tools**. We will run functions that
@@ -167,7 +167,6 @@ list_CondaEnv(pathToMiniConda = my_miniconda)
 Sys.setenv(
     PATH = paste(
         Sys.getenv("PATH"),
-        "/opt/FastQC/fastqc",
         "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
         "/opt/bin/",
         "/opt/salmon-1.5.2_linux_x86_64/bin/",
@@ -288,64 +287,47 @@ Here, as you can see, the function reported an issue 3
 FASTQ files that come with this package, which have been filtered for 
 package size issues.
 
+# Read QC and filtering
 
-# Sequence quality check
+After downloading the .fastq files, you need to perform some filtering steps
+to remove low quality bases, adapters, and rRNA. Read filtering 
+consists in 2 steps:
 
-After downloading the .fastq files, you need to perform some quality checks
-to check if you don't have poor-quality base calling or sequence adapters. 
-These can be done with the functions `run_fastqc()` and `multiqc()`, which
-will run *FastQC* [@andrews2019] and summarize *FastQC* results 
-with MultiQC [@ewels2016multiqc].
-
-**NOTE:** Both `run_fastqc()` and `multiqc()` require external tools. Throughout
-this vignette, we will execute functions that call external tools inside 
-`Herper::with_CondaEnv()` calls.
-
-Here, for the purpose of demonstration,
-we will use example FASTQ files stored in /extdata. 
-
-```{r run_fastqc}
-# Path to MultiQC output
-multiqc_out <- file.path(tempdir(), "multiqc")
-
-# Run FastQC for all .fastq files in fastqdir
-with_CondaEnv(
-    "fastqc_env",
-    fastqc <- run_fastqc(
-        metadata, 
-        fastqdir = ds$fastqdir,
-        fastqcdir = ds$fastqcdir
-    ),
-    pathToMiniConda = my_miniconda
-)
-fastqc # check status
-
-
-# Summarize FastQC results with MultiQC
-with_CondaEnv(
-    "multiqc_env",
-    fastqc_table <- multiqc(ds$fastqcdir, outdir = multiqc_out),
-    pathToMiniConda = my_miniconda
-)
-
-fastqc_table # check results
-```
-
-# Read filtering
-
-Read filtering consists in 2 steps:
-
-1. `trim_reads()` - trim adapters and low-quality bases. This function
-runs *Trimmomatic* [@bolger2014trimmomatic] and saves filtered .fastq files 
+1. `trim_reads()` - trim adapters and low quality bases. This function
+runs *fastp* [@chen2018fastp] and saves filtered .fastq files 
 in a directory named `filtdir`.
 2. `remove_rrna()` - remove rRNA (if any) from .fastq files. rRNA
 removal relies on the *SortMeRNA* [@kopylova2012sortmerna] program.
 
-Here, as you can see in `fastqc_table`, the files passed the "Per
-Base Sequence Quality" check, so we don't need to trim anything. For this
-particular case, we can skip `trim_reads()` and only run `remove_rrna()`.
-As the rRNA database, we will create a directory and store an example rRNA file
-in it.
+First, let's use `trim_reads()` to filter reads.
+
+```{r trim_reads}
+if(fastp_is_installed()) {
+    # Trim reads
+    fastp_status <- trim_reads(
+        metadata, 
+        fastqdir = ds$fastqdir, 
+        filtdir = ds$filtdir,
+        qcdir = ds$qcdir
+    )
+    
+    # Check run status
+    fastp_status
+}
+```
+
+The function `trim_reads()` stores .json files containing fastp summary 
+statistics for each sample in the directory specified in `qcdir`.
+You can read it and parse it into a data frame with the function 
+`summary_stats_fastp()`. Let's demonstrate how it works.
+
+```{r summary_stats_fastp, eval = TRUE}
+# Path to directory containing .json file from fastp
+qcdir <- system.file("extdata", package = "bears")
+qc_table <- summary_stats_fastp(qcdir)
+
+qc_table
+```
 
 In real-world applications, your rRNA database directory should contain
 all FASTA files distributed in the 
@@ -447,7 +429,7 @@ with_CondaEnv(
     read_mapping <- star_align(
         metadata, 
         filtdir = ds$filtdir,
-        fastqc_table = fastqc_table,
+        qc_table = qc_table,
         mappingdir = ds$mappingdir,
         gff_path = gff_path
     ),
@@ -592,7 +574,7 @@ with_CondaEnv(
     "stringtie_env",
     stringtie_quant <- stringtie_quantify(
         new_metadata,
-        fastqc_table = fastqc_table,
+        qc_table = qc_table,
         mappingdir = ds$mappingdir,
         gff_path = gff_path,
         stringtiedir = ds$stringtiedir
@@ -646,7 +628,7 @@ with_CondaEnv(
     "stringtie_env",
     assembled_transcripts <- stringtie_assemble(
         new_metadata,
-        fastqc_table = fastqc_table,
+        qc_table = qc_table,
         mappingdir = ds$mappingdir,
         gff_path = gff_path,
         stringtiedir = ds$stringtiedir
@@ -827,7 +809,7 @@ with_CondaEnv(
     "kallisto_env",
     quant_kallisto <- kallisto_quantify(
         new_metadata,
-        fastqc_table, 
+        qc_table, 
         filtdir = ds$filtdir,
         kallistoindex = ds$kallistoindex,
         kallistodir = ds$kallistodir

@@ -17,22 +17,6 @@ sample_info$Orientation <- "first"
 usethis::use_data(sample_info, overwrite = TRUE, compress="xz")
 ```
 
-## fastqc_table.rda
-
-``` r
-data(sample_info)
-fq <- system.file("extdata", package="bears")
-out <- tempdir()
-fqc <- tempdir()
-run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc,
-           envname = "bear_env", miniconda_path = my_miniconda)
-fastqc_table <- multiqc(fqc, out, envname = "bear_env", 
-                        miniconda_path = my_miniconda)
-
-# Save data
-usethis::use_data(fastqc_table, overwrite = TRUE, compress="xz")
-```
-
 ## mapping_qc.rda
 
 ``` r
@@ -113,17 +97,6 @@ bedfile <- gsub(".gtf", ".bed", gtf_hsapiens)
 rtracklayer::export.bed(gtf, bedfile)
 ```
 
-## SRR1039508_1\_fastqc.zip
-
-``` r
-data(sample_info)
-fq <- system.file("extdata", package="bear")
-fqc <- tempdir()
-run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc)
-file.copy(from = paste0(fqc, "/SRR1039508_1_fastqc.zip"), 
-          to = here::here("inst", "extdata"))
-```
-
 ## Homo_sapiens.GRCh37.75_subset.fa
 
 Here, we will only include the sequences of the genes “ENSG00000171819”
@@ -200,7 +173,7 @@ writeXStringSet(
 
 ``` r
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 filtdir <- system.file("extdata", package = "bears")
 salmonindex <- tempdir()
 salmondir <- tempdir()
@@ -209,7 +182,7 @@ transcriptome_path <- system.file(
 )
 salmon_index(salmonindex, transcriptome_path, 
              envname = "bear_env", miniconda_path = my_miniconda)
-salmon_quantify(sample_info, fastqc_table, filtdir, 
+salmon_quantify(sample_info, qc_table, filtdir, 
                 salmonindex, salmondir, envname = "bear_env", 
                 miniconda_path = my_miniconda)
 fs::dir_copy(file.path(salmondir, "SAMN02422669/"),
@@ -223,7 +196,7 @@ transcriptome_path <- system.file(
 )
 kallisto_index(kallistoindex, transcriptome_path, envname = "bear_env",
                miniconda_path = my_miniconda)
-kallisto_quantify(sample_info, fastqc_table, filtdir, kallistoindex,
+kallisto_quantify(sample_info, qc_table, filtdir, kallistoindex,
                   kallistodir, envname = "bear_env", 
                   miniconda_path = my_miniconda)
 file.copy(file.path(kallistodir, "SAMN02422669", "abundance.tsv"),

@@ -46,6 +46,7 @@ SystemRequirements:
     salmon
 Imports:
     XML,
+    jsonlite,
     rentrez,
     fs,
     downloader,

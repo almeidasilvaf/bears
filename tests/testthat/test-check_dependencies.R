@@ -11,10 +11,9 @@ test_that("is_valid() works", {
 
 
 test_that("*_is_installed() functions return a logical scalar", {
-    
-    c1 <- fastqc_is_installed()
+
+    c1 <- fastp_is_installed()    
     c2 <- multiqc_is_installed()
-    c3 <- trimmomatic_is_installed()
     c4 <- sortmerna_is_installed()
     c5 <- star_is_installed()
     c6 <- salmon_is_installed()
@@ -26,7 +25,6 @@ test_that("*_is_installed() functions return a logical scalar", {
     
     expect_equal(class(c1), "logical")
     expect_equal(class(c2), "logical")
-    expect_equal(class(c3), "logical")
     expect_equal(class(c4), "logical")
     expect_equal(class(c5), "logical")
     expect_equal(class(c6), "logical")

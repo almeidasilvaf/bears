@@ -6,7 +6,7 @@
 \usage{
 kallisto_quantify(
   sample_info = NULL,
-  fastqc_table = NULL,
+  qc_table = NULL,
   filtdir = "results/03_filtered_FASTQ",
   kallistoindex = "results/05_quantification/kallisto/idx",
   kallistodir = "results/05_quantification/kallisto",
@@ -20,8 +20,8 @@ The function \code{infer_strandedness} adds a column named "Orientation"
 with library strandedness information, which is mandatory for
 kallisto quantification.}
 
-\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
-by \code{multiqc()}.}
+\item{qc_table}{Data frame of fastp summary statistics as returned
+by \code{summary_stats_fastp()}.}
 
 \item{filtdir}{Path to the directory where filtered reads are stored.
 Default: results/03_filtered_FASTQ.}
@@ -44,7 +44,8 @@ Quantify expression with kallisto
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
+
 filtdir <- system.file("extdata", package = "bears")
 kallistoindex <- file.path(tempdir(), "transcripts.idx")
 kallistodir <- tempdir()
@@ -53,7 +54,8 @@ transcriptome_path <- system.file(
 )
 if(kallisto_is_installed()) {
     kallisto_index(kallistoindex, transcriptome_path)
-    kallisto_quantify(sample_info, fastqc_table, filtdir, kallistoindex,
-                      kallistodir)
+    kallisto_quantify(
+        sample_info, qc_table, filtdir, kallistoindex, kallistodir
+    )
 }
 }

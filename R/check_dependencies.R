@@ -20,18 +20,17 @@ is_valid <- function(cmd = NULL, args = NULL) {
 }
 
 
-#' Check if FastQC is installed
+#' Check if fastp is installed
 #' 
-#' @return Logical indicating whether FastQC is installed or not.
+#' @return Logical indicating whether fastp is installed or not.
 #' @export
-#' @rdname fastqc_is_installed
+#' @rdname fastp_is_installed
 #' @examples 
-#' fastqc_is_installed()
-fastqc_is_installed <- function() {
-    valid <- is_valid(cmd = "fastqc", args = "-h")
+#' fastp_is_installed()
+fastp_is_installed <- function() {
+    valid <- is_valid(cmd = "fastp", args = "-h")
     return(valid)
 }
-
 
 #' Check if multiqc is installed
 #' 
@@ -44,20 +43,6 @@ multiqc_is_installed <- function() {
     valid <- is_valid(cmd = "multiqc", args = "-h")
     return(valid)
 }
-
-
-#' Check if Trimmomatic is installed
-#' 
-#' @return Logical indicating whether Trimmomatic is installed or not.
-#' @export
-#' @rdname trimmomatic_is_installed
-#' @examples 
-#' trimmomatic_is_installed()
-trimmomatic_is_installed <- function() {
-    valid <- is_valid(cmd = "trimmomatic", args = "-version")
-    return(valid)
-}
-
 
 #' Check if SortMeRNA is installed
 #' 

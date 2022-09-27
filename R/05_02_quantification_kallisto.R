@@ -87,8 +87,8 @@ run2biosample_kallisto <- function(sample_info = NULL,
 #' The function \code{infer_strandedness} adds a column named "Orientation" 
 #' with library strandedness information, which is mandatory for 
 #' kallisto quantification.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
+#' @param qc_table Data frame of fastp summary statistics as returned
+#' by \code{summary_stats_fastp()}.
 #' @param filtdir Path to the directory where filtered reads are stored.
 #' Default: results/03_filtered_FASTQ.
 #' @param kallistoindex Directory where kallisto index file will be stored.
@@ -104,7 +104,8 @@ run2biosample_kallisto <- function(sample_info = NULL,
 #' @rdname kallisto_quantify
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
+#' 
 #' filtdir <- system.file("extdata", package = "bears")
 #' kallistoindex <- file.path(tempdir(), "transcripts.idx")
 #' kallistodir <- tempdir()
@@ -113,12 +114,13 @@ run2biosample_kallisto <- function(sample_info = NULL,
 #' )
 #' if(kallisto_is_installed()) {
 #'     kallisto_index(kallistoindex, transcriptome_path)
-#'     kallisto_quantify(sample_info, fastqc_table, filtdir, kallistoindex,
-#'                       kallistodir)
+#'     kallisto_quantify(
+#'         sample_info, qc_table, filtdir, kallistoindex, kallistodir
+#'     )
 #' }
 kallisto_quantify <- function(
     sample_info = NULL, 
-    fastqc_table = NULL,
+    qc_table = NULL,
     filtdir = "results/03_filtered_FASTQ",
     kallistoindex = "results/05_quantification/kallisto/idx",
     kallistodir = "results/05_quantification/kallisto",
@@ -149,8 +151,8 @@ kallisto_quantify <- function(
             }
             if(var$layout == "SINGLE") {
                 frag_len <- 100
-                read_len <- fastqc_table[fastqc_table$Sample == var$biosample,
-                                         "Sequence.length"]
+                read_len <- qc_table[qc_table$Sample == var$biosample,
+                                         "after_meanlength"]
                 if(read_len > 100) {
                     frag_len <- read_len + 100
                 }

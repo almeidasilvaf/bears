@@ -35,14 +35,14 @@ Create a SummarizedExperiment object from StringTie output
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 data(tx2gene)
 mappingdir <- system.file("extdata", package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                         package="bears")
 stringtiedir <- tempdir()
 if(stringtie_is_installed()) {
-    a <- stringtie_quantify(sample_info, fastqc_table, mappingdir, 
+    a <- stringtie_quantify(sample_info, qc_table, mappingdir, 
                             gff_path, stringtiedir)
     se_gene <- stringtie2se(sample_info, stringtiedir, tx2gene = tx2gene)
 }

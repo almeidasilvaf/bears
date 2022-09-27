@@ -101,8 +101,8 @@ star_reads <- function(sample_info,
 #' function \code{create_sample_info}.
 #' @param filtdir Path to the directory where filtered reads will be stored.
 #' Default: results/03_filtered_FASTQ.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
+#' @param qc_table Data frame of fastp summary statistics as returned
+#' by \code{summary_stats_fastp()}.
 #' @param mappingdir Path to the directory where read mapping files (.bam) will
 #' be stored.
 #' @param gff_path Path to the .gff/.gtf file with annotations.
@@ -111,13 +111,14 @@ star_reads <- function(sample_info,
 #' @return A 2-column data frame with BioSample IDs in the first column
 #' and STAR running status in the second column, with "OK" if reads 
 #' were mapped (.bam files were created) and NA if STAR failed to map reads.
+#' 
 #' @importFrom tools file_ext
 #' @export
 #' @rdname star_align
 #' @examples
 #' \donttest{
 #' data(sample_info)
-#' data(fastqc_table)
+#' qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 #' genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
 #'                             package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
@@ -126,12 +127,12 @@ star_reads <- function(sample_info,
 #' filtdir <- system.file("extdata", package="bears")
 #' if(star_is_installed()) {
 #'     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-#'     star_align(sample_info, filtdir, fastqc_table, mappingdir, gff_path)
+#'     star_align(sample_info, filtdir, qc_table, mappingdir, gff_path)
 #' }
 #' }
 star_align <- function(sample_info = NULL,
                        filtdir = "results/03_filtered_FASTQ",
-                       fastqc_table = NULL,
+                       qc_table = NULL,
                        mappingdir = "results/04_read_mapping",
                        gff_path = NULL,
                        threads = 1) {
@@ -140,9 +141,7 @@ star_align <- function(sample_info = NULL,
     
     exonparent <- "Parent"
     if(tools::file_ext(gff_path) == "gtf") { exonparent <- "transcript_id" }
-    fastqc_table$Sample <- gsub("_.*", "", fastqc_table$Sample)
-    qc_table <- fastqc_table[!duplicated(fastqc_table$Sample), 
-                             c("Sample", "Sequence.length")]
+    qc_table <- qc_table[, c("Sample", "after_meanlength")]
     sample_info2 <- merge(sample_info[!duplicated(sample_info$BioSample),],
                           qc_table, by.x="Run", "Sample")
     reads <- star_reads(sample_info, filtdir)

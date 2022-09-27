@@ -2,7 +2,6 @@
 
 #----Load data------------------------------------------------------------------
 data(sample_info)
-data(fastqc_table)
 
 ## Create dbdir for SortMeRNA
 dbdir <- file.path(tempdir(), "rrna")
@@ -15,12 +14,13 @@ test_that("trim_reads() works and returns a 2-column status data frame", {
     
     fastqdir <- system.file("extdata", package = "bears")
     filtdir <- file.path(tempdir(), "filtdir")
+    qcdir <- file.path(tempdir(), "qcdir")
     
     t1 <- data.frame()
 
-    if(trimmomatic_is_installed()) {
+    if(fastp_is_installed()) {
         t1 <- trim_reads(
-            sample_info, fastqc_table, fastqdir, filtdir
+            sample_info, fastqdir, filtdir, qcdir
         )
     }
     

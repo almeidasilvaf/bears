@@ -15,7 +15,8 @@ where Y, M and D represent year, month and day, respectively.}
 A list of paths with following elements:
 \describe{
 \item{fastqdir}{Path to directory where FASTQ files are.}
-\item{fastqcdir}{Path to directory where FastQC output is stored.}
+\item{qcdir}{Path to directory where QC and summary statistics will
+be stored.}
 \item{filtdir}{Path to directory where filtered FASTQ files are.}
 \item{mappingdir}{Path to directory where STAR-derived BAM files are.}
 \item{salmonindex}{Path to directory where salmon transcriptome index is.}

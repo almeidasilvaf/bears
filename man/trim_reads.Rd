@@ -2,21 +2,20 @@
 % Please edit documentation in R/03_read_filtering.R
 \name{trim_reads}
 \alias{trim_reads}
-\title{Run Trimmomatic on reads that failed on FastQC check}
+\title{Trim low-quality bases and adapters using fastp}
 \usage{
 trim_reads(
   sample_info = NULL,
-  fastqc_table = NULL,
   fastqdir = "results/01_FASTQ_files",
-  filtdir = "results/03_filtered_FASTQ"
+  filtdir = "results/03_filtered_FASTQ",
+  qcdir = "results/QC_dir/fastp_stats",
+  threads = 1,
+  delete_raw = TRUE
 )
 }
 \arguments{
 \item{sample_info}{Data frame of sample metadata created with the
 function \code{create_sample_info}.}
-
-\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
-by \code{multiqc()}.}
 
 \item{fastqdir}{Path to the directory where .fastq files will be stored.
 Default: results/01_FASTQ_files.}
@@ -24,26 +23,39 @@ Default: results/01_FASTQ_files.}
 \item{filtdir}{Path to the directory where filtered .fastq files will
 be temporarily stored. After trimming, filtered reads are moved back to
 fastqdir. Default: results/03_filtered_FASTQ.}
+
+\item{qcdir}{Character indicating the path to the directory where
+output summary stats will be saved. Default: results/QC_dir/fastp_stats.}
+
+\item{threads}{Numeric indicating the number of threads to use in fastp.
+Default: 1.}
+
+\item{delete_raw}{Logical indicating whether to delete raw (unfiltered)
+FASTQ files after QC and filtering with fastp. It is recommended to
+delete raw files, as they use much memory and the useful information
+will be on filtered files, even if no filtering is performed.
+Default: TRUE.}
 }
 \value{
 A 2-column data frame with run accession in the first column
-and Trimmomatic run status in the second column, with "OK" if it ran
+and fastp run status in the second column, with "OK" if it ran
 successfully and NA if a file could not be run.
 }
 \description{
-Run Trimmomatic on reads that failed on FastQC check
+Trim low-quality bases and adapters using fastp
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
 fastqdir <- tempdir()
 file.copy(system.file("extdata", "SRR1039508_1.fastq.gz", package = "bears"),
           fastqdir)
 file.copy(system.file("extdata", "SRR1039508_2.fastq.gz", package = "bears"),
           fastqdir)
-dir.create(paste0(fastqdir, "/filtdir"))
 filtdir <- paste0(fastqdir, "/filtdir")
-if(trimmomatic_is_installed()) {
-    trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
+qcdir <- file.path(tempdir(), "qcdir")
+if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
+if(!dir.exists(qcdir)) { dir.create(qcdir, recursive = TRUE) }
+if(fastp_is_installed()) {
+    trim_status <- trim_reads(sample_info, fastqdir, filtdir, qcdir)
 }
 }

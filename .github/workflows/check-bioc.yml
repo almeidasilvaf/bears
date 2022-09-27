@@ -104,28 +104,20 @@ jobs:
              libxml-libxml-perl \
              libidn11 \
              default-jre
+
+          ## fastp
+          wget http://opengene.org/fastp/fastp && \
+            chmod a+x ./fastp
           
-          ## FastQC
-          wget https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v0.11.9.zip -O /tmp/fastqc_v0.11.19.zip && \
-            unzip /tmp/fastqc_v0.11.19.zip -d /opt && \
-            rm /tmp/fastqc_v0.11.19.zip && \
-            chmod 755 /opt/FastQC/fastqc
-             
-          ## MultiQC
-          pip3 install multiqc==1.11
-          
+          ## RSeQC
+          pip3 install RSeQC==4.0.0
+
           ## STAR
           wget https://github.com/alexdobin/STAR/archive/2.7.10a.tar.gz -O /tmp/star-2.7.10a.tar.gz && \
             tar -xzf /tmp/star-2.7.10a.tar.gz -C /opt/ && \
             make -C /opt/STAR-2.7.10a/source/STAR && \
             rm /tmp/star-2.7.10a.tar.gz
             
-          ## Trimmomatic
-          wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip -O /tmp/Trimmomatic-0.39.zip && \
-            unzip /tmp/Trimmomatic-0.39.zip -d /opt && \
-            rm /tmp/Trimmomatic-0.39.zip && \
-            echo 'alias trimmomatic="java -jar opt/Trimmomatic-0.39/trimmomatic-0.39.jar"' >> ~/.bashrc
-          
           ## SortMeRNA
           wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/sortmerna-4.3.4-Linux.sh -O /tmp/sortmerna-4.3.4-Linux.sh && \
             bash /tmp/sortmerna-4.3.4-Linux.sh --skip-license --prefix=/opt/

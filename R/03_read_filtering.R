@@ -1,49 +1,58 @@
 
-#' Run Trimmomatic on reads that failed on FastQC check
+
+#' Trim low-quality bases and adapters using fastp
 #' 
 #' @param sample_info Data frame of sample metadata created with the
 #' function \code{create_sample_info}.
-#' @param fastqc_table Data frame of summary statistics for FastQC as returned
-#' by \code{multiqc()}.
 #' @param fastqdir Path to the directory where .fastq files will be stored.
 #' Default: results/01_FASTQ_files.
+#' @param qcdir Character indicating the path to the directory where
+#' output summary stats will be saved. Default: results/QC_dir/fastp_stats.
 #' @param filtdir Path to the directory where filtered .fastq files will
 #' be temporarily stored. After trimming, filtered reads are moved back to
 #' fastqdir. Default: results/03_filtered_FASTQ.
+#' @param threads Numeric indicating the number of threads to use in fastp.
+#' Default: 1.
+#' @param delete_raw Logical indicating whether to delete raw (unfiltered)
+#' FASTQ files after QC and filtering with fastp. It is recommended to
+#' delete raw files, as they use much memory and the useful information
+#' will be on filtered files, even if no filtering is performed. 
+#' Default: TRUE.
 #' 
 #' @export
 #' @rdname trim_reads
 #' @importFrom fs file_move file_delete
 #' @return A 2-column data frame with run accession in the first column
-#' and Trimmomatic run status in the second column, with "OK" if it ran 
+#' and fastp run status in the second column, with "OK" if it ran 
 #' successfully and NA if a file could not be run.
 #' @examples
 #' data(sample_info)
-#' data(fastqc_table)
 #' fastqdir <- tempdir()
 #' file.copy(system.file("extdata", "SRR1039508_1.fastq.gz", package = "bears"),
 #'           fastqdir)
 #' file.copy(system.file("extdata", "SRR1039508_2.fastq.gz", package = "bears"),
 #'           fastqdir)
-#' dir.create(paste0(fastqdir, "/filtdir"))
 #' filtdir <- paste0(fastqdir, "/filtdir")
-#' if(trimmomatic_is_installed()) {
-#'     trim_reads(sample_info, fastqc_table, fastqdir, filtdir)
+#' qcdir <- file.path(tempdir(), "qcdir")
+#' if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
+#' if(!dir.exists(qcdir)) { dir.create(qcdir, recursive = TRUE) }
+#' if(fastp_is_installed()) {
+#'     trim_status <- trim_reads(sample_info, fastqdir, filtdir, qcdir)
 #' }
-trim_reads <- function(sample_info = NULL,
-                       fastqc_table = NULL,
+trim_reads <- function(sample_info = NULL, 
                        fastqdir = "results/01_FASTQ_files",
-                       filtdir = "results/03_filtered_FASTQ") {
+                       filtdir = "results/03_filtered_FASTQ",
+                       qcdir = "results/QC_dir/fastp_stats",
+                       threads = 1,
+                       delete_raw = TRUE) {
+    
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
-    if(!trimmomatic_is_installed()) { stop("Unable to find Trimmomatic in PATH.") }
-    pe_ad <- system.file("extdata", "PE_adapter.fa", package="bears")
-    se_ad <- system.file("extdata", "SE_adapter.fa", package="bears")
-    failed <- fastqc_table[fastqc_table$per_base_sequence_quality == "fail", 1]
-    failed <- unique(gsub("_1$|_2$", "", failed))
-    sample_info2 <- sample_info[sample_info$Run %in% failed, ]
-    if(nrow(sample_info2) > 0) {
-        t <- lapply(seq_len(nrow(sample_info2)), function(x) {
-            var <- var2list(sample_info2, index = x)
+    if(!dir.exists(qcdir)) { dir.create(qcdir, recursive = TRUE) }
+    if(!fastp_is_installed()) { stop("Unable to find fastp in PATH.") }
+    
+    if(nrow(sample_info) > 0) {
+        t <- lapply(seq_len(nrow(sample_info)), function(x) {
+            var <- var2list(sample_info, index = x)
             file <- paste0(fastqdir, "/", var$run, ".fastq.gz")
             if(var$layout == "PAIRED") { 
                 file <- paste0(fastqdir, "/", var$run, "_1.fastq.gz") 
@@ -51,39 +60,46 @@ trim_reads <- function(sample_info = NULL,
             if(skip(var$platform, path = file)) {
                 message("Skipping file...")
             } else {
-                trim <- c("LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36")
+                
+                json <- file.path(qcdir, paste0(var$run, ".json"))
+                html <- file.path(qcdir, paste0(var$run, ".html"))
+                
                 if(var$layout == "SINGLE") {
-                    file <- get_fastq_paths(fastqdir, var$run, cmd="S")
+                    file <- get_fastq_paths(fastqdir, var$run, cmd = "S")
                     filtfile <- paste0(filtdir, "/", var$run, ".fastq.gz")
-                    clip <- paste0("ILLUMINACLIP:", se_ad, ":2:30:10")
-                    args <- c("SE -phred33", file, filtfile, clip, trim)
-                    system2("trimmomatic", args = args)
-                    move_file <- fs::file_move(filtfile, file)
-                } else if(var$layout == "PAIRED") {
-                    p1 <- get_fastq_paths(fastqdir, var$run, cmd="P1")
-                    p2 <- get_fastq_paths(fastqdir, var$run, cmd="P2")
+                    args <- c(
+                        "--in1", file, "--out1", filtfile, "--thread", threads,
+                        "--json", json, "--html", html
+                    )
+                    system2("fastp", args = args)
+                    if(delete_raw) { dfile <- fs::file_delete(file) } 
+                    
+                } else {
+                    p1 <- get_fastq_paths(fastqdir, var$run, cmd = "P1")
+                    p2 <- get_fastq_paths(fastqdir, var$run, cmd = "P2")
                     fp1 <- paste0(filtdir, "/", var$run, "_1.fastq.gz")
                     fp2 <- paste0(filtdir, "/", var$run, "_2.fastq.gz")
-                    fp1_u <- paste0(filtdir, "/", var$run, "_1.unpaired.fq.gz")
-                    fp2_u <- paste0(filtdir, "/", var$run, "_2.unpaired.fq.gz")
-                    clip <- paste0("ILLUMINACLIP:", pe_ad, ":2:30:10")
-                    args <- c("PE -phred33", p1, p2, fp1, fp1_u, fp2, fp2_u)
-                    system2("trimmomatic", args = c(args, clip, trim))
-                    move_file1 <- fs::file_move(fp1, p1)
-                    move_file2 <- fs::file_move(fp2, p2)
-                } else {
-                    message("Layout information not available.")
-                }
+                    args <- c(
+                        "--in1", p1, "--in2", p2, "--thread", threads,
+                        "--out1", fp1, "--out2", fp2, 
+                        "--json", json, "--html", html,
+                        "--detect_adapter_for_pe"
+                    )
+                    system2("fastp", args = args)
+                    if(delete_raw) {
+                        dfile1 <- fs::file_delete(p1)
+                        dfile2 <- fs::file_delete(p2)
+                    }
+                } 
             }
         })
     }
-    flist <- list.files(path = fastqdir, pattern=".fastq.gz")
-    flist <- unique(gsub("_[0-9].fastq.gz|.fastq.gz", "", flist))
+    flist <- basename(list.files(path = qcdir, pattern = ".json$"))
+    flist <- unique(gsub("\\.json", "", flist))
     df_status <- data.frame(run = sample_info$Run)
     df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
     return(df_status)
 }
-
 
 #' Wrapper to create list of arguments to handle rRNA dbs in SortMeRNA 
 #' 

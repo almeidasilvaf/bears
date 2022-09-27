@@ -6,7 +6,7 @@
 \usage{
 stringtie_quantify(
   sample_info = NULL,
-  fastqc_table = NULL,
+  qc_table = NULL,
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
   stringtiedir = "results/05_quantification/stringtie",
@@ -19,8 +19,8 @@ functions \code{create_sample_info} and \code{infer_strandedness}.
 The function \code{infer_strandedness} adds a column named "Orientation"
 with library strandedness information, which is mandatory.}
 
-\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
-by \code{multiqc()}.}
+\item{qc_table}{Data frame of fastp summary statistics as returned
+by \code{summary_stats_fastp()}.}
 
 \item{mappingdir}{Directory where .bam files are stored.}
 
@@ -40,13 +40,13 @@ Quantify expression in TPM with StringTie
 }
 \examples{
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 mappingdir <- system.file("extdata", package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                         package="bears")
 stringtiedir <- tempdir()
 if(stringtie_is_installed()) {
-    a <- stringtie_quantify(sample_info, fastqc_table, mappingdir, 
+    a <- stringtie_quantify(sample_info, qc_table, mappingdir, 
                             gff_path, stringtiedir)
 }
 }

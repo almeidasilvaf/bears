@@ -7,7 +7,7 @@
 star_align(
   sample_info = NULL,
   filtdir = "results/03_filtered_FASTQ",
-  fastqc_table = NULL,
+  qc_table = NULL,
   mappingdir = "results/04_read_mapping",
   gff_path = NULL,
   threads = 1
@@ -20,8 +20,8 @@ function \code{create_sample_info}.}
 \item{filtdir}{Path to the directory where filtered reads will be stored.
 Default: results/03_filtered_FASTQ.}
 
-\item{fastqc_table}{Data frame of summary statistics for FastQC as returned
-by \code{multiqc()}.}
+\item{qc_table}{Data frame of fastp summary statistics as returned
+by \code{summary_stats_fastp()}.}
 
 \item{mappingdir}{Path to the directory where read mapping files (.bam) will
 be stored.}
@@ -41,7 +41,7 @@ Align reads to a reference genome using STAR
 \examples{
 \donttest{
 data(sample_info)
-data(fastqc_table)
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
 genome_path <- system.file("extdata", "Hsapiens_GRCh37.75_subset.fa", 
                             package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf", 
@@ -50,7 +50,7 @@ mappingdir <- tempdir()
 filtdir <- system.file("extdata", package="bears")
 if(star_is_installed()) {
     star_genome_index(genome_path, gff_path, mapping_dir, indexdir)
-    star_align(sample_info, filtdir, fastqc_table, mappingdir, gff_path)
+    star_align(sample_info, filtdir, qc_table, mappingdir, gff_path)
 }
 }
 }

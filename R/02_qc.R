@@ -28,158 +28,188 @@ get_fastq_paths <- function(fastqdir, run, cmd = "S") {
     return(fastqfile)
 }
 
-
-#' Wrapper to get paths to run FastQC depending on the layout
+#' Get mapping summary statistics from STAR
 #' 
-#' @param fastqdir Path to the directory where .fastq files will be stored.
-#' @param fastqcdir Path to the directory where FastQC output files will
-#' be stored.
-#' @param run Run accession.
-#' @param cmd What command to run. One of "S", "P1", or "P2". S will
-#' run the command for single-end reads. P1 will run the command for 
-#' the first pair of paired-end reads. P2 will run the command for 
-#' the second pair.
-#'  
-#' @return Paths to fastqfile, old HTML, new HTML, old .zip, and new .zip.
-#' @noRd
-get_fastqc_paths <- function(fastqdir = NULL, fastqcdir = NULL,
-                             run = NULL, cmd = "S") {
-    fastqfile <- get_fastq_paths(fastqdir, run, cmd)
-    old_htmlpath <- NULL
-    new_htmlpath <- NULL
-    old_zippath <- NULL
-    new_zippath <- NULL
+#' @param star_dir Directory where STAR .log files are stored.
+#' Default: results/03_read_mapping.
+#' 
+#' @return A data frame with STAR summary stats for each sample containing the
+#' following variables (all numeric, except \strong{Sample}):
+#' * Sample
+#' * total_reads 
+#' * avg_input_read_length
+#' * uniquely_mapped
+#' * uniquely_mapped_percent
+#' * avg_mapped_read_length
+#' * num_splices
+#' * num_annotated_splices
+#' * num_GTAG_splices
+#' * num_GCAG_splices
+#' * num_ATAC_splices
+#' * num_noncanonical_splices
+#' * mismatch_rate
+#' * deletion_rate
+#' * deletion_length
+#' * insertion_rate
+#' * insertion_length
+#' * multimapped
+#' * multimapped_percent
+#' * multimapped_toomany
+#' * multimapped_toomany_percent
+#' * unmapped_mismatches_percent
+#' * unmapped_tooshort_percent
+#' * unmapped_other_percent
+#' * unmapped_mismatches
+#' * unmapped_tooshort
+#' * unmapped_other
+#' @export
+#' @rdname summary_stats_star
+#' @examples
+#' star_dir <- system.file("extdata", package = "bears")
+#' qc_table <- summary_stats_star(star_dir)
+summary_stats_star <- function(star_dir = "results/03_read_mapping") {
     
-    if(cmd == "S") {
-        if(file.exists(paste0(fastqdir, "/", run, ".fastq.gz"))) {
-            old_htmlpath <- paste0(fastqdir, "/", run, "_fastqc.html")
-            new_htmlpath <- paste0(fastqcdir, "/", run, "_fastqc.html")
-            old_zippath <- paste0(fastqdir, "/", run, "_fastqc.zip")
-            new_zippath <- paste0(fastqcdir, "/", run, "_fastqc.zip")
-        } else { message("File not found") }
-    } else if(cmd == "P1") {
-        if(file.exists(paste0(fastqdir, "/", run, "_1.fastq.gz"))) {
-            old_htmlpath <- paste0(fastqdir, "/", run, "_1_fastqc.html")
-            new_htmlpath <- paste0(fastqcdir, "/", run, "_1_fastqc.html")
-            old_zippath <- paste0(fastqdir, "/", run, "_1_fastqc.zip")
-            new_zippath <- paste0(fastqcdir, "/", run, "_1_fastqc.zip")
-        } else { message("File not found.") }
-    } else {
-        if(file.exists(paste0(fastqdir, "/", run, "_2.fastq.gz"))) {
-            old_htmlpath <- paste0(fastqdir, "/", run, "_2_fastqc.html")
-            new_htmlpath <- paste0(fastqcdir, "/", run, "_2_fastqc.html")
-            old_zippath <- paste0(fastqdir, "/", run, "_2_fastqc.zip")
-            new_zippath <- paste0(fastqcdir, "/", run, "_2_fastqc.zip")
-        } else { message("File not found.") }
-    }
-    path <- list(
-        fastq = fastqfile, oldhtml = old_htmlpath, newhtml = new_htmlpath,
-        oldzip = old_zippath, newzip = new_zippath
+    star_output <- list.files(
+        star_dir, pattern = "Log.final.out$", full.names = TRUE
     )
-    return(path)
-}
-
-#' Run FastQC on .fastq files
-#' 
-#' @param sample_info Data frame of sample metadata created with the
-#' function \code{create_sample_info}.
-#' @param fastqdir Path to the directory where .fastq files will be stored.
-#' Default: results/01_FASTQ_files.
-#' @param fastqcdir Path to the directory where FastQC output will be stored.
-#' Default: results/02_FastQC_dir.
-#' 
-#' @importFrom fs file_move
-#' @return A 2-column data frame with run accession in the first column and
-#' FastQC run status. If FastQC ran successfully, the status "OK" is displayed.
-#' If FastQC failed to process a particular file, NA will be displayed on its 
-#' corresponding name.
-#' @export
-#' @rdname run_fastqc
-#' @examples
-#' data(sample_info)
-#' fq <- system.file("extdata", package="bears")
-#' fqc <- tempdir()
-#' if(fastqc_is_installed()) {
-#'     run_fastqc(sample_info, fastqdir = fq, fastqcdir = fqc)
-#' }
-run_fastqc <- function(sample_info,
-                       fastqdir = "results/01_FASTQ_files",
-                       fastqcdir = "results/02_FastQC_dir") {
-    if(!dir.exists(fastqcdir)) { dir.create(fastqcdir, recursive = TRUE) }
-    if(!fastqc_is_installed()) { stop("Unable to find FastQC in PATH.") }
     
-    d <- lapply(seq_len(nrow(sample_info)), function(x) {
-        var <- var2list(sample_info, index = x)
-        file <- paste0(fastqdir, "/", var$run, ".fastq.gz")
-        if(var$layout == "PAIRED") { 
-            file <- paste0(fastqdir, "/", var$run, "_1.fastq.gz") 
-        }
-        if(skip(var$platform, path = file)) {
-            message("Skipping file...")
-        } else {
-            if(var$layout == "SINGLE") {
-                p <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="S")
-                system2("fastqc", args = p$fastq)
-                move_html <- fs::file_move(p$oldhtml, p$newhtml)
-                move_zip <- fs::file_move(p$oldzip, p$newzip)
-            } else if(var$layout == "PAIRED") {
-                p1 <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="P1")
-                p2 <- get_fastqc_paths(fastqdir, fastqcdir, var$run, cmd="P2")
-                system2("fastqc", args = p1$fastq)
-                system2("fastqc", args = p2$fastq)
-                move_html1 <- fs::file_move(p1$oldhtml, p1$newhtml)
-                move_html2 <- fs::file_move(p2$oldhtml, p2$newhtml)
-                move_zip1 <- fs::file_move(p1$oldzip, p1$newzip)
-                move_zip2 <- fs::file_move(p2$oldzip, p2$newzip)
-            } else {
-                message("Layout information not available.")
-            }
-        }
-    })
-    flist <- list.files(path = fastqcdir, pattern = ".zip")
-    flist <- unique(gsub("_[0-9]_fastqc.zip|_fastqc.zip", "", flist))
-    df_status <- data.frame(run = sample_info$Run)
-    df_status$status <- ifelse(flist %in% df_status$run, "OK", NA)
-    return(df_status)
-}
-
-#' Run MultiQC to get a summary of QC results
-#' 
-#' @param dir Directory where MultiQC should be run. 
-#' Default: results/02_FastQC_dir (for FastQC results).
-#' @param outdir Path the output directory. 
-#' Default: results/multiqc/fastqc.
-#' @param runon Type of QC report to generate. One of "fastqc" or "star".
-#' 
-#' @return A data frame with QC summary for each sample.
-#' @export
-#' @rdname multiqc
-#' @examples
-#' data(sample_info)
-#' fq <- system.file("extdata", package="bears")
-#' out <- tempdir()
-#' if(multiqc_is_installed()) {
-#'     fastqc_table <- multiqc(fq, out)
-#' }
-multiqc <- function(dir="results/02_FastQC_dir",
-                    outdir = "results/multiqc/fastqc",
-                    runon="fastqc") {
-    if(!dir.exists(outdir)) { dir.create(outdir, recursive = TRUE) }
-    if(!multiqc_is_installed()) { stop("Unable to find MultiQC in PATH.") }
-    
-    args <- c("-o", outdir, dir)
-    system2("multiqc", args = args)
-    if(runon == "fastqc") {
-        fpath <- paste0(outdir, "/multiqc_data/multiqc_fastqc.txt")
-    } else {
-        fpath <- paste0(outdir, "/multiqc_data/multiqc_star.txt")
+    val <- function(df, p) {
+        res <- df$value[grep(p, df$key)]
+        if(endsWith(res, "%")) { res <- gsub("%", "", res) }
+        return(as.numeric(res))
     }
-    qc_table <- read.csv(fpath, header=TRUE, sep="\t")
-    return(qc_table)
+
+    parsed <- Reduce(rbind, lapply(seq_along(star_output), function(x) {
+        l <- readLines(star_output[x])
+        sl <- strsplit(l, " \\|\\\t")
+        sl <- split_l[vapply(sl, length, numeric(1)) == 2]
+        df <- Reduce(rbind, lapply(sl, function(y) {
+            return(data.frame(key = y[1], value = y[2]))
+        }))
+        
+        # Create a data frame of summary stats for sample x
+        stats_df <- data.frame(
+            Sample = gsub("Log.*", "", basename(star_output[x])),
+            total_reads = val(df, "input reads"),
+            avg_input_read_length = val(df, "Average input"),
+            uniquely_mapped = val(df, "Uniquely mapped reads number"),
+            uniquely_mapped_percent = val(df, "Uniquely mapped reads %"),
+            avg_mapped_read_length = val(df, "Average mapped length"),
+            num_splices = val(df, "Number of splices: Total"),
+            num_annotated_splices = val(df, "Number of splices: Annotated"),
+            num_GTAG_splices = val(df, "GT/AG"),
+            num_GCAG_splices = val(df, "GC/AG"),
+            num_ATAC_splices = val(df, "AT/AC"),
+            num_noncanonical_splices = val(df, "Non-canonical"),
+            mismatch_rate = val(df, "Mismatch rate"),
+            deletion_rate = val(df, "Deletion rate"),
+            deletion_length = val(df, "Deletion average length"),
+            insertion_rate = val(df, "Insertion rate"),
+            insertion_length = val(df, "Insertion average length"),
+            multimapped = val(df, "Number of reads mapped to multiple"),
+            multimapped_percent = val(df, "% of reads mapped to multiple"),
+            multimapped_toomany = val(df, "Number of reads mapped to too"),
+            multimapped_toomany_percent = val(df, "% of reads mapped to too"),
+            unmapped_mismatches_percent = val(df, "% of reads unmapped: too many"),
+            unmapped_tooshort_percent = val(df, "% of reads unmapped: too short"),
+            unmapped_other_percent = val(df, "% of reads unmapped: other"),
+            unmapped_mismatches = val(df, "Number of reads unmapped: too many mis"),
+            unmapped_tooshort = val(df, "Number of reads unmapped: too short"),
+            unmapped_other = val(df, "Number of reads unmapped: other")
+        )
+        return(stats_df)
+    }))
+    return(parsed)
 }
 
 
+#' Get read quality summary statistics from fastp
+#'
+#' @param fastp_qcdir Character with path to the directory where .json files
+#' from fastp are stored. Default: results/QC_dir/fastp_stats.
+#'
+#' @return A data frame of fastp summary stats for each sample with the 
+#' following variables:
+#' * Sample
+#' * sequencing
+#' * before_nreads
+#' * before_nbases
+#' * before_q20bases
+#' * before_q30bases
+#' * before_q20rate
+#' * before_q30rate
+#' * before_GCcontent
+#' * before_meanlength
+#' * after_nreads
+#' * after_nbases
+#' * after_q20bases
+#' * after_q30bases
+#' * after_q20rate
+#' * after_q30rate
+#' * after_GCcontent
+#' * after_meanlength
+#' * filter_n_passed
+#' * filter_n_lowquality
+#' * filter_n_too_many_N
+#' * filter_n_tooshort
+#' * filter_n_toolong
+#' * duplication_rate
+#' @importFrom jsonlite fromJSON
+#' @export
+#' @rdname summary_stats_fastp
+#' @examples 
+#' fastp_qcdir <- system.file("extdata", package = "bears")
+#' fastp_stats <- summary_stats_fastp(fastp_qcdir)
+summary_stats_fastp <- function(fastp_qcdir = "results/QC_dir/fastp_stats") {
+    
+    file <- list.files(fastp_qcdir, pattern = "\\.json$", full.names = TRUE)
 
+    parsed <- Reduce(rbind, lapply(seq_along(file), function(x) {
+        j <- jsonlite::fromJSON(file[x])
+        js <- as.data.frame(j$summary)
+        jf <- as.data.frame(j$filtering_result)
+        
+        before_length_idx <- intersect(
+            grep("mean_length", names(js)), grep("before", names(js))
+        )[1]
+        after_length_idx <- intersect(
+            grep("mean_length", names(js)), grep("after", names(js))
+        )[1]
+        
+        stats_df <- data.frame(
+            Sample = gsub("\\.json", "", basename(file[x])),
+            sequencing = js$sequencing,
+            # Before
+            before_nreads = js$before_filtering.total_reads,
+            before_nbases = js$before_filtering.total_bases,
+            before_q20bases = js$before_filtering.q20_bases,
+            before_q30bases = js$before_filtering.q30_bases,
+            before_q20rate = js$before_filtering.q20_rate,
+            before_q30rate = js$before_filtering.q30_rate,
+            before_GCcontent = js$before_filtering.gc_content,
+            before_meanlength = js[[before_length_idx]],
+            # After
+            after_nreads = js$after_filtering.total_reads,
+            after_nbases = js$after_filtering.total_bases,
+            after_q20bases = js$after_filtering.q20_bases,
+            after_q30bases = js$after_filtering.q30_bases,
+            after_q20rate = js$after_filtering.q20_rate,
+            after_q30rate = js$after_filtering.q30_rate,
+            after_GCcontent = js$after_filtering.gc_content, 
+            after_meanlength = js[[after_length_idx]],
+            # Filtering summary
+            filter_n_passed = jf$passed_filter_reads,
+            filter_n_lowquality = jf$low_quality_reads,
+            filter_n_too_many_N = jf$too_many_N_reads,
+            filter_n_tooshort = jf$too_short_reads,
+            filter_n_toolong = jf$too_long_reads,
+            duplication_rate = j$duplication$rate
+        )
+        return(stats_df)
+    }))
+    
+    return(parsed)
+}
 
 
 
