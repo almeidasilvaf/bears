@@ -17,7 +17,7 @@
 #' FASTQ files after QC and filtering with fastp. It is recommended to
 #' delete raw files, as they use much memory and the useful information
 #' will be on filtered files, even if no filtering is performed. 
-#' Default: TRUE.
+#' Default: FALSE.
 #' 
 #' @export
 #' @rdname trim_reads
@@ -44,7 +44,7 @@ trim_reads <- function(sample_info = NULL,
                        filtdir = "results/03_filtered_FASTQ",
                        qcdir = "results/QC_dir/fastp_stats",
                        threads = 1,
-                       delete_raw = TRUE) {
+                       delete_raw = FALSE) {
     
     if(!dir.exists(filtdir)) { dir.create(filtdir, recursive = TRUE) }
     if(!dir.exists(qcdir)) { dir.create(qcdir, recursive = TRUE) }
@@ -197,7 +197,7 @@ remove_rrna <- function(sample_info,
                           "--aligned", paste0(workdir, "_rRNA"),
                           "--other", paste0(workdir, "_filt"))
                 system2("sortmerna", args = args)
-            } else if(var$layout == "PAIRED") {
+            } else {
                 r1 <- get_fastq_paths(fastqdir, var$run, cmd = "P1")
                 r2 <- get_fastq_paths(fastqdir, var$run, cmd = "P2")
                 args <- c(refs, "--reads", r1, "--reads", r2,
@@ -207,8 +207,6 @@ remove_rrna <- function(sample_info,
                           "--other", paste0(workdir, "_filt"),
                           "--paired_in", "--out2")
                 system2("sortmerna", args = args)
-            } else {
-                message("Layout information not available.")
             }
             delete_workdir <- fs::dir_delete(workdir)
         }

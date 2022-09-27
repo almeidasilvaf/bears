@@ -106,8 +106,8 @@ jobs:
              default-jre
 
           ## fastp
-          wget http://opengene.org/fastp/fastp && \
-            chmod a+x ./fastp
+          wget http://opengene.org/fastp/fastp -O /opt/ && \
+            chmod a+x /opt/fastp
           
           ## RSeQC
           pip3 install RSeQC==4.0.0

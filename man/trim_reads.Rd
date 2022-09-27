@@ -10,7 +10,7 @@ trim_reads(
   filtdir = "results/03_filtered_FASTQ",
   qcdir = "results/QC_dir/fastp_stats",
   threads = 1,
-  delete_raw = TRUE
+  delete_raw = FALSE
 )
 }
 \arguments{
@@ -34,7 +34,7 @@ Default: 1.}
 FASTQ files after QC and filtering with fastp. It is recommended to
 delete raw files, as they use much memory and the useful information
 will be on filtered files, even if no filtering is performed.
-Default: TRUE.}
+Default: FALSE.}
 }
 \value{
 A 2-column data frame with run accession in the first column
