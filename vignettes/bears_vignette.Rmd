@@ -185,10 +185,8 @@ Sys.getenv("PATH")
 library(bears)
 
 # Test software installation
-fastqc_is_installed()
-multiqc_is_installed()
+fastp_is_installed()
 star_is_installed()
-trimmomatic_is_installed()
 sortmerna_is_installed()
 rseqc_is_installed()
 salmon_is_installed()
