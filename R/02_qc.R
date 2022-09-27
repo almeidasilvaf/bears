@@ -82,7 +82,7 @@ summary_stats_star <- function(star_dir = "results/03_read_mapping") {
     parsed <- Reduce(rbind, lapply(seq_along(star_output), function(x) {
         l <- readLines(star_output[x])
         sl <- strsplit(l, " \\|\\\t")
-        sl <- split_l[vapply(sl, length, numeric(1)) == 2]
+        sl <- sl[vapply(sl, length, numeric(1)) == 2]
         df <- Reduce(rbind, lapply(sl, function(y) {
             return(data.frame(key = y[1], value = y[2]))
         }))

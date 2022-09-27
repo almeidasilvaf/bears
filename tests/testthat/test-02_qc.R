@@ -36,5 +36,22 @@ test_that("get_fastq_paths() returns paths to FASTQ files", {
     expect_null(g5)
 })
 
+test_that("summary_stats_star() returns a data frame of summary stats", {
+    
+    star_dir <- system.file("extdata", package = "bears")
+    star_summary <- summary_stats_star(star_dir)
+    
+    expect_equal(class(star_summary), "data.frame")
+    expect_equal(ncol(star_summary), 27)
+})
+
+test_that("summary_stats(fastp() returns a data frame of summary stats", {
+    
+    fastp_dir <- system.file("extdata", package = "bears")
+    fastp_summary <- summary_stats_fastp(fastp_dir)
+    
+    expect_equal(class(fastp_summary), "data.frame")
+    expect_equal(ncol(fastp_summary), 24)
+})
 
 
