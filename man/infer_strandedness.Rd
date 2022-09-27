@@ -7,7 +7,8 @@
 infer_strandedness(
   mapping_passed = NULL,
   bedpath = NULL,
-  mappingdir = "results/04_read_mapping"
+  mappingdir = "results/04_read_mapping",
+  sample_n = 4e+05
 )
 }
 \arguments{
@@ -18,6 +19,9 @@ This can be obtained with \code{mapping_pass}.}
 \code{gff2bed}.}
 
 \item{mappingdir}{Directory where .bam files are stored.}
+
+\item{sample_n}{Numeric indicating the number of reads to sample from
+.bam file to infer strandedness. Default: 400000.}
 }
 \value{
 A data frame with sample metadata as in mapping_passed, but with
@@ -29,12 +33,11 @@ Infer library strandedness
 }
 \examples{
 data(sample_info)
-mapping_passed <- sample_info
+mapping_passed <- sample_info[, -grep("Orientation", names(sample_info))]
 bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
                         package="bears")
-mappingdir <- system.file("extdata", package="bears")
+mappingdir <- system.file("extdata", package = "bears")
 if(rseqc_is_installed()) {
-    strandedness <- infer_strandedness(mapping_passed, bedpath, mappingdir)
+    s <- infer_strandedness(mapping_passed, bedpath, mappingdir)
 }
-
 }

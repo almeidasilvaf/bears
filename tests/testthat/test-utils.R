@@ -7,6 +7,22 @@ bedpath <- system.file(
 )
 mappingdir <- system.file("extdata", package = "bears")
 
+## Change PATH variable in R
+Sys.setenv(
+    PATH = paste(
+        Sys.getenv("PATH"),
+        paste0(Sys.getenv("HOME"), "/.local/bin"),
+        "/opt/STAR-2.7.9a/bin/Linux_x86_64_static/",
+        "/opt/bin/",
+        "/opt/salmon-1.5.2_linux_x86_64/bin/",
+        "/opt/kallisto/",
+        "/opt/subread-2.0.3-Linux-x86_64/bin/",
+        "/opt/stringtie-2.1.7.Linux_x86_64/",
+        "/opt/taco-v0.7.3.Linux_x86_64/",
+        sep = ":"
+    )
+)
+
 #----Start tests----------------------------------------------------------------
 test_that("skip() works", {
     s1 <- skip(platform = "Illumina Hiseq")
@@ -23,7 +39,7 @@ test_that("gff2bed() converts a GFF file to BED", {
         "extdata", "Homo_sapiens.GRCh37.75_subset.gtf", package="bears"
     )
     gffdir <- tempdir()
-    file.copy(from = gff_path, to=gffdir)
+    file.copy(from = gff_path, to = gffdir)
     gff_file <- list.files(gffdir, full.names = TRUE, pattern = ".gtf")
     
     g1 <- gff2bed(gff_file)

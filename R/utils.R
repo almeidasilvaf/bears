@@ -86,6 +86,8 @@ gff2bed <- function(gffpath=NULL) {
 #' @param bedpath Path to BED file. GFF files can be converted to BED with 
 #' \code{gff2bed}.
 #' @param mappingdir Directory where .bam files are stored.
+#' @param sample_n Numeric indicating the number of reads to sample from
+#' .bam file to infer strandedness. Default: 400000.
 #' 
 #' @return A data frame with sample metadata as in mapping_passed, but with
 #' an additional column named 'Orientation' containing library strandedness
@@ -96,50 +98,57 @@ gff2bed <- function(gffpath=NULL) {
 #' @importFrom stats sd
 #' @examples
 #' data(sample_info)
-#' mapping_passed <- sample_info
+#' mapping_passed <- sample_info[, -grep("Orientation", names(sample_info))]
 #' bedpath <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.bed", 
 #'                         package="bears")
-#' mappingdir <- system.file("extdata", package="bears")
+#' mappingdir <- system.file("extdata", package = "bears")
 #' if(rseqc_is_installed()) {
-#'     strandedness <- infer_strandedness(mapping_passed, bedpath, mappingdir)
+#'     s <- infer_strandedness(mapping_passed, bedpath, mappingdir)
 #' }
-#' 
 infer_strandedness <- function(mapping_passed = NULL,
                                bedpath = NULL,
-                               mappingdir="results/04_read_mapping") {
+                               mappingdir = "results/04_read_mapping",
+                               sample_n = 400000) {
 
     if(!rseqc_is_installed()) { stop("Unable to find RSeQC in PATH.") }
     
-    stranddir <- paste0(mappingdir, "/strandedness")
+    stranddir <- file.path(tempdir(), "strandedness")
+    if(!dir.exists(stranddir)) { dir.create(stranddir, recursive = TRUE) }
+    
     # Create dir to store files with strandedness info
-    if(!dir.exists(stranddir)) { dir.create(stranddir, recursive=TRUE) }
     selection <- mapping_passed[!duplicated(mapping_passed$BioProject), ]
     s <- lapply(seq_len(nrow(selection)), function(x) {
         bam <- paste0(mappingdir, "/", selection[x, "BioSample"],
                       "Aligned.sortedByCoord.out.bam")
-        args <- c("-i", bam, "-r", bedpath, "-s 400000 >", 
+        args <- c("-i", bam, "-r", bedpath, "-s", as.integer(sample_n), " > ", 
                   paste0(stranddir, "/", selection[x, "BioSample"], ".txt"))
         system2("infer_experiment.py", args = args)
     })
     # Read output and get important info
     outfiles <- list.files(stranddir, full.names = TRUE)
-    filelist <- lapply(outfiles, read.csv, header=FALSE, sep=" ", skip=3)
-    strandedness <- unlist(lapply(filelist, function(x) {
-        failed <- x$V7[1]
-        explainedin <- x$V7[3]
-        std <- stats::sd(c(failed, explainedin))
-        if(std < 0.1) {
-            strand <- "unstranded"
-        } else if(explainedin > failed) {
-            strand <- "first"
-        } else {
-            strand <- "second"
+    strandedness <- unlist(lapply(outfiles, function(x) {
+        linecount <- length(readLines(x))
+        strand <- NA
+        if(linecount > 1) {
+            out <- read.csv(x, header = FALSE, sep = " ", skip = 3)
+            failed <- out$V7[1]
+            explainedin <- out$V7[3]
+            
+            std <- stats::sd(c(failed, explainedin))
+            if(std < 0.1) {
+                strand <- "unstranded"
+            } else if(explainedin > failed) {
+                strand <- "first"
+            } else {
+                strand <- "second"
+            }
         }
         return(strand)
     }))
+    
     df <- data.frame(BioProject = selection$BioProject,
                      Orientation = strandedness)
-    result <- merge(mapping_passed, df, by="BioProject", all.x=TRUE)
+    result <- merge(mapping_passed, df, by = "BioProject", all.x = TRUE)
     return(result)
 }
 
