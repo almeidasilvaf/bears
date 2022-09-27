@@ -89,7 +89,7 @@ Brazil<br><h4 data-toc-skip class="author">Thiago
 Motta Venancio</h4>
             <address class="author_afil">
       Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ,
-Brazil<br><h4 data-toc-skip class="date">2022-09-23</h4>
+Brazil<br><h4 data-toc-skip class="date">2022-09-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/almeidasilvaf/bears/blob/HEAD/vignettes/bears_vignette.Rmd" class="external-link"><code>vignettes/bears_vignette.Rmd</code></a></small>
       <div class="d-none name"><code>bears_vignette.Rmd</code></div>
@@ -156,9 +156,9 @@ require each tool.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">FastQC</td>
-<td align="left">&gt;=0.11.9</td>
-<td align="left">run_fastqc()</td>
+<td align="left">fastp</td>
+<td align="left">&gt;=0.22.0</td>
+<td align="left">trim_reads()</td>
 </tr>
 <tr class="even">
 <td align="left">kallisto</td>
@@ -166,49 +166,39 @@ require each tool.</p>
 <td align="left">kallisto_index(), kallisto_quantify()</td>
 </tr>
 <tr class="odd">
-<td align="left">MultiQC</td>
-<td align="left">&gt;=1.12</td>
-<td align="left">multiqc()</td>
-</tr>
-<tr class="even">
 <td align="left">RSeQC</td>
 <td align="left">&gt;=4.0.0</td>
 <td align="left">infer_strandedness()</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">salmon</td>
 <td align="left">&gt;=1.8.0</td>
 <td align="left">salmon_index(), salmon_quantify()</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">SortMeRNA</td>
 <td align="left">&gt;=4.3.4</td>
 <td align="left">remove_rrna()</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">STAR</td>
 <td align="left">&gt;=2.7.10a</td>
 <td align="left">star_genome_index(), star_align()</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">StringTie</td>
 <td align="left">&gt;=2.2.1</td>
 <td align="left">stringtie_assemble(), stringtie_quantify()</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Subread</td>
 <td align="left">&gt;=2.0.1</td>
 <td align="left">fcount()</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">TACO</td>
 <td align="left">&gt;=0.7.3</td>
 <td align="left">taco_merge()</td>
-</tr>
-<tr class="odd">
-<td align="left">Trimmomatic</td>
-<td align="left">&gt;=0.39</td>
-<td align="left">trim_reads()</td>
 </tr>
 </tbody>
 </table>
@@ -242,7 +232,7 @@ tool</strong>. To avoid conflicts, it is important to keep each tool in
 its own environment. Here, each tool will be installed in an environment
 named <code>&lt;tool-name-lowercase&gt;_env</code> (e.g.,
 <code>star_env</code>, <code>rseqc_env</code>,
-<code>fastqc_env</code>).</p></li>
+<code>salmon_env</code>).</p></li>
 <li><p><strong>Run R functions that require external tools</strong>. We
 will run functions that call external tools inside a call to
 <code>Herper::withCondaEnv()</code>. This <em><a href="https://bioconductor.org/packages/3.15/Herper" class="external-link">Herper</a></em>
@@ -274,7 +264,6 @@ environments from the .yml files.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
 <span>    PATH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span>,</span>
-<span>        <span class="st">"/opt/FastQC/fastqc"</span>,</span>
 <span>        <span class="st">"/opt/STAR-2.7.9a/bin/Linux_x86_64_static/"</span>,</span>
 <span>        <span class="st">"/opt/bin/"</span>,</span>
 <span>        <span class="st">"/opt/salmon-1.5.2_linux_x86_64/bin/"</span>,</span>
@@ -287,23 +276,19 @@ environments from the .yml files.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/usr/lib/rstudio-server/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/FastQC/fastqc:/opt/STAR-2.7.9a/bin/Linux_x86_64_static/:/opt/bin/:/opt/salmon-1.5.2_linux_x86_64/bin/:/opt/kallisto/:/opt/subread-2.0.3-Linux-x86_64/bin/:/opt/stringtie-2.1.7.Linux_x86_64/:/opt/taco-v0.7.3.Linux_x86_64/"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "/usr/lib/rstudio-server/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/STAR-2.7.9a/bin/Linux_x86_64_static/:/opt/bin/:/opt/salmon-1.5.2_linux_x86_64/bin/:/opt/kallisto/:/opt/subread-2.0.3-Linux-x86_64/bin/:/opt/stringtie-2.1.7.Linux_x86_64/:/opt/taco-v0.7.3.Linux_x86_64/"</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/almeidasilvaf/bears" class="external-link">bears</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Test software installation</span></span>
-<span><span class="fu"><a href="../reference/fastqc_is_installed.html">fastqc_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/fastp_is_installed.html">fastp_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="fu"><a href="../reference/multiqc_is_installed.html">multiqc_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/star_is_installed.html">star_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="fu"><a href="../reference/trimmomatic_is_installed.html">trimmomatic_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
 <span><span class="fu"><a href="../reference/sortmerna_is_installed.html">sortmerna_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/rseqc_is_installed.html">rseqc_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/salmon_is_installed.html">salmon_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/kallisto_is_installed.html">kallisto_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -404,72 +389,64 @@ FASTQ files that come with this package, which have been filtered for
 package size issues.</p>
 </div>
 <div class="section level2">
-<h2 id="sequence-quality-check">Sequence quality check<a class="anchor" aria-label="anchor" href="#sequence-quality-check"></a>
+<h2 id="read-qc-and-filtering">Read QC and filtering<a class="anchor" aria-label="anchor" href="#read-qc-and-filtering"></a>
 </h2>
-<p>After downloading the .fastq files, you need to perform some quality
-checks to check if you don’t have poor-quality base calling or sequence
-adapters. These can be done with the functions <code><a href="../reference/run_fastqc.html">run_fastqc()</a></code>
-and <code><a href="../reference/multiqc.html">multiqc()</a></code>, which will run <em>FastQC</em> <span class="citation">(Andrews et al. 2019)</span> and summarize
-<em>FastQC</em> results with MultiQC <span class="citation">(Ewels et
-al. 2016)</span>.</p>
-<p><strong>NOTE:</strong> Both <code><a href="../reference/run_fastqc.html">run_fastqc()</a></code> and
-<code><a href="../reference/multiqc.html">multiqc()</a></code> require external tools. Throughout this vignette,
-we will execute functions that call external tools inside
-<code><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">Herper::with_CondaEnv()</a></code> calls.</p>
-<p>Here, for the purpose of demonstration, we will use example FASTQ
-files stored in /extdata.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Path to MultiQC output</span></span>
-<span><span class="va">multiqc_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"multiqc"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Run FastQC for all .fastq files in fastqdir</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"fastqc_env"</span>,</span>
-<span>    <span class="va">fastqc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_fastqc.html">run_fastqc</a></span><span class="op">(</span></span>
-<span>        <span class="va">metadata</span>, </span>
-<span>        fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span>,</span>
-<span>        fastqcdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqcdir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">fastqc</span> <span class="co"># check status</span></span>
-<span></span>
-<span></span>
-<span><span class="co"># Summarize FastQC results with MultiQC</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"multiqc_env"</span>,</span>
-<span>    <span class="va">fastqc_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multiqc.html">multiqc</a></span><span class="op">(</span><span class="va">ds</span><span class="op">$</span><span class="va">fastqcdir</span>, outdir <span class="op">=</span> <span class="va">multiqc_out</span><span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fastqc_table</span> <span class="co"># check results</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="read-filtering">Read filtering<a class="anchor" aria-label="anchor" href="#read-filtering"></a>
-</h2>
-<p>Read filtering consists in 2 steps:</p>
+<p>After downloading the .fastq files, you need to perform some
+filtering steps to remove low quality bases, adapters, and rRNA. Read
+filtering consists in 2 steps:</p>
 <ol style="list-style-type: decimal">
 <li>
-<code><a href="../reference/trim_reads.html">trim_reads()</a></code> - trim adapters and low-quality bases.
-This function runs <em>Trimmomatic</em> <span class="citation">(Bolger,
-Lohse, and Usadel 2014)</span> and saves filtered .fastq files in a
-directory named <code>filtdir</code>.</li>
+<code><a href="../reference/trim_reads.html">trim_reads()</a></code> - trim adapters and low quality bases.
+This function runs <em>fastp</em> <span class="citation">(Chen et al.
+2018)</span> and saves filtered .fastq files in a directory named
+<code>filtdir</code>.</li>
 <li>
 <code><a href="../reference/remove_rrna.html">remove_rrna()</a></code> - remove rRNA (if any) from .fastq files.
 rRNA removal relies on the <em>SortMeRNA</em> <span class="citation">(Kopylova, Noé, and Touzet 2012)</span> program.</li>
 </ol>
-<p>Here, as you can see in <code>fastqc_table</code>, the files passed
-the “Per Base Sequence Quality” check, so we don’t need to trim
-anything. For this particular case, we can skip
-<code><a href="../reference/trim_reads.html">trim_reads()</a></code> and only run <code><a href="../reference/remove_rrna.html">remove_rrna()</a></code>. As
-the rRNA database, we will create a directory and store an example rRNA
-file in it.</p>
+<p>First, let’s use <code><a href="../reference/trim_reads.html">trim_reads()</a></code> to filter reads.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/fastp_is_installed.html">fastp_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Trim reads</span></span>
+<span>    <span class="va">fastp_status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trim_reads.html">trim_reads</a></span><span class="op">(</span></span>
+<span>        <span class="va">metadata</span>, </span>
+<span>        fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span>, </span>
+<span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
+<span>        qcdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">qcdir</span></span>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Check run status</span></span>
+<span>    <span class="va">fastp_status</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>The function <code><a href="../reference/trim_reads.html">trim_reads()</a></code> stores .json files containing
+fastp summary statistics for each sample in the directory specified in
+<code>qcdir</code>. You can read it and parse it into a data frame with
+the function <code><a href="../reference/summary_stats_fastp.html">summary_stats_fastp()</a></code>. Let’s demonstrate how
+it works.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Path to directory containing .json file from fastp</span></span>
+<span><span class="va">qcdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span></span>
+<span><span class="va">qc_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/summary_stats_fastp.html">summary_stats_fastp</a></span><span class="op">(</span><span class="va">qcdir</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">qc_table</span></span>
+<span><span class="co">#&gt;       Sample                         sequencing before_nreads before_nbases</span></span>
+<span><span class="co">#&gt; 1 SRR1039508 paired end (63 cycles + 63 cycles)         14194        894222</span></span>
+<span><span class="co">#&gt;   before_q20bases before_q30bases before_q20rate before_q30rate</span></span>
+<span><span class="co">#&gt; 1          882850          866181       0.987283       0.968642</span></span>
+<span><span class="co">#&gt;   before_GCcontent before_meanlength after_nreads after_nbases after_q20bases</span></span>
+<span><span class="co">#&gt; 1         0.486978                63        14076       886742         878073</span></span>
+<span><span class="co">#&gt;   after_q30bases after_q20rate after_q30rate after_GCcontent after_meanlength</span></span>
+<span><span class="co">#&gt; 1         862056      0.990224      0.972161        0.486906               62</span></span>
+<span><span class="co">#&gt;   filter_n_passed filter_n_lowquality filter_n_too_many_N filter_n_tooshort</span></span>
+<span><span class="co">#&gt; 1           14076                  84                  34                 0</span></span>
+<span><span class="co">#&gt;   filter_n_toolong duplication_rate</span></span>
+<span><span class="co">#&gt; 1                0       0.00986332</span></span></code></pre></div>
 <p>In real-world applications, your rRNA database directory should
 contain all FASTA files distributed in the <a href="https://github.com/biocore/sortmerna/tree/master/data/rRNA_databases" class="external-link">SortMeRNA
 GitHub repo</a>. However, if you think some of these files (e.g., 5s and
 5.8s rRNA) are not a concern in your data set, you don’t need to include
 them in the database.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a directory to store the rRNA db</span></span>
 <span><span class="va">rrna_db_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"rrna"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">rrna_db_dir</span><span class="op">)</span></span>
@@ -536,7 +513,7 @@ of the human genome. The FASTA and GTF files corresponding to the subset
 of the genome are available in /extdata.</p>
 <p>Before mapping reads, we need to create a genome index. This can be
 done with <code><a href="../reference/star_genome_index.html">star_genome_index()</a></code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get paths to genome subset</span></span>
 <span><span class="va">genome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.fa"</span>, </span>
 <span>                            package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span>
@@ -555,25 +532,25 @@ done with <code><a href="../reference/star_genome_index.html">star_genome_index(
 <span><span class="op">)</span></span>
 <span><span class="va">genome_idx</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now that we have the genome index, we can map reads to it.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Map reads to the genome</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"star_env"</span>,</span>
 <span>    <span class="va">read_mapping</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/star_align.html">star_align</a></span><span class="op">(</span></span>
 <span>        <span class="va">metadata</span>, </span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
-<span>        fastqc_table <span class="op">=</span> <span class="va">fastqc_table</span>,</span>
+<span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, let’s get read mapping statistics.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtaining read mapping statistics</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"multiqc_env"</span>,</span>
-<span>    <span class="va">star_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multiqc.html">multiqc</a></span><span class="op">(</span></span>
+<span>    <span class="va">star_stats</span> <span class="op">&lt;-</span> <span class="fu">multiqc</span><span class="op">(</span></span>
 <span>        dir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>, </span>
 <span>        outdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        runon <span class="op">=</span> <span class="st">"star"</span></span>
@@ -590,7 +567,7 @@ Here, samples are excluded if:</p>
 <p>The function <code><a href="../reference/mapping_pass.html">mapping_pass()</a></code> takes the metadata data
 frame and returns the same data frame, but only with the samples that
 passed the minimum criteria.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check if samples passed the filtering criterion</span></span>
 <span><span class="va">align_passed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mapping_pass.html">mapping_pass</a></span><span class="op">(</span><span class="va">star_stats</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span><span class="va">align_passed</span> <span class="co"># inspect data</span></span>
@@ -614,7 +591,7 @@ information.</p>
 <p>This function requires the annotation in BED format, not GTF/GFF. To
 convert from GTF/GFF to BED, use the function
 <code><a href="../reference/gff2bed.html">gff2bed()</a></code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert GFF to BED</span></span>
 <span><span class="va">bedpath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gff2bed.html">gff2bed</a></span><span class="op">(</span><span class="va">gff_path</span><span class="op">)</span></span>
 <span><span class="va">bedpath</span> <span class="co"># check status</span></span>
@@ -645,7 +622,7 @@ raw read counts per gene.</p>
 function <code><a href="../reference/fcount.html">fcount()</a></code>. This function runs
 <em>featureCounts</em> and returns a gene expression matrix with genes
 in rows and samples in columns.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get gene expression in raw read counts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"subread_env"</span>,</span>
@@ -669,7 +646,7 @@ package.</p>
 <p>To get a <code>SummarizedExperiment</code> object from
 <em>featureCounts</em>, use the function
 <code><a href="../reference/featureCounts2se.html">featureCounts2se()</a></code>.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a SummarizedExperiment object from featureCounts output</span></span>
 <span><span class="va">fcountsse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/featureCounts2se.html">featureCounts2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, fc_output <span class="op">=</span> <span class="va">fcounts_quant</span></span>
@@ -692,13 +669,13 @@ transcript abundances in normalized values (transcripts per million,
 TPM).</p>
 <p>To obtain gene expression levels in TPM with <em>StringTie</em>, use
 the function <code><a href="../reference/stringtie_quantify.html">stringtie_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify expression in TPM with StringTie</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"stringtie_env"</span>,</span>
 <span>    <span class="va">stringtie_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stringtie_quantify.html">stringtie_quantify</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
-<span>        fastqc_table <span class="op">=</span> <span class="va">fastqc_table</span>,</span>
+<span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
 <span>        stringtiedir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span></span>
@@ -713,7 +690,7 @@ the function <code><a href="../reference/stringtie_quantify.html">stringtie_quan
 the gene level, at the transcript level, or both. Here, let’s get the
 gene-level expression. For that, you will need to give a 2-column data
 frame with transcript IDs and their corresponding genes.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene correspondence</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
@@ -743,13 +720,13 @@ transcripts for all BioSamples you are studying, you can merge the
 individual .gtf files from <em>StringTie</em> with the software tool
 <em>TACO</em> <span class="citation">(Niknafs et al. 2017)</span>.
 Below, we will demonstrate how that can be achieved.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Transcript assembly with StringTie</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"stringtie_env"</span>,</span>
 <span>    <span class="va">assembled_transcripts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stringtie_assemble.html">stringtie_assemble</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
-<span>        fastqc_table <span class="op">=</span> <span class="va">fastqc_table</span>,</span>
+<span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
 <span>        stringtiedir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span></span>
@@ -762,7 +739,7 @@ Below, we will demonstrate how that can be achieved.</p>
 scenarios, you would have several samples. To merge the .gtf files for
 each sample in a single .gtf file, use the function
 <code><a href="../reference/taco_merge.html">taco_merge()</a></code>.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Merge assembled transcripts with TACO</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"taco_env"</span>,</span>
@@ -778,7 +755,7 @@ each sample in a single .gtf file, use the function
 <strong>final_assembly.gtf</strong> in the subdirectory
 <em>assembly/merged_assembly</em>, inside <code>stringtiedir</code>. To
 get the path to the .gtf file, use:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get path to merged transcript assembly</span></span>
 <span><span class="va">final_assembly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span>
 <span>    <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span>, <span class="st">"assembly"</span>, <span class="st">"merged_assembly"</span>, <span class="st">"final_assembly.gtf"</span></span>
@@ -827,7 +804,7 @@ package.</p>
 </h4>
 <p>First of all, we will need to index the reference transcriptome with
 the function <code><a href="../reference/salmon_index.html">salmon_index()</a></code>.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Path to reference transcriptome</span></span>
 <span><span class="va">transcriptome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
 <span>    <span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz"</span>,</span>
@@ -847,7 +824,7 @@ the function <code><a href="../reference/salmon_index.html">salmon_index()</a></
 <span><span class="va">idx_salmon</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now, we can quantify transcript abundance with
 <code><a href="../reference/salmon_quantify.html">salmon_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"salmon_env"</span>,</span>
@@ -870,7 +847,7 @@ the expression at the gene level, at the transcript level, or both.
 Here, let’s get the gene-level expression. For that, you will need to
 give a 2-column data frame with transcript IDs and their corresponding
 genes.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene data frame</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
@@ -897,7 +874,7 @@ genes.</p>
 </h4>
 <p>Like we do in salmon, we will start by indexing the
 transcriptome.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Index the transcriptome</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"kallisto_env"</span>,</span>
@@ -910,13 +887,13 @@ transcriptome.</p>
 <span></span>
 <span><span class="va">idx_kallisto</span> <span class="co"># check status</span></span></code></pre></div>
 <p>Now, we can quantify the transcript abundance.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"kallisto_env"</span>,</span>
 <span>    <span class="va">quant_kallisto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto_quantify.html">kallisto_quantify</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
-<span>        <span class="va">fastqc_table</span>, </span>
+<span>        <span class="va">qc_table</span>, </span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
 <span>        kallistoindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistoindex</span>,</span>
 <span>        kallistodir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistodir</span></span>
@@ -929,7 +906,7 @@ transcriptome.</p>
 function <code><a href="../reference/kallisto2se.html">kallisto2se()</a></code>. Again, you will have specify if you
 want the expressiona at the gene level, transcript level, or both. Let’s
 get the gene expression here.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read kallisto output to SummarizedExperiment object</span></span>
 <span><span class="va">kallistose</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto2se.html">kallisto2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, </span>
@@ -972,40 +949,28 @@ with state-of-the-art methods.</p>
 <h2 class="unnumbered" id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
 <p>This document was created under the following sections:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-andrews2019" class="csl-entry">
-Andrews, Simon, Felix Krueger, Anne Segonds-Pichon, Laura Biggins,
-Christel Krueger, and Steven Wingett. 2019.
-<span>“<span>FastQC</span>.”</span> <span>Babraham, UK</span>: Babraham
-Institute.
-</div>
-<div id="ref-bolger2014trimmomatic" class="csl-entry">
-Bolger, Anthony M, Marc Lohse, and Bjoern Usadel. 2014.
-<span>“Trimmomatic: A Flexible Trimmer for Illumina Sequence
-Data.”</span> <em>Bioinformatics</em> 30 (15): 2114–20.
-</div>
 <div id="ref-bray2016near" class="csl-entry">
 Bray, Nicolas L, Harold Pimentel, Páll Melsted, and Lior Pachter. 2016.
 <span>“Near-Optimal Probabilistic RNA-Seq Quantification.”</span>
 <em>Nature Biotechnology</em> 34 (5): 525–27.
+</div>
+<div id="ref-chen2018fastp" class="csl-entry">
+Chen, Shifu, Yanqing Zhou, Yaru Chen, and Jia Gu. 2018. <span>“Fastp: An
+Ultra-Fast All-in-One FASTQ Preprocessor.”</span>
+<em>Bioinformatics</em> 34 (17): i884–90.
 </div>
 <div id="ref-dobin2013star" class="csl-entry">
 Dobin, Alexander, Carrie A Davis, Felix Schlesinger, Jorg Drenkow, Chris
 Zaleski, Sonali Jha, Philippe Batut, Mark Chaisson, and Thomas R
 Gingeras. 2013. <span>“STAR: Ultrafast Universal RNA-Seq
 Aligner.”</span> <em>Bioinformatics</em> 29 (1): 15–21.
-</div>
-<div id="ref-ewels2016multiqc" class="csl-entry">
-Ewels, Philip, Måns Magnusson, Sverker Lundin, and Max Käller. 2016.
-<span>“MultiQC: Summarize Analysis Results for Multiple Tools and
-Samples in a Single Report.”</span> <em>Bioinformatics</em> 32 (19):
-3047–48.
 </div>
 <div id="ref-kopylova2012sortmerna" class="csl-entry">
 Kopylova, Evguenia, Laurent Noé, and Hélène Touzet. 2012.

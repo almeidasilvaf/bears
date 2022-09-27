@@ -60,7 +60,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">star_align</span><span class="op">(</span></span>
 <span>  sample_info <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  filtdir <span class="op">=</span> <span class="st">"results/03_filtered_FASTQ"</span>,</span>
-<span>  fastqc_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  qc_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mappingdir <span class="op">=</span> <span class="st">"results/04_read_mapping"</span>,</span>
 <span>  gff_path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  threads <span class="op">=</span> <span class="fl">1</span></span>
@@ -79,9 +79,9 @@ function <code>create_sample_info</code>.</p></dd>
 Default: results/03_filtered_FASTQ.</p></dd>
 
 
-<dt>fastqc_table</dt>
-<dd><p>Data frame of summary statistics for FastQC as returned
-by <code><a href="multiqc.html">multiqc()</a></code>.</p></dd>
+<dt>qc_table</dt>
+<dd><p>Data frame of fastp summary statistics as returned
+by <code><a href="summary_stats_fastp.html">summary_stats_fastp()</a></code>.</p></dd>
 
 
 <dt>mappingdir</dt>
@@ -110,7 +110,7 @@ were mapped (.bam files were created) and NA if STAR failed to map reads.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sample_info</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">fastqc_table</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">qc_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="summary_stats_fastp.html">summary_stats_fastp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">genome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Hsapiens_GRCh37.75_subset.fa"</span>, </span></span>
 <span class="r-in"><span>                            package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gff_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.gtf"</span>, </span></span>
@@ -119,7 +119,7 @@ were mapped (.bam files were created) and NA if STAR failed to map reads.</p>
 <span class="r-in"><span><span class="va">filtdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="star_is_installed.html">star_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>    <span class="fu"><a href="star_genome_index.html">star_genome_index</a></span><span class="op">(</span><span class="va">genome_path</span>, <span class="va">gff_path</span>, <span class="va">mapping_dir</span>, <span class="va">indexdir</span><span class="op">)</span></span></span>
-<span class="r-in"><span>    <span class="fu">star_align</span><span class="op">(</span><span class="va">sample_info</span>, <span class="va">filtdir</span>, <span class="va">fastqc_table</span>, <span class="va">mappingdir</span>, <span class="va">gff_path</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu">star_align</span><span class="op">(</span><span class="va">sample_info</span>, <span class="va">filtdir</span>, <span class="va">qc_table</span>, <span class="va">mappingdir</span>, <span class="va">gff_path</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

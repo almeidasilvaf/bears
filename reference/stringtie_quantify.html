@@ -59,7 +59,7 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">stringtie_quantify</span><span class="op">(</span></span>
 <span>  sample_info <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fastqc_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  qc_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mappingdir <span class="op">=</span> <span class="st">"results/04_read_mapping"</span>,</span>
 <span>  gff_path <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stringtiedir <span class="op">=</span> <span class="st">"results/05_quantification/stringtie"</span>,</span>
@@ -76,9 +76,9 @@ The function <code>infer_strandedness</code> adds a column named "Orientation"
 with library strandedness information, which is mandatory.</p></dd>
 
 
-<dt>fastqc_table</dt>
-<dd><p>Data frame of summary statistics for FastQC as returned
-by <code><a href="multiqc.html">multiqc()</a></code>.</p></dd>
+<dt>qc_table</dt>
+<dd><p>Data frame of fastp summary statistics as returned
+by <code><a href="summary_stats_fastp.html">summary_stats_fastp()</a></code>.</p></dd>
 
 
 <dt>mappingdir</dt>
@@ -109,13 +109,13 @@ NA otherwise.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sample_info</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">fastqc_table</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">qc_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="summary_stats_fastp.html">summary_stats_fastp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">mappingdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">gff_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.gtf"</span>,</span></span>
 <span class="r-in"><span>                        package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">stringtiedir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="stringtie_is_installed.html">stringtie_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>    <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">stringtie_quantify</span><span class="op">(</span><span class="va">sample_info</span>, <span class="va">fastqc_table</span>, <span class="va">mappingdir</span>, </span></span>
+<span class="r-in"><span>    <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">stringtie_quantify</span><span class="op">(</span><span class="va">sample_info</span>, <span class="va">qc_table</span>, <span class="va">mappingdir</span>, </span></span>
 <span class="r-in"><span>                            <span class="va">gff_path</span>, <span class="va">stringtiedir</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>

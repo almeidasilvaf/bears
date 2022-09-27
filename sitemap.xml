@@ -40,13 +40,10 @@
     <loc>/reference/download_from_ena.html</loc>
   </url>
   <url>
+    <loc>/reference/fastp_is_installed.html</loc>
+  </url>
+  <url>
     <loc>/reference/fastq_exists.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fastqc_is_installed.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fastqc_table.html</loc>
   </url>
   <url>
     <loc>/reference/fcount.html</loc>
@@ -85,9 +82,6 @@
     <loc>/reference/mapping_qc.html</loc>
   </url>
   <url>
-    <loc>/reference/multiqc.html</loc>
-  </url>
-  <url>
     <loc>/reference/multiqc_is_installed.html</loc>
   </url>
   <url>
@@ -95,9 +89,6 @@
   </url>
   <url>
     <loc>/reference/rseqc_is_installed.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_fastqc.html</loc>
   </url>
   <url>
     <loc>/reference/salmon2se.html</loc>
@@ -142,6 +133,12 @@
     <loc>/reference/subread_is_installed.html</loc>
   </url>
   <url>
+    <loc>/reference/summary_stats_fastp.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary_stats_star.html</loc>
+  </url>
+  <url>
     <loc>/reference/taco_is_installed.html</loc>
   </url>
   <url>
@@ -152,9 +149,6 @@
   </url>
   <url>
     <loc>/reference/trim_reads.html</loc>
-  </url>
-  <url>
-    <loc>/reference/trimmomatic_is_installed.html</loc>
   </url>
   <url>
     <loc>/reference/tx2gene.html</loc>
