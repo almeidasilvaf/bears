@@ -89,7 +89,7 @@ Brazil<br><h4 data-toc-skip class="author">Thiago
 Motta Venancio</h4>
             <address class="author_afil">
       Universidade Estadual do Norte Fluminense Darcy Ribeiro, RJ,
-Brazil<br><h4 data-toc-skip class="date">2022-09-27</h4>
+Brazil<br><h4 data-toc-skip class="date">2022-09-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/almeidasilvaf/bears/blob/HEAD/vignettes/bears_vignette.Rmd" class="external-link"><code>vignettes/bears_vignette.Rmd</code></a></small>
       <div class="d-none name"><code>bears_vignette.Rmd</code></div>
@@ -619,14 +619,14 @@ library strandedness for each sample, we quantify the expression with
 <em>featureCounts</em>. This tool quantifies gene expression measured in
 raw read counts per gene.</p>
 <p>To quantify gene expression with <em>featureCounts</em>, use the
-function <code><a href="../reference/fcount.html">fcount()</a></code>. This function runs
+function <code>fcount()</code>. This function runs
 <em>featureCounts</em> and returns a gene expression matrix with genes
 in rows and samples in columns.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get gene expression in raw read counts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
 <span>    <span class="st">"subread_env"</span>,</span>
-<span>    <span class="va">fcounts_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fcount.html">fcount</a></span><span class="op">(</span></span>
+<span>    <span class="va">fcounts_quant</span> <span class="op">&lt;-</span> <span class="fu">fcount</span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>, </span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
