@@ -67,9 +67,8 @@ Suggests:
     testthat (>= 3.0.0),
     rmarkdown,
     Herper,
+    rhdf5,
     sessioninfo
-Enhances: 
-    rhdf5
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 
