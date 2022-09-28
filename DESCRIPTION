@@ -68,6 +68,8 @@ Suggests:
     rmarkdown,
     Herper,
     sessioninfo
+Enhances: 
+    rhdf5
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Depends: 

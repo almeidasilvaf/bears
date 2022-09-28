@@ -17,22 +17,22 @@
 #' @importFrom Rsubread featureCounts
 #' @importFrom utils write.table
 #' @export
-#' @rdname fcount
+#' @rdname featureCounts
 #' @examples 
 #' data(sample_info)
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
-#' fcountsdir <- tempdir()
+#' fcountsdir <- file.path(tempdir(), "fcountsdir")
 #' if(subread_is_installed()) {
-#'     counts <- fcount(sample_info, mappingdir, gff_path, fcountsdir)
+#'     counts <- featureCounts(sample_info, mappingdir, gff_path, fcountsdir)
 #' }
-fcount <- function(sample_info = NULL, 
-                   mappingdir = "results/04_read_mapping",
-                   gff_path = NULL,
-                   fcountsdir = "results/05_quantification/featureCounts",
-                   threads = 2) {
-
+featureCounts <- function(sample_info = NULL, 
+                          mappingdir = "results/04_read_mapping",
+                          gff_path = NULL,
+                          fcountsdir = "results/05_quantification/featureCounts",
+                          threads = 2) {
+    
     if(!subread_is_installed()) { stop("Unable to find subread in PATH.") }
     if(!dir.exists(fcountsdir)) { dir.create(fcountsdir, recursive = TRUE) }
     
@@ -88,16 +88,14 @@ fcount <- function(sample_info = NULL,
 #' mappingdir <- system.file("extdata", package="bears")
 #' gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
 #'                         package="bears")
-#' fcountsdir <- tempdir()
+#' fcountsdir <- file.path(tempdir(), "fcountsdir")
 #' if(subread_is_installed()) {
-#'     counts <- fcount(sample_info, mappingdir, gff_path, fcountsdir)
+#'     counts <- featureCounts(sample_info, mappingdir, gff_path, fcountsdir)
 #'     se <- featureCounts2se(sample_info, counts)
 #' }
 featureCounts2se <- function(sample_info = NULL, 
                              fc_output = NULL) {
-    if(!methods::is(fc_output, "matrix")) {
-        fc_output <- utils::read.table(fc_output)
-    }
+    if(!is(fc_output, "matrix")) { fc_output <- utils::read.table(fc_output) }
     
     sample_metadata <- sample_info[!duplicated(sample_info$BioSample), ]
     samples <- colnames(fc_output)

@@ -25,9 +25,9 @@ data(sample_info)
 mappingdir <- system.file("extdata", package="bears")
 gff_path <- system.file("extdata", "Homo_sapiens.GRCh37.75_subset.gtf",
                         package="bears")
-fcountsdir <- tempdir()
+fcountsdir <- file.path(tempdir(), "fcountsdir")
 if(subread_is_installed()) {
-    counts <- fcount(sample_info, mappingdir, gff_path, fcountsdir)
+    counts <- featureCounts(sample_info, mappingdir, gff_path, fcountsdir)
     se <- featureCounts2se(sample_info, counts)
 }
 }
