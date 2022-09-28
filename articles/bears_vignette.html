@@ -113,11 +113,12 @@ given species using public data. The package features:</p>
 <ul>
 <li>Data download from NCBI’s Sequence Read Archive (SRA) or the
 European Nucleotide Archive (ENA).</li>
-<li>Sequence quality check and trimming of low-quality sequences.</li>
+<li>Sequence quality check and trimming of low-quality sequences and
+adapters.</li>
 <li>Removal of rRNA, which are typical problems of libraries that were
 prepared with the rRNA depletion protocol.</li>
 <li>Read mapping against a reference genome.</li>
-<li>Transcript assembly.</li>
+<li>Transcriptome assembly.</li>
 <li>Quantification of gene- and transcript-level transcript abundance
 with <strong>alignment-based</strong> and
 <strong>alignment-free</strong> methods.</li>
@@ -142,7 +143,36 @@ specify in several functions of this package.</p>
 <span><span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_dir_structure.html">create_dir_structure</a></span><span class="op">(</span>rootdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Look at the output</span></span>
-<span><span class="va">ds</span></span></code></pre></div>
+<span><span class="va">ds</span></span>
+<span><span class="co">#&gt; $fastqdir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/01_FASTQ_files"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $qcdir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/QC_dir"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $filtdir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/02_filtered_FASTQ"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mappingdir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/03_read_mapping"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $salmonindex</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/salmon/idx"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $salmondir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/salmon"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $kallistoindex</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/kallisto/idx"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $kallistodir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/kallisto"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $fcountsdir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/featureCounts"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $stringtiedir</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/stringtie"</span></span></code></pre></div>
 <p>To run the full pipeline implemented in <em><a href="https://github.com/almeidasilvaf/bears" class="external-link">bears</a></em>, you will
 need to have some external software tools installed in your machine. The
 names of the tools are listed below. In the <strong>Functions</strong>
@@ -203,84 +233,18 @@ require each tool.</p>
 </tbody>
 </table>
 <p>To make your life easier, we have created .yml files with Conda
-environments containing each of these external tools. In this vignette,
-we will manage external dependencies with the Bioconductor package
-<em><a href="https://bioconductor.org/packages/3.15/Herper" class="external-link">Herper</a></em>. We
-will use <code>BiocStyle::Biocpkg("Herper")</code> to:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Install miniconda</strong>. For this vignette, we will
-install miniconda in a temporary directory, which means that miniconda
-will be automatically deleted when the R session closes.</li>
-</ol>
-<blockquote>
-<p>“But I already have miniconda installed!”</p>
-</blockquote>
-<p>Great! In that case, just create an object (e.g.,
-<code>my_miniconda</code>) with the path to your miniconda
-installation.</p>
-<blockquote>
-<p>“Can I have a permanent installation of miniconda instead of
-installing it in a temporary directory?”</p>
-</blockquote>
-<p>For sure. You can specify a path to a different directory in your
-object containing the miniconda installation path. For instance, you can
-try <code>my_miniconda &lt;- "~/Documents/miniconda"</code>.</p>
-<ol start="2" style="list-style-type: decimal">
-<li><p><strong>Create a different environment for each external
-tool</strong>. To avoid conflicts, it is important to keep each tool in
-its own environment. Here, each tool will be installed in an environment
-named <code>&lt;tool-name-lowercase&gt;_env</code> (e.g.,
-<code>star_env</code>, <code>rseqc_env</code>,
-<code>salmon_env</code>).</p></li>
-<li><p><strong>Run R functions that require external tools</strong>. We
-will run functions that call external tools inside a call to
-<code>Herper::withCondaEnv()</code>. This <em><a href="https://bioconductor.org/packages/3.15/Herper" class="external-link">Herper</a></em>
-function allows us to run an R function inside a particular Conda
-environment, which we need to specify.</p></li>
-</ol>
-<p>Below is the code to install miniconda and create tool-specific
-environments from the .yml files.</p>
+environments containing each of these external tools. You can create an
+environment for each tool and manage Conda environments from the R
+session with the Bioconductor package <em><a href="https://bioconductor.org/packages/3.15/Herper" class="external-link">Herper</a></em>
+(see the <strong>FAQ</strong> section for details).</p>
+<p>Alternatively, you can see <a href="https://github.com/almeidasilvaf/bears/blob/ca43e06b1750c10ff9ea2a9307b31f85655dbd15/.github/workflows/check-bioc.yml#L87-L150" class="external-link">here</a>
+the code we used to install all external dependencies in the Ubuntu
+20.04 virtual machine provided by GitHub Actions, which is how this
+package is tested and how this document was created.</p>
+<p>As a sanity check, let’s see if all external dependencies are
+installed.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RockefellerUniversity/Herper" class="external-link">Herper</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Path to directory where miniconda will be installed</span></span>
-<span><span class="va">my_miniconda</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"miniconda"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Path to .yml files to create environments</span></span>
-<span><span class="va">envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>, pattern <span class="op">=</span> <span class="st">".yml"</span>,</span>
-<span>    full.names <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Install miniconda in `my_miniconda` and create envs</span></span>
-<span><span class="va">create_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">envs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/Herper/man/SaveEnvironments.html" class="external-link">import_CondaEnv</a></span><span class="op">(</span><span class="va">x</span>, pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<p>Let’s see the environments and their names.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/ListCondaEnvironments.html" class="external-link">list_CondaEnv</a></span><span class="op">(</span>pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span></span>
-<span>    PATH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span>,</span>
-<span>        <span class="st">"/opt/STAR-2.7.9a/bin/Linux_x86_64_static/"</span>,</span>
-<span>        <span class="st">"/opt/bin/"</span>,</span>
-<span>        <span class="st">"/opt/salmon-1.9.0_linux_x86_64/bin/"</span>,</span>
-<span>        <span class="st">"/opt/kallisto/"</span>,</span>
-<span>        <span class="st">"/opt/subread-2.0.3-Linux-x86_64/bin/"</span>,</span>
-<span>        <span class="st">"/opt/stringtie-2.1.7.Linux_x86_64/"</span>,</span>
-<span>        <span class="st">"/opt/taco-v0.7.3.Linux_x86_64/"</span>,</span>
-<span>        sep <span class="op">=</span> <span class="st">":"</span></span>
-<span>    <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"PATH"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/usr/lib/rstudio-server/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/STAR-2.7.9a/bin/Linux_x86_64_static/:/opt/bin/:/opt/salmon-1.9.0_linux_x86_64/bin/:/opt/kallisto/:/opt/subread-2.0.3-Linux-x86_64/bin/:/opt/stringtie-2.1.7.Linux_x86_64/:/opt/taco-v0.7.3.Linux_x86_64/"</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/almeidasilvaf/bears" class="external-link">bears</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Test software installation</span></span>
+<code class="sourceCode R"><span><span class="co"># Test installation of external dependencies</span></span>
 <span><span class="fu"><a href="../reference/fastp_is_installed.html">fastp_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="../reference/star_is_installed.html">star_is_installed</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -321,72 +285,68 @@ RNA-seq[STRA]</strong>
 <p>Let’s create a metadata data frame for a human RNA-seq sample that is
 included in the <em><a href="https://bioconductor.org/packages/3.15/airway" class="external-link">airway</a></em>
 Bioconductor package.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create metadata data frame</span></span>
 <span><span class="va">term</span> <span class="op">&lt;-</span> <span class="st">"SAMN02422669[BSPL]"</span></span>
 <span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/create_sample_info.html">create_sample_info</a></span><span class="op">(</span><span class="va">term</span><span class="op">)</span></span>
-<span><span class="va">metadata</span></span></code></pre></div>
+<span><span class="va">metadata</span></span>
+<span><span class="co">#&gt;      BioSample Experiment        Run                           Tissue   Pubmed</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669  SRX384345 SRR1039508 human airway smooth muscle cells 24926665</span></span>
+<span><span class="co">#&gt;    BioProject          Instrument Layout Selection_method SRA_sample SRA_study</span></span>
+<span><span class="co">#&gt; 1 PRJNA229998 Illumina HiSeq 2000 PAIRED             cDNA  SRS508568 SRP033351</span></span>
+<span><span class="co">#&gt;   Treatment Cultivar</span></span>
+<span><span class="co">#&gt; 1 Untreated     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;                                                                          Study_title</span></span>
+<span><span class="co">#&gt; 1 Human Airway Smooth Muscle Transcriptome Changes in Response to Asthma Medications</span></span>
+<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Study_abstract</span></span>
+<span><span class="co">#&gt; 1 Rationale: Asthma is a chronic inflammatory airway disease. The most common medications used for its treatment are ß2-agonists and glucocorticosteroids, and one of the primary tissues that these drugs target in the treatment of asthma is the airway smooth muscle. We used RNA-Seq to characterize the human airway smooth muscle (HASM) transcriptome at baseline and under three asthma treatment conditions. Methods: The Illumina TruSeq assay was used to prepare 75bp paired-end libraries for HASM cells from four white male donors under four treatment conditions: 1) no treatment; 2) treatment with a ß2-agonist (i.e. Albuterol, 1µM for 18h); 3) treatment with a glucocorticosteroid (i.e. Dexamethasone (Dex), 1µM for 18h); 4) simultaneous treatment with a ß2-agonist and glucocorticoid, and the libraries were sequenced with an Illumina Hi-Seq 2000 instrument. The Tuxedo Suite Tools were used to align reads to the hg19 reference genome, assemble transcripts, and perform differential expression analysis using the protocol described in https://github.com/blancahimes/taffeta Overall design: mRNA profiles obtained via RNA-Seq for four primary human airway smooth muscle cell lines that were treated with dexamethasone, albuterol, dexamethasone+albuterol or were left untreated.</span></span>
+<span><span class="co">#&gt;                  Date Origin</span></span>
+<span><span class="co">#&gt; 1 2014-01-02 09:16:11   &lt;NA&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="downloading-fastq-files">Downloading FASTQ files<a class="anchor" aria-label="anchor" href="#downloading-fastq-files"></a>
 </h2>
-<p>To download the .fastq files with reads, you have 2 options:</p>
-<ul>
-<li><p>Using <code><a href="../reference/download_from_ena.html">download_from_ena()</a></code> (recommended), which
-downloads reads from ENA. This function does not require any external
-dependency and is much faster than using <em>SRAToolkit</em>.</p></li>
-<li><p>Using <code>download_fastq()</code>, which relies on
-<em>SRAToolkit</em> to download reads from NCBI’s SRA. You need to have
-<em>SRAToolkit</em> installed in your machine to run this function. This
-function only exists for historical reasons (i.e., some people use
-<em>SRAToolkit</em> for a long time and are used to it). You should try
-to avoid <em>SRAToolkit</em>, because it is slow and not so easy to set
-up.</p></li>
-</ul>
-<p>As input, you only need to give the metadata data frame and the path
-the output directory where .fastq files will be stored. For example:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Download sample to temporary directory</span></span>
+<p>To download the .fastq files from ENA, you will use the function
+<code><a href="../reference/download_from_ena.html">download_from_ena()</a></code>. As input, you only need to give the
+metadata data frame and the path the output directory where .fastq files
+will be stored.</p>
+<p><strong>IMPORTANT:</strong> Note below that <strong>you must change
+the timeout limit</strong>, or your downloads will be interrupted after
+the default timeout limit of 60 seconds. You will probably need more
+than 60 seconds to download some samples, especially if your internet
+connection is not very good.</p>
+<p>Here’s an example of how to run <code><a href="../reference/download_from_ena.html">download_from_ena()</a></code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Change default timeout limit</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>timeout <span class="op">=</span> <span class="fl">6000</span><span class="op">)</span></span>
-<span><span class="va">download</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download_from_ena.html">download_from_ena</a></span><span class="op">(</span><span class="va">metadata</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># For running time issues, copy example FASTQ files to ds$fastqdir</span></span>
-<span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>, </span>
-<span>                pattern <span class="op">=</span> <span class="st">".fastq.gz"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">f</span></span>
+<span><span class="co"># Download sample to temporary directory</span></span>
+<span><span class="va">download</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/download_from_ena.html">download_from_ena</a></span><span class="op">(</span><span class="va">metadata</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span><span class="op">)</span></span></code></pre></div>
+<p>For running time issues, we will simply copy the example FASTQ files
+from the <em>extdata</em> subdirectory of this package to
+<code>ds$fastqdir</code>. These example files contain a subset of the
+<strong>SAMN02422669</strong> BioSample we mentioned before.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># For running time issues, copy example FASTQ files to ds$fastqdir</span></span>
+<span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>, </span>
+<span>    pattern <span class="op">=</span> <span class="st">".fastq.gz"</span>, </span>
+<span>    full.names <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">copy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span><span class="va">f</span>, <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span><span class="op">)</span></span></code></pre></div>
-<p>It’s important to check your downloaded FASTQ files for download
-issues that might happen when the internet connection is not stable. The
-function <code>check_downloads()</code> checks your downloaded FASTQ
-files to look for one of the three issues below:</p>
-<ul>
-<li>
-<strong>Issue 1:</strong> File was not downloaded.</li>
-<li>
-<strong>Issue 2:</strong> For paired-end reads, only forward or
-reverse file was downloaded.</li>
-<li>
-<strong>Issue 3:</strong> Less reads than the expected.</li>
-</ul>
-<p>To look for <strong>issue 3</strong>, <code>check_downloads()</code>
-needs to know the expected number of reads for each run accession. This
-number is available in SRA, and it can be obtained with the function
-<code>get_read_count()</code>. For example:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Get a data frame of run accessions and their read counts</span></span>
-<span><span class="va">read_count</span> <span class="op">&lt;-</span> <span class="fu">get_read_count</span><span class="op">(</span><span class="va">metadata</span>, run_accession <span class="op">=</span> <span class="va">metadata</span><span class="op">$</span><span class="va">Run</span><span class="op">)</span></span>
-<span><span class="va">read_count</span></span></code></pre></div>
-<p>As you can see, this function returns a data frame with run
-accessions and their number of reads as reported by SRA. With this
-information, you can run <code>check_downloads()</code> to look for
-download problems.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Check downloaded files for issues</span></span>
-<span><span class="fu">check_downloads</span><span class="op">(</span><span class="va">metadata</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span>, <span class="va">read_count</span><span class="op">)</span></span></code></pre></div>
-<p>Here, as you can see, the function reported an issue 3 (<em>less
-reads than the expected</em>). That is because we are using the example
-FASTQ files that come with this package, which have been filtered for
-package size issues.</p>
+<p>After downloading FASTQ files, it’s important to check the integrity
+of your files. The function <code><a href="../reference/check_md5.html">check_md5()</a></code> does that for you
+by checking if the md5 checksum of the downloaded file matches the md5
+checksum of the original file.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/check_md5.html">check_md5</a></span><span class="op">(</span>run_accessions <span class="op">=</span> <span class="va">metadata</span><span class="op">$</span><span class="va">Run</span>, fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          Run Status</span></span>
+<span><span class="co">#&gt; 1 SRR1039508  FALSE</span></span></code></pre></div>
+<p>Here, expectedly, the function reported an issue. As the example
+files we are using contain only a subset of the
+<strong>SAMN02422669</strong> BioSample, the md5 checksums are
+different. If the md5 checksums were the same, the <code>Status</code>
+variable would be TRUE.</p>
 </div>
 <div class="section level2">
 <h2 id="read-qc-and-filtering">Read QC and filtering<a class="anchor" aria-label="anchor" href="#read-qc-and-filtering"></a>
@@ -395,18 +355,25 @@ package size issues.</p>
 filtering steps to remove low quality bases, adapters, and rRNA. Read
 filtering consists in 2 steps:</p>
 <ol style="list-style-type: decimal">
-<li>
-<code><a href="../reference/trim_reads.html">trim_reads()</a></code> - trim adapters and low quality bases.
-This function runs <em>fastp</em> <span class="citation">(Chen et al.
-2018)</span> and saves filtered .fastq files in a directory named
-<code>filtdir</code>.</li>
-<li>
-<code><a href="../reference/remove_rrna.html">remove_rrna()</a></code> - remove rRNA (if any) from .fastq files.
-rRNA removal relies on the <em>SortMeRNA</em> <span class="citation">(Kopylova, Noé, and Touzet 2012)</span> program.</li>
+<li><p><code><a href="../reference/trim_reads.html">trim_reads()</a></code> - trim adapters and low quality bases
+(if any). This function runs <em>fastp</em> <span class="citation">(Chen
+et al. 2018)</span> and saves filtered .fastq files in a directory named
+<code>filtdir</code>.</p></li>
+<li><p><code><a href="../reference/remove_rrna.html">remove_rrna()</a></code> - remove rRNA (if any) from .fastq
+files. rRNA removal relies on the <em>SortMeRNA</em> <span class="citation">(Kopylova, Noé, and Touzet 2012)</span>
+program.</p></li>
 </ol>
-<p>First, let’s use <code><a href="../reference/trim_reads.html">trim_reads()</a></code> to filter reads.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="section level3">
+<h3 id="trimming-adapters-and-low-quality-bases">Trimming adapters and low quality bases<a class="anchor" aria-label="anchor" href="#trimming-adapters-and-low-quality-bases"></a>
+</h3>
+<p>First, let’s use <code><a href="../reference/trim_reads.html">trim_reads()</a></code> to filter reads. <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;&lt;strong&gt;Friendly tip:&lt;/strong&gt; filtered FASTQ files are
+stored in the directory specified in the &lt;code&gt;filtdir&lt;/code&gt; parameter,
+even if no filtering was performed (no adapters and no low quality
+bases, for instance). If you want to delete unfiltered FASTQ files for
+hard drive issues, you can set &lt;code&gt;delete_raw = TRUE&lt;/code&gt;.&lt;/p&gt;"><sup>1</sup></a></p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/fastp_is_installed.html">fastp_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span></span>
 <span>    <span class="co"># Trim reads</span></span>
 <span>    <span class="va">fastp_status</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trim_reads.html">trim_reads</a></span><span class="op">(</span></span>
 <span>        <span class="va">metadata</span>, </span>
@@ -415,15 +382,16 @@ rRNA removal relies on the <em>SortMeRNA</em> <span class="citation">(Kopylova, 
 <span>        qcdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">qcdir</span></span>
 <span>    <span class="op">)</span></span>
 <span>    </span>
-<span>    <span class="co"># Check run status</span></span>
-<span>    <span class="va">fastp_status</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<span>    <span class="va">fastp_status</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;          run status</span></span>
+<span><span class="co">#&gt; 1 SRR1039508     OK</span></span></code></pre></div>
 <p>The function <code><a href="../reference/trim_reads.html">trim_reads()</a></code> stores .json files containing
 fastp summary statistics for each sample in the directory specified in
 <code>qcdir</code>. You can read it and parse it into a data frame with
 the function <code><a href="../reference/summary_stats_fastp.html">summary_stats_fastp()</a></code>. Let’s demonstrate how
 it works.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Path to directory containing .json file from fastp</span></span>
 <span><span class="va">qcdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span></span>
 <span><span class="va">qc_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/summary_stats_fastp.html">summary_stats_fastp</a></span><span class="op">(</span><span class="va">qcdir</span><span class="op">)</span></span>
@@ -441,61 +409,61 @@ it works.</p>
 <span><span class="co">#&gt; 1           14076                  84                  34                 0</span></span>
 <span><span class="co">#&gt;   filter_n_toolong duplication_rate</span></span>
 <span><span class="co">#&gt; 1                0       0.00986332</span></span></code></pre></div>
-<p>In real-world applications, your rRNA database directory should
-contain all FASTA files distributed in the <a href="https://github.com/biocore/sortmerna/tree/master/data/rRNA_databases" class="external-link">SortMeRNA
+</div>
+<div class="section level3">
+<h3 id="removing-rrna">Removing rRNA<a class="anchor" aria-label="anchor" href="#removing-rrna"></a>
+</h3>
+<p>In this vignette, we will use a small rRNA database as an example. In
+real-world applications, your rRNA database directory should contain all
+FASTA files distributed in the <a href="https://github.com/biocore/sortmerna/tree/master/data/rRNA_databases" class="external-link">SortMeRNA
 GitHub repo</a>. However, if you think some of these files (e.g., 5s and
 5.8s rRNA) are not a concern in your data set, you don’t need to include
 them in the database.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a directory to store the rRNA db</span></span>
 <span><span class="va">rrna_db_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"rrna"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">rrna_db_dir</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Copy the example 16S rRNA file to the db directory.</span></span>
-<span><span class="va">rrna_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"bac_16s_subset.fa"</span>, package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span>
+<span><span class="va">rrna_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"bac_16s_subset.fa"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span></span>
 <span><span class="va">copy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.copy</a></span><span class="op">(</span>from <span class="op">=</span> <span class="va">rrna_file</span>, to <span class="op">=</span> <span class="va">rrna_db_dir</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Run SortMeRNA from the Conda env</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"sortmerna_env"</span>,</span>
+<span><span class="co"># Remove rRNA (if any)</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/sortmerna_is_installed.html">sortmerna_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">rrna_removal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/remove_rrna.html">remove_rrna</a></span><span class="op">(</span></span>
 <span>        <span class="va">metadata</span>,</span>
 <span>        fastqdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fastqdir</span>,</span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
 <span>        rrna_db_dir <span class="op">=</span> <span class="va">rrna_db_dir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">rrna_removal</span> <span class="co"># check status</span></span></code></pre></div>
-<p>Now that we have performed all quality checks, we’re good to go. <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt; After running
-&lt;code&gt;&lt;a href="../reference/remove_rrna.html"&gt;remove_rrna()&lt;/a&gt;&lt;/code&gt;, filtered .fastq files are stored in the
-directory specified in &lt;code&gt;filtdir&lt;/code&gt;. If you think this step is
-not necessary for your data set and want to skip it, the
-&lt;code&gt;filtdir&lt;/code&gt; directory will remain empty, so all your .fastq
-files will be stored in &lt;code&gt;fastqdir&lt;/code&gt;. Keep this in mind when
-specifying the path to .fastq files in the following steps of the
-pipeline. If that is your case, you can make &lt;code&gt;fastqdir&lt;/code&gt; and
-&lt;code&gt;filtdir&lt;/code&gt; the same with
-&lt;code&gt;ds$filtdir &amp;lt;- ds$fastqdir&lt;/code&gt;.&lt;/p&gt;'><sup>1</sup></a></p>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">rrna_removal</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;          run status</span></span>
+<span><span class="co">#&gt; 1 SRR1039508     OK</span></span></code></pre></div>
+<p>Now that we have performed all quality checks, we’re good to go. <a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;&lt;strong&gt;Friendly tip:&lt;/strong&gt; filtered FASTQ files are
+stored in the directory specified in the &lt;code&gt;filtdir&lt;/code&gt; parameter,
+even if no filtering was performed (no adapters and no low quality
+bases, for instance). If you want to delete unfiltered FASTQ files for
+hard drive issues, you can set &lt;code&gt;delete_raw = TRUE&lt;/code&gt;.&lt;/p&gt;"><sup>2</sup></a></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="quantification-of-transcript-abundance">Quantification of transcript abundance<a class="anchor" aria-label="anchor" href="#quantification-of-transcript-abundance"></a>
 </h2>
 <p>Quantification of transcript abundance can be done in two ways:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Alignment-based approaches</strong>, which involves mapping
-reads to a reference genome using <em>STAR</em> <span class="citation">(Dobin et al. 2013)</span> and quantifying the
+<li><p><strong>Alignment-based approaches</strong>, which involves
+mapping reads to a reference genome using <em>STAR</em> <span class="citation">(Dobin et al. 2013)</span> and quantifying the
 expression based on uniquely mapped reads with <em>featureCounts</em>
 <span class="citation">(Liao, Smyth, and Shi 2014)</span> (in raw
-counts) and <em>StringTie</em> <span class="citation">(Pertea et al.
-2015)</span> (in TPM).</li>
-<li>
-<strong>Alignment-free approaches</strong>, which involves
+counts) and/or <em>StringTie</em> <span class="citation">(Pertea et al.
+2015)</span> (in TPM).</p></li>
+<li><p><strong>Alignment-free approaches</strong>, which involves
 pseudo-aligning or quasi-mapping reads to a reference transcriptome with
 <em>kallisto</em> <span class="citation">(Bray et al. 2016)</span> or
 <em>salmon</em> <span class="citation">(Patro et al. 2017)</span>,
-respectively.</li>
+respectively.</p></li>
 </ol>
 <p>Below, we will describe how to perform both approaches.</p>
 <div class="section level3">
@@ -510,54 +478,73 @@ reads are mapped to the reference genome with the software tool
 </h4>
 <p>Here, for the purpose of demonstration, we will map reads to a subset
 of the human genome. The FASTA and GTF files corresponding to the subset
-of the genome are available in /extdata.</p>
+of the genome are available in the <em>extdata/</em> subdirectory of
+this package.</p>
 <p>Before mapping reads, we need to create a genome index. This can be
 done with <code><a href="../reference/star_genome_index.html">star_genome_index()</a></code>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get paths to genome subset</span></span>
-<span><span class="va">genome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.fa"</span>, </span>
-<span>                            package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span>
-<span><span class="va">gff_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.gtf"</span>, </span>
-<span>                         package<span class="op">=</span><span class="st">"bears"</span><span class="op">)</span></span>
+<span><span class="va">genome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>    <span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.fa"</span>, package <span class="op">=</span> <span class="st">"bears"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">gff_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
+<span>    <span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset.gtf"</span>, package <span class="op">=</span> <span class="st">"bears"</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Create genome index</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"star_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/star_is_installed.html">star_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">genome_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/star_genome_index.html">star_genome_index</a></span><span class="op">(</span></span>
 <span>        genome_path <span class="op">=</span> <span class="va">genome_path</span>, </span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>, </span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">genome_idx</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">genome_idx</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;                                    index_path status</span></span>
+<span><span class="co">#&gt; 1 /tmp/RtmpJsCs8L/03_read_mapping/genomeIndex     OK</span></span></code></pre></div>
 <p>Now that we have the genome index, we can map reads to it.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Map reads to the genome</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"star_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/star_is_installed.html">star_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">read_mapping</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/star_align.html">star_align</a></span><span class="op">(</span></span>
 <span>        <span class="va">metadata</span>, </span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
 <span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>Finally, let’s get read mapping statistics.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">read_mapping</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;         sample status</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669     OK</span></span></code></pre></div>
+<p>Finally, let’s get read mapping statistics with the function
+<code><a href="../reference/summary_stats_star.html">summary_stats_star()</a></code>. Here, we will use an example
+<em>Log.final.out that STAR returns stored in the </em>extdata/*
+subdirectory of this package.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Obtaining read mapping statistics</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"multiqc_env"</span>,</span>
-<span>    <span class="va">star_stats</span> <span class="op">&lt;-</span> <span class="fu">multiqc</span><span class="op">(</span></span>
-<span>        dir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>, </span>
-<span>        outdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        runon <span class="op">=</span> <span class="st">"star"</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">star_stats</span></span></code></pre></div>
+<span><span class="va">star_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">star_stats</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/summary_stats_star.html">summary_stats_star</a></span><span class="op">(</span>star_dir <span class="op">=</span> <span class="va">star_dir</span><span class="op">)</span></span>
+<span><span class="va">star_stats</span></span>
+<span><span class="co">#&gt;         Sample total_reads avg_input_read_length uniquely_mapped</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669        7097                   126            7088</span></span>
+<span><span class="co">#&gt;   uniquely_mapped_percent avg_mapped_read_length num_splices</span></span>
+<span><span class="co">#&gt; 1                   99.87                 125.64        3825</span></span>
+<span><span class="co">#&gt;   num_annotated_splices num_GTAG_splices num_GCAG_splices num_ATAC_splices</span></span>
+<span><span class="co">#&gt; 1                  3815             3810               15                0</span></span>
+<span><span class="co">#&gt;   num_noncanonical_splices mismatch_rate deletion_rate deletion_length</span></span>
+<span><span class="co">#&gt; 1                        0          0.17             0            1.38</span></span>
+<span><span class="co">#&gt;   insertion_rate insertion_length multimapped multimapped_percent</span></span>
+<span><span class="co">#&gt; 1           0.01             1.35           9                0.13</span></span>
+<span><span class="co">#&gt;   multimapped_toomany multimapped_toomany_percent unmapped_mismatches_percent</span></span>
+<span><span class="co">#&gt; 1                   0                           0                           0</span></span>
+<span><span class="co">#&gt;   unmapped_tooshort_percent unmapped_other_percent unmapped_mismatches</span></span>
+<span><span class="co">#&gt; 1                         0                      0                   0</span></span>
+<span><span class="co">#&gt;   unmapped_tooshort unmapped_other</span></span>
+<span><span class="co">#&gt; 1                 0              0</span></span></code></pre></div>
 <p>Now, let’s check if samples passed the minimum quality criteria.
 Here, samples are excluded if:</p>
 <ol style="list-style-type: decimal">
@@ -567,14 +554,28 @@ Here, samples are excluded if:</p>
 <p>The function <code><a href="../reference/mapping_pass.html">mapping_pass()</a></code> takes the metadata data
 frame and returns the same data frame, but only with the samples that
 passed the minimum criteria.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check if samples passed the filtering criterion</span></span>
 <span><span class="va">align_passed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mapping_pass.html">mapping_pass</a></span><span class="op">(</span><span class="va">star_stats</span>, <span class="va">metadata</span><span class="op">)</span></span>
 <span><span class="va">align_passed</span> <span class="co"># inspect data</span></span>
+<span><span class="co">#&gt;      BioSample Experiment        Run                           Tissue   Pubmed</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669  SRX384345 SRR1039508 human airway smooth muscle cells 24926665</span></span>
+<span><span class="co">#&gt;    BioProject          Instrument Layout Selection_method SRA_sample SRA_study</span></span>
+<span><span class="co">#&gt; 1 PRJNA229998 Illumina HiSeq 2000 PAIRED             cDNA  SRS508568 SRP033351</span></span>
+<span><span class="co">#&gt;   Treatment Cultivar</span></span>
+<span><span class="co">#&gt; 1 Untreated     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;                                                                          Study_title</span></span>
+<span><span class="co">#&gt; 1 Human Airway Smooth Muscle Transcriptome Changes in Response to Asthma Medications</span></span>
+<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Study_abstract</span></span>
+<span><span class="co">#&gt; 1 Rationale: Asthma is a chronic inflammatory airway disease. The most common medications used for its treatment are ß2-agonists and glucocorticosteroids, and one of the primary tissues that these drugs target in the treatment of asthma is the airway smooth muscle. We used RNA-Seq to characterize the human airway smooth muscle (HASM) transcriptome at baseline and under three asthma treatment conditions. Methods: The Illumina TruSeq assay was used to prepare 75bp paired-end libraries for HASM cells from four white male donors under four treatment conditions: 1) no treatment; 2) treatment with a ß2-agonist (i.e. Albuterol, 1µM for 18h); 3) treatment with a glucocorticosteroid (i.e. Dexamethasone (Dex), 1µM for 18h); 4) simultaneous treatment with a ß2-agonist and glucocorticoid, and the libraries were sequenced with an Illumina Hi-Seq 2000 instrument. The Tuxedo Suite Tools were used to align reads to the hg19 reference genome, assemble transcripts, and perform differential expression analysis using the protocol described in https://github.com/blancahimes/taffeta Overall design: mRNA profiles obtained via RNA-Seq for four primary human airway smooth muscle cell lines that were treated with dexamethasone, albuterol, dexamethasone+albuterol or were left untreated.</span></span>
+<span><span class="co">#&gt;                  Date Origin</span></span>
+<span><span class="co">#&gt; 1 2014-01-02 09:16:11   &lt;NA&gt;</span></span>
 <span></span>
 <span><span class="co"># Compare to the original data set</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">metadata</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">align_passed</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">align_passed</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p>As you can see, the sample we used for read mapping passed the
 minimum quality criteria. Good, huh? We can now proceed to the next
 step.</p>
@@ -591,52 +592,109 @@ information.</p>
 <p>This function requires the annotation in BED format, not GTF/GFF. To
 convert from GTF/GFF to BED, use the function
 <code><a href="../reference/gff2bed.html">gff2bed()</a></code>.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert GFF to BED</span></span>
 <span><span class="va">bedpath</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gff2bed.html">gff2bed</a></span><span class="op">(</span><span class="va">gff_path</span><span class="op">)</span></span>
-<span><span class="va">bedpath</span> <span class="co"># check status</span></span>
+<span><span class="va">bedpath</span> <span class="co"># check path</span></span>
+<span><span class="co">#&gt; [1] "/__w/_temp/Library/bears/extdata/Homo_sapiens.GRCh37.75_subset.bed"</span></span>
 <span></span>
 <span><span class="co"># Infer strandedness</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"rseqc_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/rseqc_is_installed.html">rseqc_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">new_metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/infer_strandedness.html">infer_strandedness</a></span><span class="op">(</span></span>
 <span>        mapping_passed <span class="op">=</span> <span class="va">align_passed</span>,</span>
-<span>        bedpath <span class="op">=</span> <span class="va">bedpath</span><span class="op">$</span><span class="va">bed_path</span>,</span>
+<span>        bedpath <span class="op">=</span> <span class="va">bedpath</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">new_metadata</span></span></code></pre></div>
-<p>As you can see, there is a new <strong>Orientation</strong> column
-with strandedness info for this sample.</p>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">new_metadata</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;    BioProject    BioSample Experiment        Run</span></span>
+<span><span class="co">#&gt; 1 PRJNA229998 SAMN02422669  SRX384345 SRR1039508</span></span>
+<span><span class="co">#&gt;                             Tissue   Pubmed          Instrument Layout</span></span>
+<span><span class="co">#&gt; 1 human airway smooth muscle cells 24926665 Illumina HiSeq 2000 PAIRED</span></span>
+<span><span class="co">#&gt;   Selection_method SRA_sample SRA_study Treatment Cultivar</span></span>
+<span><span class="co">#&gt; 1             cDNA  SRS508568 SRP033351 Untreated     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;                                                                          Study_title</span></span>
+<span><span class="co">#&gt; 1 Human Airway Smooth Muscle Transcriptome Changes in Response to Asthma Medications</span></span>
+<span><span class="co">#&gt;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Study_abstract</span></span>
+<span><span class="co">#&gt; 1 Rationale: Asthma is a chronic inflammatory airway disease. The most common medications used for its treatment are ß2-agonists and glucocorticosteroids, and one of the primary tissues that these drugs target in the treatment of asthma is the airway smooth muscle. We used RNA-Seq to characterize the human airway smooth muscle (HASM) transcriptome at baseline and under three asthma treatment conditions. Methods: The Illumina TruSeq assay was used to prepare 75bp paired-end libraries for HASM cells from four white male donors under four treatment conditions: 1) no treatment; 2) treatment with a ß2-agonist (i.e. Albuterol, 1µM for 18h); 3) treatment with a glucocorticosteroid (i.e. Dexamethasone (Dex), 1µM for 18h); 4) simultaneous treatment with a ß2-agonist and glucocorticoid, and the libraries were sequenced with an Illumina Hi-Seq 2000 instrument. The Tuxedo Suite Tools were used to align reads to the hg19 reference genome, assemble transcripts, and perform differential expression analysis using the protocol described in https://github.com/blancahimes/taffeta Overall design: mRNA profiles obtained via RNA-Seq for four primary human airway smooth muscle cell lines that were treated with dexamethasone, albuterol, dexamethasone+albuterol or were left untreated.</span></span>
+<span><span class="co">#&gt;                  Date Origin Orientation</span></span>
+<span><span class="co">#&gt; 1 2014-01-02 09:16:11   &lt;NA&gt;       first</span></span></code></pre></div>
+<p>As you can see, there is a new <code>Orientation</code> column with
+strandedness info for this sample.</p>
 </div>
 <div class="section level4">
 <h4 id="using-featurecounts">Using featureCounts<a class="anchor" aria-label="anchor" href="#using-featurecounts"></a>
 </h4>
-<p>Now that we have the BAM files from <em>STAR</em> and information on
-library strandedness for each sample, we quantify the expression with
-<em>featureCounts</em>. This tool quantifies gene expression measured in
-raw read counts per gene.</p>
+<p>Now that we have the .bam files from <em>STAR</em> and information on
+library strandedness for each sample, we can quantify the expression
+with <em>featureCounts</em>. This tool quantifies gene expression
+measured in raw read counts per gene.</p>
 <p>To quantify gene expression with <em>featureCounts</em>, use the
-function <code>fcount()</code>. This function runs
+function <code>feaureCounts()</code>. This function runs
 <em>featureCounts</em> and returns a gene expression matrix with genes
 in rows and samples in columns.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get gene expression in raw read counts</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"subread_env"</span>,</span>
-<span>    <span class="va">fcounts_quant</span> <span class="op">&lt;-</span> <span class="fu">fcount</span><span class="op">(</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/subread_is_installed.html">subread_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">fcounts_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/featureCounts.html">featureCounts</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>, </span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
 <span>        fcountsdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">fcountsdir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Explore gene expression matrix</span></span>
-<span><span class="va">fcounts_quant</span> </span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Explore the expression matrix</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">fcounts_quant</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         ==========     _____ _    _ ____  _____  ______          _____  </span></span>
+<span><span class="co">#&gt;         =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ </span></span>
+<span><span class="co">#&gt;           =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |</span></span>
+<span><span class="co">#&gt;             ====      \___ \| |  | |  _ &lt;|  _  /|  __|   / /\ \ | |  | |</span></span>
+<span><span class="co">#&gt;               ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |</span></span>
+<span><span class="co">#&gt;         ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/</span></span>
+<span><span class="co">#&gt;        Rsubread 2.10.5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; //========================== featureCounts setting ===========================\\</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; ||             Input files : 1 BAM file                                       ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; ||                           SAMN02422669Aligned.sortedByCoord.out.bam        ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; ||              Paired-end : yes                                              ||</span></span>
+<span><span class="co">#&gt; ||        Count read pairs : yes                                              ||</span></span>
+<span><span class="co">#&gt; ||              Annotation : Homo_sapiens.GRCh37.75_subset.gtf (GTF)          ||</span></span>
+<span><span class="co">#&gt; ||      Dir for temp files : .                                                ||</span></span>
+<span><span class="co">#&gt; ||                 Threads : 2                                                ||</span></span>
+<span><span class="co">#&gt; ||                   Level : meta-feature level                               ||</span></span>
+<span><span class="co">#&gt; ||      Multimapping reads : counted                                          ||</span></span>
+<span><span class="co">#&gt; || Multi-overlapping reads : not counted                                      ||</span></span>
+<span><span class="co">#&gt; ||   Min overlapping bases : 1                                                ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; \\============================================================================//</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; //================================= Running ==================================\\</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; || Load annotation file Homo_sapiens.GRCh37.75_subset.gtf ...                 ||</span></span>
+<span><span class="co">#&gt; ||    Features : 20                                                           ||</span></span>
+<span><span class="co">#&gt; ||    Meta-features : 2                                                       ||</span></span>
+<span><span class="co">#&gt; ||    Chromosomes/contigs : 1                                                 ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; || Process BAM file SAMN02422669Aligned.sortedByCoord.out.bam...              ||</span></span>
+<span><span class="co">#&gt; ||    Strand specific : reversely stranded                                    ||</span></span>
+<span><span class="co">#&gt; ||    Paired-end reads are included.                                          ||</span></span>
+<span><span class="co">#&gt; ||    Total alignments : 7147                                                 ||</span></span>
+<span><span class="co">#&gt; ||    Successfully assigned alignments : 14 (0.2%)                            ||</span></span>
+<span><span class="co">#&gt; ||    Running time : 0.00 minutes                                             ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; || Write the final count table.                                               ||</span></span>
+<span><span class="co">#&gt; || Write the read assignment summary.                                         ||</span></span>
+<span><span class="co">#&gt; ||                                                                            ||</span></span>
+<span><span class="co">#&gt; \\============================================================================//</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000171819            2</span></span>
+<span><span class="co">#&gt; ENSG00000120942           12</span></span></code></pre></div>
 <p>Whenever you are working with gene expression data, we recommend
 storing your data as <code>SummarizedExperiment</code> objects, so you
 have the expression matrix and sample metadata in a single object. If
@@ -646,20 +704,47 @@ package.</p>
 <p>To get a <code>SummarizedExperiment</code> object from
 <em>featureCounts</em>, use the function
 <code><a href="../reference/featureCounts2se.html">featureCounts2se()</a></code>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a SummarizedExperiment object from featureCounts output</span></span>
-<span><span class="va">fcountsse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/featureCounts2se.html">featureCounts2se</a></span><span class="op">(</span></span>
+<span><span class="va">fcounts_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/featureCounts2se.html">featureCounts2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, fc_output <span class="op">=</span> <span class="va">fcounts_quant</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Take a look at the SummarizedExperiment object</span></span>
-<span><span class="va">fcountsse</span></span>
+<span><span class="va">fcounts_se</span></span>
+<span><span class="co">#&gt; class: SummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 2 1 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(1): fcounts</span></span>
+<span><span class="co">#&gt; rownames(2): ENSG00000171819 ENSG00000120942</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(1): SAMN02422669</span></span>
+<span><span class="co">#&gt; colData names(17): BioProject Experiment ... Origin Orientation</span></span>
 <span></span>
 <span><span class="co"># Exploring sample metadata</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">fcountsse</span><span class="op">)</span></span>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">fcounts_se</span><span class="op">)</span></span>
+<span><span class="co">#&gt; DataFrame with 1 row and 17 columns</span></span>
+<span><span class="co">#&gt;               BioProject  Experiment         Run                 Tissue</span></span>
+<span><span class="co">#&gt;              &lt;character&gt; &lt;character&gt; &lt;character&gt;            &lt;character&gt;</span></span>
+<span><span class="co">#&gt; SAMN02422669 PRJNA229998   SRX384345  SRR1039508 human airway smooth ..</span></span>
+<span><span class="co">#&gt;                   Pubmed          Instrument      Layout Selection_method</span></span>
+<span><span class="co">#&gt;              &lt;character&gt;         &lt;character&gt; &lt;character&gt;      &lt;character&gt;</span></span>
+<span><span class="co">#&gt; SAMN02422669    24926665 Illumina HiSeq 2000      PAIRED             cDNA</span></span>
+<span><span class="co">#&gt;               SRA_sample   SRA_study   Treatment    Cultivar</span></span>
+<span><span class="co">#&gt;              &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">#&gt; SAMN02422669   SRS508568   SRP033351   Untreated          NA</span></span>
+<span><span class="co">#&gt;                         Study_title         Study_abstract                Date</span></span>
+<span><span class="co">#&gt;                         &lt;character&gt;            &lt;character&gt;         &lt;character&gt;</span></span>
+<span><span class="co">#&gt; SAMN02422669 Human Airway Smooth .. Rationale: Asthma is.. 2014-01-02 09:16:11</span></span>
+<span><span class="co">#&gt;                   Origin Orientation</span></span>
+<span><span class="co">#&gt;              &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">#&gt; SAMN02422669          NA       first</span></span>
 <span></span>
 <span><span class="co"># Exploring gene expression matrix</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">fcountsse</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">fcounts_se</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000171819            2</span></span>
+<span><span class="co">#&gt; ENSG00000120942           12</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="using-stringtie">Using StringTie<a class="anchor" aria-label="anchor" href="#using-stringtie"></a>
@@ -669,31 +754,38 @@ transcript abundances in normalized values (transcripts per million,
 TPM).</p>
 <p>To obtain gene expression levels in TPM with <em>StringTie</em>, use
 the function <code><a href="../reference/stringtie_quantify.html">stringtie_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify expression in TPM with StringTie</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"stringtie_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/stringtie_is_installed.html">stringtie_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">stringtie_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stringtie_quantify.html">stringtie_quantify</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
 <span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
 <span>        stringtiedir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">stringtie_quant</span> <span class="co"># Check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">stringtie_quant</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;         sample status</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669     OK</span></span></code></pre></div>
 <p>Now, let’s read the output from <em>StringTie</em> as a
 <code>SummarizedExperiment</code> object with the function
 <code>stringtie2se</code>. You can choose if you want the expression at
 the gene level, at the transcript level, or both. Here, let’s get the
 gene-level expression. For that, you will need to give a 2-column data
 frame with transcript IDs and their corresponding genes.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene correspondence</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            TXNAME          GENEID</span></span>
+<span><span class="co">#&gt; 1 ENST00000473118 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 2 ENST00000240185 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 3 ENST00000476201 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 4 ENST00000472476 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 5 ENST00000439080 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 6 ENST00000315091 ENSG00000120948</span></span>
 <span></span>
 <span><span class="co"># Read StringTie output as a SummarizedExperiment object</span></span>
 <span><span class="va">stringtiese</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stringtie2se.html">stringtie2se</a></span><span class="op">(</span></span>
@@ -702,12 +794,28 @@ frame with transcript IDs and their corresponding genes.</p>
 <span>    level <span class="op">=</span> <span class="st">"gene"</span>,</span>
 <span>    tx2gene <span class="op">=</span> <span class="va">tx2gene</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; reading in files with read.delim (install 'readr' package for speed up)</span></span>
+<span><span class="co">#&gt; 1 </span></span>
+<span><span class="co">#&gt; summarizing abundance</span></span>
+<span><span class="co">#&gt; summarizing counts</span></span>
+<span><span class="co">#&gt; summarizing length</span></span>
 <span></span>
 <span><span class="co"># Exploring the SummarizedExperiment object</span></span>
 <span><span class="va">stringtiese</span></span>
+<span><span class="co">#&gt; class: SummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 2 1 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(1): gene_TPM</span></span>
+<span><span class="co">#&gt; rownames(2): ENSG00000120942 ENSG00000171819</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(1): SAMN02422669</span></span>
+<span><span class="co">#&gt; colData names(17): BioProject Experiment ... Origin Orientation</span></span>
 <span></span>
 <span><span class="co"># Looking at gene expression matrix</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">stringtiese</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">stringtiese</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000120942     207072.5</span></span>
+<span><span class="co">#&gt; ENSG00000171819          0.0</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="bonus-transcript-assembly-and-merging">Bonus: Transcript assembly and merging<a class="anchor" aria-label="anchor" href="#bonus-transcript-assembly-and-merging"></a>
@@ -720,48 +828,49 @@ transcripts for all BioSamples you are studying, you can merge the
 individual .gtf files from <em>StringTie</em> with the software tool
 <em>TACO</em> <span class="citation">(Niknafs et al. 2017)</span>.
 Below, we will demonstrate how that can be achieved.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Transcript assembly with StringTie</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"stringtie_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/stringtie_is_installed.html">stringtie_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">assembled_transcripts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stringtie_assemble.html">stringtie_assemble</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
 <span>        qc_table <span class="op">=</span> <span class="va">qc_table</span>,</span>
 <span>        mappingdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">mappingdir</span>,</span>
 <span>        gff_path <span class="op">=</span> <span class="va">gff_path</span>,</span>
 <span>        stringtiedir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">assembled_transcripts</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">assembled_transcripts</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;         sample status</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669     OK</span></span></code></pre></div>
 <p>In this vignette, we have a single BioSample. However, in real-life
 scenarios, you would have several samples. To merge the .gtf files for
 each sample in a single .gtf file, use the function
 <code><a href="../reference/taco_merge.html">taco_merge()</a></code>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Merge assembled transcripts with TACO</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"taco_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/taco_is_installed.html">taco_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">merged_transcripts</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/taco_merge.html">taco_merge</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
 <span>        stringtiedir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">merged_transcripts</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">merged_transcripts</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;                 file status</span></span>
+<span><span class="co">#&gt; 1 final_assembly.gtf     OK</span></span></code></pre></div>
 <p>The merged transcript assembly will be stored in a file named
 <strong>final_assembly.gtf</strong> in the subdirectory
 <em>assembly/merged_assembly</em>, inside <code>stringtiedir</code>. To
 get the path to the .gtf file, use:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get path to merged transcript assembly</span></span>
 <span><span class="va">final_assembly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span></span>
 <span>    <span class="va">ds</span><span class="op">$</span><span class="va">stringtiedir</span>, <span class="st">"assembly"</span>, <span class="st">"merged_assembly"</span>, <span class="st">"final_assembly.gtf"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">final_assembly</span></span></code></pre></div>
+<span><span class="va">final_assembly</span></span>
+<span><span class="co">#&gt; [1] "/tmp/RtmpJsCs8L/04_quantification/stringtie/assembly/merged_assembly/final_assembly.gtf"</span></span></code></pre></div>
 <blockquote>
 <p>But why would I want to assemble transcripts and merge them if I
 already have a .gtf file the transcript annotations?</p>
@@ -804,7 +913,7 @@ package.</p>
 </h4>
 <p>First of all, we will need to index the reference transcriptome with
 the function <code><a href="../reference/salmon_index.html">salmon_index()</a></code>.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Path to reference transcriptome</span></span>
 <span><span class="va">transcriptome_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span></span>
 <span>    <span class="st">"extdata"</span>, <span class="st">"Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz"</span>,</span>
@@ -812,32 +921,32 @@ the function <code><a href="../reference/salmon_index.html">salmon_index()</a></
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Index the transcriptome</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"salmon_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/salmon_is_installed.html">salmon_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">idx_salmon</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/salmon_index.html">salmon_index</a></span><span class="op">(</span></span>
 <span>        salmonindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmonindex</span>,</span>
 <span>        transcriptome_path <span class="op">=</span> <span class="va">transcriptome_path</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">idx_salmon</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">idx_salmon</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;                                     index_path status</span></span>
+<span><span class="co">#&gt; 1 /tmp/RtmpJsCs8L/04_quantification/salmon/idx     OK</span></span></code></pre></div>
 <p>Now, we can quantify transcript abundance with
 <code><a href="../reference/salmon_quantify.html">salmon_quantify()</a></code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"salmon_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/salmon_is_installed.html">salmon_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">quant_salmon</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/salmon_quantify.html">salmon_quantify</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
 <span>        salmonindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmonindex</span>,</span>
 <span>        salmondir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmondir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">quant_salmon</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">quant_salmon</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;         sample status</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669     OK</span></span></code></pre></div>
 <p>After running <code><a href="../reference/salmon_quantify.html">salmon_quantify()</a></code>, salmon output in .sf
 format will be stored in the directory specified in
 <code>salmondir</code>.</p>
@@ -847,82 +956,129 @@ the expression at the gene level, at the transcript level, or both.
 Here, let’s get the gene-level expression. For that, you will need to
 give a 2-column data frame with transcript IDs and their corresponding
 genes.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load transcript-to-gene data frame</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">tx2gene</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            TXNAME          GENEID</span></span>
+<span><span class="co">#&gt; 1 ENST00000473118 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 2 ENST00000240185 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 3 ENST00000476201 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 4 ENST00000472476 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 5 ENST00000439080 ENSG00000120948</span></span>
+<span><span class="co">#&gt; 6 ENST00000315091 ENSG00000120948</span></span>
 <span></span>
 <span><span class="co"># Read salmon output as a SummarizedExperiment object</span></span>
-<span><span class="va">salmonse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/salmon2se.html">salmon2se</a></span><span class="op">(</span></span>
+<span><span class="va">salmon_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/salmon2se.html">salmon2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, </span>
 <span>    level <span class="op">=</span> <span class="st">"gene"</span>, </span>
 <span>    salmondir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmondir</span>,</span>
 <span>    <span class="va">tx2gene</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; reading in files with read.delim (install 'readr' package for speed up)</span></span>
+<span><span class="co">#&gt; 1 </span></span>
+<span><span class="co">#&gt; summarizing abundance</span></span>
+<span><span class="co">#&gt; summarizing counts</span></span>
+<span><span class="co">#&gt; summarizing length</span></span>
 <span></span>
 <span><span class="co"># Exploring the output</span></span>
-<span><span class="va">salmonse</span></span>
+<span><span class="va">salmon_se</span></span>
+<span><span class="co">#&gt; class: SummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 2 1 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(2): gene_TPM gene_counts</span></span>
+<span><span class="co">#&gt; rownames(2): ENSG00000120942 ENSG00000171819</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(1): SAMN02422669</span></span>
+<span><span class="co">#&gt; colData names(17): BioProject Experiment ... Origin Orientation</span></span>
 <span></span>
 <span><span class="co"># Get gene expression matrix in TPM</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">salmonse</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">salmon_se</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000120942    944349.25</span></span>
+<span><span class="co">#&gt; ENSG00000171819     55650.75</span></span>
 <span></span>
 <span><span class="co"># Get gene expression matrix as raw counts</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">salmonse</span>, <span class="st">"gene_counts"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">salmon_se</span>, <span class="st">"gene_counts"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000120942          113</span></span>
+<span><span class="co">#&gt; ENSG00000171819            2</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="using-kallisto">Using kallisto<a class="anchor" aria-label="anchor" href="#using-kallisto"></a>
 </h4>
 <p>Like we do in salmon, we will start by indexing the
 transcriptome.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Index the transcriptome</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"kallisto_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/kallisto_is_installed.html">kallisto_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">idx_kallisto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto_index.html">kallisto_index</a></span><span class="op">(</span></span>
 <span>        kallistoindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistoindex</span>,</span>
 <span>        transcriptome_path <span class="op">=</span> <span class="va">transcriptome_path</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">idx_kallisto</span> <span class="co"># check status</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">idx_kallisto</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;                                                       index_path status</span></span>
+<span><span class="co">#&gt; 1 /tmp/RtmpJsCs8L/04_quantification/kallisto/idx/transcripts.idx     OK</span></span></code></pre></div>
 <p>Now, we can quantify the transcript abundance.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Quantify transcript abundance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/Herper/man/UseEnvironments.html" class="external-link">with_CondaEnv</a></span><span class="op">(</span></span>
-<span>    <span class="st">"kallisto_env"</span>,</span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="../reference/kallisto_is_installed.html">kallisto_is_installed</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">quant_kallisto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto_quantify.html">kallisto_quantify</a></span><span class="op">(</span></span>
 <span>        <span class="va">new_metadata</span>,</span>
 <span>        <span class="va">qc_table</span>, </span>
 <span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
 <span>        kallistoindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistoindex</span>,</span>
 <span>        kallistodir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistodir</span></span>
-<span>    <span class="op">)</span>,</span>
-<span>    pathToMiniConda <span class="op">=</span> <span class="va">my_miniconda</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">quant_kallisto</span> <span class="co"># check status</span></span></code></pre></div>
-<p>To read kallisto output in a SummarizedExperiment object, use the
-function <code><a href="../reference/kallisto2se.html">kallisto2se()</a></code>. Again, you will have specify if you
-want the expressiona at the gene level, transcript level, or both. Let’s
-get the gene expression here.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<span>    <span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="va">quant_kallisto</span> <span class="co"># check run status</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt;         sample status</span></span>
+<span><span class="co">#&gt; 1 SAMN02422669     OK</span></span></code></pre></div>
+<p>To read kallisto output in a <code>SummarizedExperiment</code>
+object, use the function <code><a href="../reference/kallisto2se.html">kallisto2se()</a></code>. Again, you will
+have specify if you want the expressiona at the gene level, transcript
+level, or both. Let’s get the gene expression here.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read kallisto output to SummarizedExperiment object</span></span>
-<span><span class="va">kallistose</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto2se.html">kallisto2se</a></span><span class="op">(</span></span>
+<span><span class="va">kallisto_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/kallisto2se.html">kallisto2se</a></span><span class="op">(</span></span>
 <span>    <span class="va">new_metadata</span>, </span>
 <span>    level <span class="op">=</span> <span class="st">"gene"</span>, </span>
 <span>    kallistodir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">kallistodir</span>,</span>
 <span>    <span class="va">tx2gene</span></span>
 <span><span class="op">)</span></span>
+<span><span class="co">#&gt; Note: importing `abundance.h5` is typically faster than `abundance.tsv`</span></span>
+<span><span class="co">#&gt; reading in files with read.delim (install 'readr' package for speed up)</span></span>
+<span><span class="co">#&gt; 1 </span></span>
+<span><span class="co">#&gt; summarizing abundance</span></span>
+<span><span class="co">#&gt; summarizing counts</span></span>
+<span><span class="co">#&gt; summarizing length</span></span>
+<span><span class="co">#&gt; summarizing inferential replicates</span></span>
 <span></span>
 <span><span class="co"># Exploring the output</span></span>
-<span><span class="va">kallistose</span></span>
+<span><span class="va">kallisto_se</span></span>
+<span><span class="co">#&gt; class: SummarizedExperiment </span></span>
+<span><span class="co">#&gt; dim: 2 1 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(2): gene_TPM gene_counts</span></span>
+<span><span class="co">#&gt; rownames(2): ENSG00000120942 ENSG00000171819</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(1): SAMN02422669</span></span>
+<span><span class="co">#&gt; colData names(17): BioProject Experiment ... Origin Orientation</span></span>
 <span></span>
 <span><span class="co"># Get gene expression matrix in TPM</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">kallistose</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">kallisto_se</span>, <span class="st">"gene_TPM"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000120942     988556.3</span></span>
+<span><span class="co">#&gt; ENSG00000171819      11443.4</span></span>
 <span></span>
 <span><span class="co"># Get gene expression matrix as raw counts</span></span>
-<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">kallistose</span>, <span class="st">"gene_counts"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">SummarizedExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">assay</a></span><span class="op">(</span><span class="va">kallisto_se</span>, <span class="st">"gene_counts"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 SAMN02422669</span></span>
+<span><span class="co">#&gt; ENSG00000120942    127.95207</span></span>
+<span><span class="co">#&gt; ENSG00000171819      2.04796</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -946,11 +1102,168 @@ continuously. Hence, we aim to keep <em><a href="https://github.com/almeidasilva
 with state-of-the-art methods.</p>
 </div>
 <div class="section level2">
+<h2 class="unnumbered" id="faq">FAQ<a class="anchor" aria-label="anchor" href="#faq"></a>
+</h2>
+<blockquote>
+<p>How do I manage Conda environments from the R session?</p>
+</blockquote>
+<p>You only need to do the following 2 things:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Install miniconda</strong>. After installing miniconda in
+your machine, create an R object containing the path to your miniconda
+installation. For example:</li>
+</ol>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">miniconda_path</span> <span class="op">&lt;-</span> <span class="st">"~/tools/miniconda"</span></span></code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>
+<strong>Create a different environment for each external
+tool</strong>. You can use the <em><a href="https://bioconductor.org/packages/3.15/Herper" class="external-link">Herper</a></em>
+package to create an environment for each tool from .yml files stored in
+the <em>extdata/</em> subdirectory of this package. To avoid conflicts,
+it is important to keep each tool in its own environment. Here, each
+tool will be installed in an environment named
+<code>&lt;tool-name-lowercase&gt;_env</code> (e.g.,
+<code>star_env</code>, <code>rseqc_env</code>,
+<code>salmon_env</code>).</li>
+</ol>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RockefellerUniversity/Herper" class="external-link">Herper</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Path to .yml files to create environments</span></span>
+<span><span class="va">envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"bears"</span><span class="op">)</span>, pattern <span class="op">=</span> <span class="st">".yml"</span>,</span>
+<span>    full.names <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Install miniconda in `my_miniconda` and create envs</span></span>
+<span><span class="va">create_envs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">envs</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/Herper/man/SaveEnvironments.html" class="external-link">import_CondaEnv</a></span><span class="op">(</span><span class="va">x</span>, pathToMiniConda <span class="op">=</span> <span class="va">miniconda_path</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
+<p>Now, you can run functions that call external tools inside a call to
+<code>Herper::withCondaEnv()</code>. This function allows you to run an
+R function inside a particular Conda environment, which you need to
+specify. For example, to run the function <code><a href="../reference/salmon_quantify.html">salmon_quantify()</a></code>
+inside the environment <code>salmon_env</code>, you would do:</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">withCondaEnv</span><span class="op">(</span></span>
+<span>    <span class="st">"salmon_env"</span>, </span>
+<span>    <span class="va">quant_salmon</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/salmon_quantify.html">salmon_quantify</a></span><span class="op">(</span></span>
+<span>        <span class="va">new_metadata</span>,</span>
+<span>        filtdir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">filtdir</span>,</span>
+<span>        salmonindex <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmonindex</span>,</span>
+<span>        salmondir <span class="op">=</span> <span class="va">ds</span><span class="op">$</span><span class="va">salmondir</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    pathToMiniconda <span class="op">=</span> <span class="va">miniconda_path</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 class="unnumbered" id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
 <p>This document was created under the following sections:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
+<span><span class="co">#&gt;  version  R version 4.2.1 (2022-06-23)</span></span>
+<span><span class="co">#&gt;  os       Ubuntu 20.04.4 LTS</span></span>
+<span><span class="co">#&gt;  system   x86_64, linux-gnu</span></span>
+<span><span class="co">#&gt;  ui       X11</span></span>
+<span><span class="co">#&gt;  language en</span></span>
+<span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  tz       UTC</span></span>
+<span><span class="co">#&gt;  date     2022-09-28</span></span>
+<span><span class="co">#&gt;  pandoc   2.18 @ /usr/local/bin/ (via rmarkdown)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">package             </span> <span style="color: #555555; font-style: italic;">*</span> <span style="color: #555555; font-style: italic;">version  </span> <span style="color: #555555; font-style: italic;">date (UTC)</span> <span style="color: #555555; font-style: italic;">lib</span> <span style="color: #555555; font-style: italic;">source</span></span></span>
+<span><span class="co">#&gt;  bears                * 0.99.0    <span style="color: #555555;">2022-09-28</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  Biobase                2.56.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  BiocGenerics           0.42.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  BiocIO                 1.6.0     <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  BiocManager            1.30.18   <span style="color: #555555;">2022-05-18</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.1)</span></span></span>
+<span><span class="co">#&gt;  BiocParallel           1.30.3    <span style="color: #555555;">2022-06-05</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  BiocStyle            * 2.24.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  Biostrings             2.64.1    <span style="color: #555555;">2022-08-18</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  bitops                 1.0-7     <span style="color: #555555;">2021-04-24</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  bookdown               0.29      <span style="color: #555555;">2022-09-12</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  bslib                  0.4.0     <span style="color: #555555;">2022-07-16</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  cachem                 1.0.6     <span style="color: #555555;">2021-08-19</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  cli                    3.4.1     <span style="color: #555555;">2022-09-23</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  codetools              0.2-18    <span style="color: #555555;">2020-11-04</span> <span style="color: #555555;">[3]</span> <span style="color: #555555;">CRAN (R 4.2.1)</span></span></span>
+<span><span class="co">#&gt;  crayon                 1.5.1     <span style="color: #555555;">2022-03-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  curl                   4.3.2     <span style="color: #555555;">2021-06-23</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  DelayedArray           0.22.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  desc                   1.4.2     <span style="color: #555555;">2022-09-08</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  digest                 0.6.29    <span style="color: #555555;">2021-12-01</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  downloader             0.4       <span style="color: #555555;">2015-07-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  evaluate               0.16      <span style="color: #555555;">2022-08-09</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  fansi                  1.0.3     <span style="color: #555555;">2022-03-24</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  fastmap                1.1.0     <span style="color: #555555;">2021-01-25</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  fs                     1.5.2     <span style="color: #555555;">2021-12-08</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  GenomeInfoDb           1.32.4    <span style="color: #555555;">2022-09-06</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  GenomeInfoDbData       1.2.8     <span style="color: #555555;">2022-05-02</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  GenomicAlignments      1.32.1    <span style="color: #555555;">2022-07-24</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  GenomicRanges          1.48.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  glue                   1.6.2     <span style="color: #555555;">2022-02-24</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  highr                  0.9       <span style="color: #555555;">2021-04-16</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  htmltools              0.5.3     <span style="color: #555555;">2022-07-18</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  httr                   1.4.4     <span style="color: #555555;">2022-08-17</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  IRanges                2.30.1    <span style="color: #555555;">2022-08-18</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  jquerylib              0.1.4     <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  jsonlite               1.8.0     <span style="color: #555555;">2022-02-22</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  knitr                  1.40      <span style="color: #555555;">2022-08-24</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  lattice                0.20-45   <span style="color: #555555;">2021-09-22</span> <span style="color: #555555;">[3]</span> <span style="color: #555555;">CRAN (R 4.2.1)</span></span></span>
+<span><span class="co">#&gt;  lifecycle              1.0.2     <span style="color: #555555;">2022-09-09</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  magrittr               2.0.3     <span style="color: #555555;">2022-03-30</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  Matrix                 1.5-1     <span style="color: #555555;">2022-09-13</span> <span style="color: #555555;">[3]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  MatrixGenerics         1.8.1     <span style="color: #555555;">2022-06-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  matrixStats            0.62.0    <span style="color: #555555;">2022-04-19</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  memoise                2.0.1     <span style="color: #555555;">2021-11-26</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  pillar                 1.8.1     <span style="color: #555555;">2022-08-19</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  pkgconfig              2.0.3     <span style="color: #555555;">2019-09-22</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  pkgdown                2.0.6     <span style="color: #555555;">2022-07-16</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  purrr                  0.3.4     <span style="color: #555555;">2020-04-17</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  R6                     2.5.1     <span style="color: #555555;">2021-08-19</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  ragg                   1.2.2     <span style="color: #555555;">2022-02-21</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  RCurl                  1.98-1.8  <span style="color: #555555;">2022-07-30</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  rentrez                1.2.3     <span style="color: #555555;">2020-11-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  restfulr               0.0.15    <span style="color: #555555;">2022-06-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  rhdf5                  2.40.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  rhdf5filters           1.8.0     <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  Rhdf5lib               1.18.2    <span style="color: #555555;">2022-05-15</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  rjson                  0.2.21    <span style="color: #555555;">2022-01-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  rlang                  1.0.6     <span style="color: #555555;">2022-09-24</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  rmarkdown              2.16      <span style="color: #555555;">2022-08-24</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  rprojroot              2.0.3     <span style="color: #555555;">2022-04-02</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  Rsamtools              2.12.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  Rsubread               2.10.5    <span style="color: #555555;">2022-08-09</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  rtracklayer            1.56.1    <span style="color: #555555;">2022-06-23</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  S4Vectors              0.34.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  sass                   0.4.2     <span style="color: #555555;">2022-07-16</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  sessioninfo            1.2.2     <span style="color: #555555;">2021-12-06</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  stringi                1.7.8     <span style="color: #555555;">2022-07-11</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  stringr                1.4.1     <span style="color: #555555;">2022-08-20</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  SummarizedExperiment   1.26.1    <span style="color: #555555;">2022-04-29</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  systemfonts            1.0.4     <span style="color: #555555;">2022-02-11</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  textshaping            0.3.6     <span style="color: #555555;">2021-10-13</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  tibble                 3.1.8     <span style="color: #555555;">2022-07-22</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  tximport               1.24.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  utf8                   1.2.2     <span style="color: #555555;">2021-07-24</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  vctrs                  0.4.1     <span style="color: #555555;">2022-04-13</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  xfun                   0.33      <span style="color: #555555;">2022-09-12</span> <span style="color: #555555;">[2]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  XML                    3.99-0.10 <span style="color: #555555;">2022-06-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  XVector                0.36.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt;  yaml                   2.3.5     <span style="color: #555555;">2022-02-21</span> <span style="color: #555555;">[2]</span> <span style="color: #555555;">CRAN (R 4.2.0)</span></span></span>
+<span><span class="co">#&gt;  zlibbioc               1.42.0    <span style="color: #555555;">2022-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [1] /__w/_temp/Library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [2] /usr/local/lib/R/site-library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [3] /usr/local/lib/R/library</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">──────────────────────────────────────────────────────────────────────────────</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
