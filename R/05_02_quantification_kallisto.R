@@ -151,7 +151,7 @@ kallisto_quantify <- function(
             }
             if(var$layout == "SINGLE") {
                 frag_len <- 100
-                read_len <- qc_table[qc_table$Sample == var$biosample,
+                read_len <- qc_table[qc_table$Sample == var$run,
                                          "after_meanlength"]
                 if(read_len > 100) {
                     frag_len <- read_len + 100

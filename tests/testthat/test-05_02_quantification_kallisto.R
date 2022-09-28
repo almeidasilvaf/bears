@@ -11,6 +11,9 @@ sample_info$BioProject[2] <- "PRJNA229999"
 sample_info$Run[2] <- "SRR1039509"
 sample_info$Layout[2] <- "SINGLE" 
 
+qc_table <- summary_stats_fastp(system.file("extdata", package = "bears"))
+qc_table$Sample <- "SRR1039509"
+
 ## Create fake single-end FASTQ file
 fake_fastq <- c(
     "@SRR1039508.2486",
@@ -51,20 +54,20 @@ c1 <- file.copy(from = fqfiles[1], to = fastqdir)
 c2 <- file.copy(from = fqfiles[2], to = fastqdir)
 
 # Path to files and directories used in this set of tests
-salmonindex <- file.path(tempdir(), "salmonidx")
+kallistoindex <- file.path(tempdir(), "kallistoidx")
 transcriptome_path <- system.file(
     "extdata", "Homo_sapiens.GRCh37.75_subset_transcripts.fa.gz", 
     package = "bears"
 )
-salmondir <- file.path(tempdir(), "salmon_quant")
+kallistodir <- file.path(tempdir(), "kallisto_quant")
 
 ## Create a random SummarizedExperiment object
 nrows <- 200
 ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 colData <- data.frame(
-    Treatment=rep(c("ChIP", "Input"), 3),
-    row.names=LETTERS[1:6]
+    Treatment = rep(c("ChIP", "Input"), 3),
+    row.names = LETTERS[1:6]
 )
 se_random <- SummarizedExperiment::SummarizedExperiment(
     assays = list(counts = counts), colData = colData
@@ -92,31 +95,34 @@ Sys.setenv(
 
 
 #----Start tests----------------------------------------------------------------
-test_that("salmon_index(), salmon_quantify(), and salmon2se() work", {
+test_that("kallisto_index(), kallisto_quantify(), and kallisto2se() work", {
     
-    si <- data.frame()
-    sq <- data.frame()
+    ki <- data.frame()
+    kq <- data.frame()
     se_gene <- se_random
     se_tx <- se_random
     se_both <- list()
     
     if(salmon_is_installed()) {
-        si <- salmon_index(salmonindex, transcriptome_path)
-        sq <- salmon_quantify(
-            sample_info, fastqdir, salmonindex, salmondir
+        ki <- kallisto_index(kallistoindex, transcriptome_path)
+        kq <- kallisto_quantify(
+            sample_info, 
+            qc_table = qc_table, 
+            filtdir = fastqdir, kallistoindex = kallistoindex, 
+            kallistodir = kallistodir
         )
-        d <- fs::dir_delete(file.path(salmondir, "SAMN02422670"))
-        se_gene <- salmon2se(sample_info[1, ], "gene", salmondir, tx2gene)
-        se_tx <- salmon2se(sample_info[1, ], "transcript", salmondir, tx2gene)
-        se_both <- salmon2se(sample_info[1, ], "both", salmondir, tx2gene)
+        d <- fs::dir_delete(file.path(kallistodir, "SAMN02422670"))
+        se_gene <- kallisto2se(sample_info[1, ], "gene", kallistodir, tx2gene)
+        se_tx <- kallisto2se(sample_info[1, ], "transcript", kallistodir, tx2gene)
+        se_both <- kallisto2se(sample_info[1, ], "both", kallistodir, tx2gene)
         
         expect_error(
-            salmon2se(sample_info[1, ], "error", salmondir, tx2gene)
+            kallisto2se(sample_info[1, ], "error", kallistodir, tx2gene)
         )
     }
     
-    expect_equal(class(si), "data.frame")
-    expect_equal(class(sq), "data.frame")
+    expect_equal(class(ki), "data.frame")
+    expect_equal(class(kq), "data.frame")
     
     expect_true("SummarizedExperiment" %in% class(se_gene))
     expect_true("SummarizedExperiment" %in% class(se_tx))
@@ -124,7 +130,7 @@ test_that("salmon_index(), salmon_quantify(), and salmon2se() work", {
 })
 
 
-test_that("run2biosample_salmon() handles technical replicates", {
+test_that("run2biosample_kallisto() handles technical replicates", {
     
     r1 <- run2biosample_salmon(sample_info, fastqdir)
     
