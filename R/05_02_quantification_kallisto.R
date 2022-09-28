@@ -197,7 +197,7 @@ kallisto_quantify <- function(
 #' @examples 
 #' data(sample_info)
 #' data(tx2gene)
-#' kallistodir <- system.file("extdata", package="bears")
+#' kallistodir <- system.file("extdata", package = "bears")
 #' se_gene <- kallisto2se(sample_info, kallistodir = kallistodir, 
 #'                        tx2gene = tx2gene)
 kallisto2se <- function(sample_info = NULL, level="gene", 

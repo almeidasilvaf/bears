@@ -37,7 +37,7 @@ Create a SummarizedExperiment object from kallisto output
 \examples{
 data(sample_info)
 data(tx2gene)
-kallistodir <- system.file("extdata", package="bears")
+kallistodir <- system.file("extdata", package = "bears")
 se_gene <- kallisto2se(sample_info, kallistodir = kallistodir, 
                        tx2gene = tx2gene)
 }
