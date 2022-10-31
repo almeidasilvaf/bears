@@ -127,10 +127,12 @@ salmon_quantify <- function(sample_info = NULL,
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     t <- lapply(seq_len(nrow(sample_meta)), function(x) {
         var <- var2list(sample_meta, index = x)
+        
         file <- paste0(filtdir, "/", var$run, ".fastq.gz")
         if(var$layout == "PAIRED") { 
             file <- paste0(filtdir, "/", var$run, "_1.fastq.gz") 
         }
+        
         if(skip(var$platform, path = file)) {
             message("Skipping file...")
         } else {

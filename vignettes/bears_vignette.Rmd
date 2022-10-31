@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
     eval = TRUE,
-    crop = NULL ## Related to https://stat.ethz.ch/pipermail/bioc-devel/2020-April/016656.html
+    crop = NULL
 )
 ```
 
@@ -833,6 +833,47 @@ withCondaEnv(
     ),
     pathToMiniconda = miniconda_path
 )
+```
+
+> Can I use this package with my own RNA-seq data (not from a database)?
+
+You surely can. For that, you will first need to create a metadata data frame
+for your samples that looks like the data frame created 
+by `create_sample_info()` (see the example data set `sample_info`). While you
+can add as many columns as you want, 5 columns **MUST** be present:
+
+1. **BioSample:** BioSample ID. These can be fictional sample names, 
+e.g., "Sample1", "Sample2", "Sample3", etc.
+
+2. **Run:** Run accession. These must be the basename of your files. Make sure
+you don't repeat run accessions for paired-end reads, i.e., files 
+*example_1.fastq.gz* and *example_2.fastq.gz* should both be represented by 
+the same run accession. Examples of file names and the run accessions they
+should have:
+
+| Layout | File name | Run accession | 
+|:----|:----------|:--------------|
+| PAIRED | *SampleA_1.fastq.gz* and *SampleA_2.fastq.gz* | SampleA |
+| SINGLE | *Sample1_control_replicate1.fastq.gz* | Sample1_control_replicate1 |
+
+
+3. **BioProject:** Project ID. If all files come from a single project, you
+can give it whatever name you want, such as *MyNicePhDProject*.
+
+4. **Instrument:** Sequencing instrument (e.g., *Illumina HiSeq 2500*). Note
+that long-read technologies (e.g., PacBio) are not supported and, hence,
+will be skipped.
+
+5. **Layout:** Sequencing protocol. Either "PAIRED" or "SINGLE".
+
+
+Finally, if you want to create a standard directory structure with
+`create_dir_structure()`, you will have to either move your files to
+the directory indicated in `ds$fastqdir` or change `ds$fastqdir` manually
+to include the path to the directory where your FASTQ files are. For example:
+
+```{r eval = FALSE}
+ds$fastqdir <- "/home/myusername/my_nice_project/fastq_files"
 ```
 
 
