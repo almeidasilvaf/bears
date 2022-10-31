@@ -47,6 +47,7 @@ Sys.setenv(
         sep = ":"
     )
 )
+options(timeout = 60000)
 ```
 
 # Introduction
