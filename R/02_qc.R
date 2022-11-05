@@ -211,6 +211,47 @@ summary_stats_fastp <- function(fastp_qcdir = "results/QC_dir/fastp_stats") {
     return(parsed)
 }
 
+#' Get salmon mapping rate for each BioSample
+#' 
+#' @param salmondir Path to the directory where salmon
+#' output files are.
+#' @param biosamples A character vector of BioSample IDs that were 
+#' quantified with salmon.
+#'
+#' @return A 2-column data frame with the following variables:
+#' \describe{
+#'   \item{BioSample}{Character, BioSample IDs.}
+#'   \item{Mapping_rate}{Numeric, mapping rate. Values range from 0 to 100.}
+#' }
+#' 
+#' @export
+#' @rdname summary_stats_salmon
+#' @examples
+#' salmondir <- system.file("extdata", package = "bears")
+#' biosamples <- "SAMN02422669"
+#' summary_stats_salmon(salmondir, biosamples)
+summary_stats_salmon <- function(salmondir, biosamples) {
+    
+    map_rate <- Reduce(rbind, lapply(biosamples, function(x) {
+        logpath <- file.path(salmondir, x, "logs", "salmon_quant.log")
+        lines <- readLines(logpath)
+        rate <- lines[grep("Mapping rate", lines)]
+        rate <- gsub(".* Mapping rate = ", "", rate)
+        rate <- as.numeric(gsub("%", "", rate))
+        if(length(rate) < 1) {
+            rate <- NA
+        }
+        rate_summary <- data.frame(
+            BioSample = x,
+            Mapping_rate = rate
+        )
+        return(rate_summary)
+    }))
+    
+    return(map_rate)
+}
+
+
 
 
 

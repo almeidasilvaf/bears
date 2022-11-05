@@ -250,6 +250,10 @@ stringtie_quantify <- function(
 #' @param tx2gene Data frame of correspondence between genes and transcripts, 
 #' with gene IDs in the first column and transcript IDs in the second column.
 #' Only required if level = 'gene' or 'both'. 
+#' @param countsFromAbundance Exactly as in \code{tximport::tximport},
+#' whether ot not to generate estimated counts using abundance estimates.
+#' One of "lengthScaledTPM" (default), "scaledTPM", "no", or "dtuScaledTPM".
+#' See ?tximport for details.
 #' 
 #' @return A SummarizedExperiment object with gene/transcript expression
 #' levels and sample metadata.
@@ -273,7 +277,9 @@ stringtie_quantify <- function(
 stringtie2se <- function(sample_info = NULL,
                          stringtiedir = "results/05_quantification/stringtie",
                          level = "gene",
-                         tx2gene = NULL) {
+                         tx2gene = NULL,
+                         countsFromAbundance = "lengthScaledTPM") {
+    
     quantdir <- paste0(stringtiedir, "/quant")
     dirs <- list.dirs(quantdir, full.names = TRUE, recursive=FALSE)
     dirs <- dirs[grepl("SAMN", dirs)]
@@ -287,19 +293,28 @@ stringtie2se <- function(sample_info = NULL,
     coldata <- cbind(coldata, sample_meta[, !names(sample_meta) == "BioSample"])
     
     if(level == "gene") {
-        exp <- tximport::tximport(files, type = "stringtie", tx2gene = tx2gene)
+        exp <- tximport::tximport(
+            files, type = "stringtie", tx2gene = tx2gene,
+            countsFromAbundance = countsFromAbundance
+        )
         final <- SummarizedExperiment::SummarizedExperiment(
             assays = list(gene_TPM = exp$abundance),
             colData = coldata
         )
     } else if(level == "transcript") {
-        exp <- tximport::tximport(files, type = "stringtie", txOut = TRUE)
+        exp <- tximport::tximport(
+            files, type = "stringtie", txOut = TRUE,
+            countsFromAbundance = countsFromAbundance
+        )
         final <- SummarizedExperiment::SummarizedExperiment(
             assays = list(tx_TPM = exp$abundance),
             colData = coldata
         )
     } else if(level == "both") {
-        exp_tx <- tximport::tximport(files, type = "stringtie", txOut = TRUE)
+        exp_tx <- tximport::tximport(
+            files, type = "stringtie", txOut = TRUE,
+            countsFromAbundance = countsFromAbundance
+        )
         exp_gene <- tximport::summarizeToGene(exp_tx, tx2gene)
         se_gene <- SummarizedExperiment::SummarizedExperiment(
             assays = list(gene_TPM = exp_gene$abundance),

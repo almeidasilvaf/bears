@@ -54,4 +54,14 @@ test_that("summary_stats(fastp() returns a data frame of summary stats", {
     expect_equal(ncol(fastp_summary), 24)
 })
 
+test_that("summary_stats_salmon() returns a 2-column data frame", {
+    
+    salmondir <- system.file("extdata", package = "bears")
+    biosamples <- "SAMN02422669"
+    s <- summary_stats_salmon(salmondir, biosamples)
+    
+    expect_equal(class(s), "data.frame")
+    expect_equal(ncol(s), 2)
+    
+})
 

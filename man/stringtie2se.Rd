@@ -8,7 +8,8 @@ stringtie2se(
   sample_info = NULL,
   stringtiedir = "results/05_quantification/stringtie",
   level = "gene",
-  tx2gene = NULL
+  tx2gene = NULL,
+  countsFromAbundance = "lengthScaledTPM"
 )
 }
 \arguments{
@@ -25,6 +26,11 @@ and "gene".}
 \item{tx2gene}{Data frame of correspondence between genes and transcripts,
 with gene IDs in the first column and transcript IDs in the second column.
 Only required if level = 'gene' or 'both'.}
+
+\item{countsFromAbundance}{Exactly as in \code{tximport::tximport},
+whether ot not to generate estimated counts using abundance estimates.
+One of "lengthScaledTPM" (default), "scaledTPM", "no", or "dtuScaledTPM".
+See ?tximport for details.}
 }
 \value{
 A SummarizedExperiment object with gene/transcript expression

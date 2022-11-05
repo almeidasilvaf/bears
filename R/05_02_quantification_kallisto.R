@@ -187,6 +187,10 @@ kallisto_quantify <- function(
 #' @param tx2gene Data frame of correspondence between genes and transcripts, 
 #' with gene IDs in the first column and transcript IDs in the second column.
 #' Only required if level = 'gene' or 'both'. 
+#' @param countsFromAbundance Exactly as in \code{tximport::tximport},
+#' whether ot not to generate estimated counts using abundance estimates.
+#' One of "lengthScaledTPM" (default), "scaledTPM", "no", or "dtuScaledTPM".
+#' See ?tximport for details.
 #'
 #' @return A SummarizedExperiment object with gene/transcript expression
 #' levels and sample metadata.
@@ -202,7 +206,9 @@ kallisto_quantify <- function(
 #'                        tx2gene = tx2gene)
 kallisto2se <- function(sample_info = NULL, level="gene", 
                         kallistodir = "results/05_quantification/kallisto", 
-                        tx2gene = NULL) {
+                        tx2gene = NULL,
+                        countsFromAbundance = "lengthScaledTPM") {
+    
     sample_meta <- sample_info[!duplicated(sample_info$BioSample), ]
     files <- file.path(kallistodir, sample_meta$BioSample, "abundance.tsv")
     names(files) <- paste0(sample_meta$BioSample)
@@ -210,19 +216,28 @@ kallisto2se <- function(sample_info = NULL, level="gene",
     coldata <- cbind(coldata, sample_meta[, !names(sample_meta) == "BioSample"])
     
     if(level == "gene") {
-        exp <- tximport::tximport(files, type = "kallisto", tx2gene = tx2gene)
+        exp <- tximport::tximport(
+            files, type = "kallisto", tx2gene = tx2gene,
+            countsFromAbundance = countsFromAbundance
+        )
         final <- SummarizedExperiment::SummarizedExperiment(
             assays = list(gene_TPM = exp$abundance, gene_counts = exp$counts),
             colData = coldata
         )
     } else if(level == "transcript") {
-        exp <- tximport::tximport(files, type = "kallisto", txOut = TRUE)
+        exp <- tximport::tximport(
+            files, type = "kallisto", txOut = TRUE,
+            countsFromAbundance = countsFromAbundance
+        )
         final <- SummarizedExperiment::SummarizedExperiment(
             assays = list(tx_TPM = exp$abundance, tx_counts = exp$counts),
             colData = coldata
         )
     } else if(level == "both") {
-        exp_tx <- tximport::tximport(files, type = "kallisto", txOut = TRUE)
+        exp_tx <- tximport::tximport(
+            files, type = "kallisto", txOut = TRUE,
+            countsFromAbundance = countsFromAbundance
+        )
         exp_gene <- tximport::summarizeToGene(exp_tx, tx2gene)
         se_gene <- SummarizedExperiment::SummarizedExperiment(
             assays = list(gene_TPM = exp_gene$abundance, 
