@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+experimental](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Codecov test
 coverage](https://codecov.io/gh/almeidasilvaf/bears/branch/main/graph/badge.svg)](https://codecov.io/gh/almeidasilvaf/bears?branch=main)
 [![R-CMD-check-bioc](https://github.com/almeidasilvaf/bears/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/almeidasilvaf/bears/actions)
@@ -16,7 +16,7 @@ The goal of `bears` is to download RNA-seq data from NCBI SRA,
 preprocess them, map to the reference genome, and quantify the
 expression at the gene level. The goal of bears is to make RNA-seq data
 analysis pipelines reproducible, with a framework built on state-of-the
-art methods and softwares.
+art methods and software tools.
 
 ## Installation instructions
 
